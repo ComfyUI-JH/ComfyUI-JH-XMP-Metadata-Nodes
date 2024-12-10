@@ -1,6 +1,5 @@
 from enum import Enum
 import os
-from pathlib import Path
 import re
 
 import json
@@ -95,14 +94,14 @@ class JHSaveImageWithXMPMetadata:
             attrib={"{http://www.w3.org/1999/02/22-rdf-syntax-ns#}about": ""}
         )
 
-        # dc:description
+        # description → dc:description
         if description:
             dc_description_element = etree.SubElement(rdf_description, "{http://purl.org/dc/elements/1.1/}description")
             alt = etree.SubElement(dc_description_element, "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Alt")
             li = etree.SubElement(alt, "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li", attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"})
             li.text = description
 
-        # dc:subject
+        # subject → dc:subject
         if subject:
             dc_subject_set = set(self.string_to_list(subject))
             dc_subject_element = etree.SubElement(rdf_description, "{http://purl.org/dc/elements/1.1/}subject")
@@ -111,24 +110,24 @@ class JHSaveImageWithXMPMetadata:
                 li = etree.SubElement(seq, "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li", attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"})
                 li.text = subject
 
-        # dc:title
+        # title → dc:title
         if title:
             dc_title_element = etree.SubElement(rdf_description, "{http://purl.org/dc/elements/1.1/}title")
             alt = etree.SubElement(dc_title_element, "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Alt")
             li = etree.SubElement(alt, "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li", attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"})
             li.text = title
         
-        # photoshop:Instructions
+        # instructions →photoshop:Instructions
         if instructions:
             photoshop_instructions_element = etree.SubElement(rdf_description, "{http://ns.adobe.com/photoshop/1.0/}Instructions")
             photoshop_instructions_element.text = instructions
         
-        # tiff:Make
+        # make → tiff:Make
         if make:
             tiff_make_element = etree.SubElement(rdf_description, "{http://ns.adobe.com/tiff/1.0/}Make")
             tiff_make_element.text = make
         
-        # tiff:Model
+        # model → tiff:Model
         if model:
             tiff_model_element = etree.SubElement(rdf_description, "{http://ns.adobe.com/tiff/1.0/}Model")
             tiff_model_element.text = model
