@@ -34,14 +34,12 @@ class JHSaveImageWithXMPMetadata:
                 "embed_workflow": ("BOOLEAN", {"default": True}),
             },
             "optional": {
-                "dc_creator": ("STRING",),
-                "xmp_creator_tool": ("STRING",),
-                "dc_description": ("STRING",),
-                "dc_subject": ("STRING",),
-                "dc_title": ("STRING",),
-                "photoshop_instructions": ("STRING",),
-                "tiff_make": ("STRING",),
-                "tiff_model": ("STRING",),
+                "description": ("STRING",),
+                "subject": ("STRING",),
+                "title": ("STRING",),
+                "instructions": ("STRING",),
+                "make": ("STRING", {"default": "ComfyUI"}),
+                "model": ("STRING",),
             },
             "hidden": {
                 "prompt": "PROMPT",
@@ -58,14 +56,12 @@ class JHSaveImageWithXMPMetadata:
 
     def generate_xmpmeta(
             self,
-            dc_creator=None,
-            xmp_creator_tool=None,
-            dc_description=None,
-            dc_subject=None,
-            dc_title=None,
-            photoshop_instructions=None,
-            tiff_make=None,
-            tiff_model=None,
+            description=None,
+            subject=None,
+            title=None,
+            instructions=None,
+            make=None,
+            model=None,
             ):
  
         #
@@ -99,57 +95,43 @@ class JHSaveImageWithXMPMetadata:
             attrib={"{http://www.w3.org/1999/02/22-rdf-syntax-ns#}about": ""}
         )
 
-        # dc:creator
-        if dc_creator:
-            dc_creator_list = self.string_to_list(dc_creator)
-            dc_creator_element = etree.SubElement(rdf_description, "{http://purl.org/dc/elements/1.1/}creator")
-            seq = etree.SubElement(dc_creator_element, "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Seq")
-            for s in dc_creator_list:
-                li = etree.SubElement(seq, "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li", attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"})
-                li.text = s
-        
-        # xmp:CreatorTool
-        if xmp_creator_tool:
-            xmp_creator_tool_element = etree.SubElement(rdf_description, "{http://ns.adobe.com/xap/1.0/}CreatorTool")
-            xmp_creator_tool_element.text = xmp_creator_tool
-
         # dc:description
-        if dc_description:
+        if description:
             dc_description_element = etree.SubElement(rdf_description, "{http://purl.org/dc/elements/1.1/}description")
             alt = etree.SubElement(dc_description_element, "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Alt")
             li = etree.SubElement(alt, "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li", attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"})
-            li.text = dc_description
+            li.text = description
 
         # dc:subject
-        if dc_subject:
-            dc_subject_set = set(self.string_to_list(dc_subject))
+        if subject:
+            dc_subject_set = set(self.string_to_list(subject))
             dc_subject_element = etree.SubElement(rdf_description, "{http://purl.org/dc/elements/1.1/}subject")
             seq = etree.SubElement(dc_subject_element, "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Seq")
-            for dc_subject in dc_subject_set:
+            for subject in dc_subject_set:
                 li = etree.SubElement(seq, "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li", attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"})
-                li.text = dc_subject
+                li.text = subject
 
         # dc:title
-        if dc_title:
+        if title:
             dc_title_element = etree.SubElement(rdf_description, "{http://purl.org/dc/elements/1.1/}title")
             alt = etree.SubElement(dc_title_element, "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Alt")
             li = etree.SubElement(alt, "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li", attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"})
-            li.text = dc_title
+            li.text = title
         
         # photoshop:Instructions
-        if photoshop_instructions:
+        if instructions:
             photoshop_instructions_element = etree.SubElement(rdf_description, "{http://ns.adobe.com/photoshop/1.0/}Instructions")
-            photoshop_instructions_element.text = photoshop_instructions
+            photoshop_instructions_element.text = instructions
         
         # tiff:Make
-        if tiff_make:
+        if make:
             tiff_make_element = etree.SubElement(rdf_description, "{http://ns.adobe.com/tiff/1.0/}Make")
-            tiff_make_element.text = tiff_make
+            tiff_make_element.text = make
         
         # tiff:Model
-        if tiff_model:
+        if model:
             tiff_model_element = etree.SubElement(rdf_description, "{http://ns.adobe.com/tiff/1.0/}Model")
-            tiff_model_element.text = tiff_model
+            tiff_model_element.text = model
         
         # Done!
         return xmpmeta
@@ -172,14 +154,12 @@ class JHSaveImageWithXMPMetadata:
             filename_prefix="ComfyUI",
             image_type=JHSupportedImageTypes.PNG.value,
             embed_workflow=True,
-            dc_creator=None,
-            xmp_creator_tool=None,
-            dc_description=None,
-            dc_subject=None,
-            dc_title=None,
-            photoshop_instructions=None,
-            tiff_make=None,
-            tiff_model=None,
+            description=None,
+            subject=None,
+            title=None,
+            instructions=None,
+            make=None,
+            model=None,
             prompt=None,
             extra_pnginfo=None
             ):
@@ -194,14 +174,12 @@ class JHSaveImageWithXMPMetadata:
                 filename_extension = "webp"
 
         xmpmeta = self.generate_xmpmeta(
-            dc_creator=dc_creator,
-            xmp_creator_tool=xmp_creator_tool,
-            dc_description=dc_description,
-            dc_subject=dc_subject,
-            dc_title=dc_title,
-            photoshop_instructions=photoshop_instructions,
-            tiff_make=tiff_make,
-            tiff_model=tiff_model
+            description=description,
+            subject=subject,
+            title=title,
+            instructions=instructions,
+            make=make,
+            model=model
         )
         
         for (batch_number, image) in enumerate(images):
@@ -223,7 +201,6 @@ class JHSaveImageWithXMPMetadata:
 
                     img.save(os.path.join(full_output_folder, file), pnginfo=pnginfo, compress_level=self.compress_level)
  
-
                 case JHSupportedImageTypes.WEBP.value:
                     if embed_workflow:
                         exif_dict = {}
