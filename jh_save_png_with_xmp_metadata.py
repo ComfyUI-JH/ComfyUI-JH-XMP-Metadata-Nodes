@@ -37,29 +37,33 @@ class JHSavePNGWithXMPMetadata:
                 "embed_workflow": ("BOOLEAN", {"default": True}),
             },
             "optional": {
+                "creator": (
+                    "STRING",
+                    {"tooltip": ("dc:creator"), "forceInput": True},
+                ),
                 "title": (
                     "STRING",
-                    {"tooltip": ("dc:title")},
+                    {"tooltip": ("dc:title"), "forceInput": True},
                 ),
                 "description": (
                     "STRING",
-                    {"tooltip": ("dc:description")},
+                    {"tooltip": ("dc:description"), "forceInput": True},
                 ),
                 "subject": (
                     "STRING",
-                    {"tooltip": ("dc:subject")},
+                    {"tooltip": ("dc:subject"), "forceInput": True},
                 ),
                 "instructions": (
                     "STRING",
-                    {"tooltip": ("photoshop:Instructions")},
+                    {"tooltip": ("photoshop:Instructions"), "forceInput": True},
                 ),
                 "make": (
                     "STRING",
-                    {"tooltip": ("tiff:Make")},
+                    {"tooltip": ("tiff:Make"), "forceInput": True},
                 ),
                 "model": (
                     "STRING",
-                    {"tooltip": ("tiff:Model")},
+                    {"tooltip": ("tiff:Model"), "forceInput": True},
                 ),
             },
             "hidden": {
@@ -78,9 +82,10 @@ class JHSavePNGWithXMPMetadata:
         images,
         filename_prefix="ComfyUI",
         embed_workflow=True,
+        creator=None,
+        title=None,
         description=None,
         subject=None,
-        title=None,
         instructions=None,
         make=None,
         model=None,
@@ -96,19 +101,48 @@ class JHSavePNGWithXMPMetadata:
         filename_extension = "png"
         results = list()
 
-        xmpmetadata = JHXMPMetadata()
-        xmpmetadata.title = title
-        xmpmetadata.description = description
-        xmpmetadata.subject = subject
-        xmpmetadata.instructions = instructions
-        xmpmetadata.make = make
-        xmpmetadata.model = model
-
         for batch_number, image in enumerate(images):
             i = 255.0 * image.cpu().numpy()
             img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
             filename_with_batch_num = filename.replace("%batch_num%", str(batch_number))
             file = f"{filename_with_batch_num}_{counter:05}_.{filename_extension}"
+
+            xmpmetadata = JHXMPMetadata()
+
+            if isinstance(creator, list):
+                xmpmetadata.creator = creator[batch_number]
+            else:
+                xmpmetadata.creator = creator
+
+            if isinstance(title, list):
+                xmpmetadata.title = title[batch_number]
+            else:
+                xmpmetadata.title = title
+
+            if isinstance(description, list):
+                xmpmetadata.description = description[batch_number]
+            else:
+                xmpmetadata.description = description
+
+            if isinstance(subject, list):
+                xmpmetadata.subject = subject[batch_number]
+            else:
+                xmpmetadata.subject = subject
+
+            if isinstance(instructions, list):
+                xmpmetadata.instructions = instructions[batch_number]
+            else:
+                xmpmetadata.instructions = instructions
+
+            if isinstance(make, list):
+                xmpmetadata.make = make[batch_number]
+            else:
+                xmpmetadata.make = make
+
+            if isinstance(model, list):
+                xmpmetadata.model = model[batch_number]
+            else:
+                xmpmetadata.model = model
 
             pnginfo = PngInfo()
             pnginfo.add_text("XML:com.adobe.xmp", xmpmetadata.to_wrapped_string())
@@ -130,4 +164,4 @@ class JHSavePNGWithXMPMetadata:
             )
             counter += 1
 
-        return {"result": images, "ui": {"images": results}}
+        return {"result": (images,), "ui": {"images": results}}
