@@ -11,12 +11,7 @@ import folder_paths
 from .jh_xmp_metadata import JHXMPMetadata
 
 
-class JHSupportedImageTypes(Enum):
-    PNG = "PNG"
-    WEBP = "WebP"
-
-
-class JHSaveImageWithXMPMetadata:
+class JHSavePNGWithXMPMetadata:
     def __init__(self):
         self.output_dir = folder_paths.get_output_directory()
         self.type = "output"
@@ -35,12 +30,6 @@ class JHSaveImageWithXMPMetadata:
                         "tooltip": "The prefix for the file to save. This may include formatting information such as %date:yyyy-MM-dd% or %Empty Latent Image.width% to include values from nodes.",
                     },
                 ),
-                "image_type": (
-                    [x.value for x in JHSupportedImageTypes],
-                    {
-                        "default": JHSupportedImageTypes.PNG.value,
-                    },
-                ),
                 "embed_workflow": ("BOOLEAN", {"default": True}),
             },
             "optional": {
@@ -48,7 +37,7 @@ class JHSaveImageWithXMPMetadata:
                 "subject": ("STRING",),
                 "title": ("STRING",),
                 "instructions": ("STRING",),
-                "make": ("STRING", {"default": "ComfyUI"}),
+                "make": ("STRING",),
                 "model": ("STRING",),
             },
             "hidden": {
@@ -66,7 +55,6 @@ class JHSaveImageWithXMPMetadata:
         self,
         images,
         filename_prefix="ComfyUI",
-        image_type=JHSupportedImageTypes.PNG.value,
         embed_workflow=True,
         description=None,
         subject=None,
@@ -83,13 +71,8 @@ class JHSaveImageWithXMPMetadata:
                 filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0]
             )
         )
+        filename_extension = "png"
         results = list()
-
-        match image_type:
-            case JHSupportedImageTypes.PNG.value:
-                filename_extension = "png"
-            case JHSupportedImageTypes.WEBP.value:
-                filename_extension = "webp"
 
         xmpmetadata = JHXMPMetadata()
         xmpmetadata.title = title
@@ -105,50 +88,24 @@ class JHSaveImageWithXMPMetadata:
             filename_with_batch_num = filename.replace("%batch_num%", str(batch_number))
             file = f"{filename_with_batch_num}_{counter:05}_.{filename_extension}"
 
-            match image_type:
-                case JHSupportedImageTypes.PNG.value:
-                    pnginfo = PngInfo()
+            pnginfo = PngInfo()
+            pnginfo.add_text(
+                "XML:com.adobe.xmp", xmpmetadata.to_wrapped_string()
+            )
+
+            if embed_workflow:
+                if prompt is not None:
+                    pnginfo.add_text("prompt", json.dumps(prompt))
+                if extra_pnginfo is not None:
                     pnginfo.add_text(
-                        "XML:com.adobe.xmp", xmpmetadata.to_wrapped_string()
+                        "workflow", json.dumps(extra_pnginfo["workflow"])
                     )
 
-                    if embed_workflow:
-                        if prompt is not None:
-                            pnginfo.add_text("prompt", json.dumps(prompt))
-                        if extra_pnginfo is not None:
-                            pnginfo.add_text(
-                                "workflow", json.dumps(extra_pnginfo["workflow"])
-                            )
-
-                    img.save(
-                        os.path.join(full_output_folder, file),
-                        pnginfo=pnginfo,
-                        compress_level=self.compress_level,
-                    )
-
-                case JHSupportedImageTypes.WEBP.value:
-                    if embed_workflow:
-                        exif_dict = {}
-                        if prompt is not None:
-                            exif_dict["prompt"] = json.dumps(prompt)
-                        if extra_pnginfo is not None:
-                            exif_dict.update(extra_pnginfo)
-
-                        exif = img.getexif()
-                        exif_addr = ExifTags.Base.UserComment
-                        for key in exif_dict:
-                            exif[exif_addr] = "{}:{}".format(
-                                key, json.dumps(exif_dict[key])
-                            )
-                            exif_addr -= 1
-
-                    img.save(
-                        os.path.join(full_output_folder, file),
-                        exif=exif,
-                        xmp=xmpmetadata.to_wrapped_string(),
-                        quality=100,
-                        lossless=True,
-                    )
+            img.save(
+                os.path.join(full_output_folder, file),
+                pnginfo=pnginfo,
+                compress_level=self.compress_level,
+            )
 
             results.append(
                 {"filename": file, "subfolder": subfolder, "type": self.type}
