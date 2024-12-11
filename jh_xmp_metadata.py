@@ -150,7 +150,7 @@ class JHXMPMetadata:
                 )
                 _li.text = self._subject
 
-        # instructions →photoshop:Instructions
+        # instructions → photoshop:Instructions
         if self._instructions:
             _photoshop_instructions_element = etree.SubElement(
                 self._rdf_description,
