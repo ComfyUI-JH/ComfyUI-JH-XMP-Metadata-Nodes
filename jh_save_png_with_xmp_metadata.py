@@ -27,18 +27,40 @@ class JHSavePNGWithXMPMetadata:
                     "STRING",
                     {
                         "default": "ComfyUI",
-                        "tooltip": "The prefix for the file to save. This may include formatting information such as %date:yyyy-MM-dd% or %Empty Latent Image.width% to include values from nodes.",
+                        "tooltip": (
+                            "The prefix for the file to save. This may include formatting "
+                            "information such as %date:yyyy-MM-dd% or %Empty Latent Image.width% "
+                            "to include values from nodes."
+                        ),
                     },
                 ),
                 "embed_workflow": ("BOOLEAN", {"default": True}),
             },
             "optional": {
-                "description": ("STRING",),
-                "subject": ("STRING",),
-                "title": ("STRING",),
-                "instructions": ("STRING",),
-                "make": ("STRING",),
-                "model": ("STRING",),
+                "title": (
+                    "STRING",
+                    {"tooltip": ("dc:title")},
+                ),
+                "description": (
+                    "STRING",
+                    {"tooltip": ("dc:description")},
+                ),
+                "subject": (
+                    "STRING",
+                    {"tooltip": ("dc:subject")},
+                ),
+                "instructions": (
+                    "STRING",
+                    {"tooltip": ("photoshop:Instructions")},
+                ),
+                "make": (
+                    "STRING",
+                    {"tooltip": ("tiff:Make")},
+                ),
+                "model": (
+                    "STRING",
+                    {"tooltip": ("tiff:Model")},
+                ),
             },
             "hidden": {
                 "prompt": "PROMPT",
@@ -89,17 +111,13 @@ class JHSavePNGWithXMPMetadata:
             file = f"{filename_with_batch_num}_{counter:05}_.{filename_extension}"
 
             pnginfo = PngInfo()
-            pnginfo.add_text(
-                "XML:com.adobe.xmp", xmpmetadata.to_wrapped_string()
-            )
+            pnginfo.add_text("XML:com.adobe.xmp", xmpmetadata.to_wrapped_string())
 
             if embed_workflow:
                 if prompt is not None:
                     pnginfo.add_text("prompt", json.dumps(prompt))
                 if extra_pnginfo is not None:
-                    pnginfo.add_text(
-                        "workflow", json.dumps(extra_pnginfo["workflow"])
-                    )
+                    pnginfo.add_text("workflow", json.dumps(extra_pnginfo["workflow"]))
 
             img.save(
                 os.path.join(full_output_folder, file),

@@ -27,18 +27,40 @@ class JHSaveWebPWithXMPMetadata:
                     "STRING",
                     {
                         "default": "ComfyUI",
-                        "tooltip": "The prefix for the file to save. This may include formatting information such as %date:yyyy-MM-dd% or %Empty Latent Image.width% to include values from nodes.",
+                        "tooltip": (
+                            "The prefix for the file to save. This may include formatting "
+                            "information such as %date:yyyy-MM-dd% or %Empty Latent Image.width% "
+                            "to include values from nodes."
+                        ),
                     },
                 ),
                 "lossless": ("BOOLEAN", {"default": True}),
             },
             "optional": {
-                "description": ("STRING",),
-                "subject": ("STRING",),
-                "title": ("STRING",),
-                "instructions": ("STRING",),
-                "make": ("STRING", {"default": "ComfyUI"}),
-                "model": ("STRING",),
+                "title": (
+                    "STRING",
+                    {"tooltip": ("dc:title")},
+                ),
+                "description": (
+                    "STRING",
+                    {"tooltip": ("dc:description")},
+                ),
+                "subject": (
+                    "STRING",
+                    {"tooltip": ("dc:subject")},
+                ),
+                "instructions": (
+                    "STRING",
+                    {"tooltip": ("photoshop:Instructions")},
+                ),
+                "make": (
+                    "STRING",
+                    {"tooltip": ("tiff:Make")},
+                ),
+                "model": (
+                    "STRING",
+                    {"tooltip": ("tiff:Model")},
+                ),
             },
             "hidden": {
                 "prompt": "PROMPT",
