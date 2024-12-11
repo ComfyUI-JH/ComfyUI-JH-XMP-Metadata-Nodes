@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import StrEnum
 import os
 
 import json
 import numpy as np
-from PIL import Image, ExifTags
+from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
 import folder_paths
@@ -11,8 +11,11 @@ import folder_paths
 from .jh_xmp_metadata import JHXMPMetadata
 
 
-class JHSupportedImageTypes(Enum):
+class JHSupportedImageTypes(StrEnum):
+    JPEG = "JPEG"
+    PNGWF = "PNG with embedded workflow"
     PNG = "PNG"
+    WEBPL = "Lossless WebP"
     WEBP = "WebP"
 
 
@@ -32,24 +35,49 @@ class JHSaveImageWithXMPMetadata:
                     "STRING",
                     {
                         "default": "ComfyUI",
-                        "tooltip": "The prefix for the file to save. This may include formatting information such as %date:yyyy-MM-dd% or %Empty Latent Image.width% to include values from nodes.",
+                        "tooltip": (
+                            "The prefix for the file to save. This may include formatting "
+                            "information such as %date:yyyy-MM-dd% or %Empty Latent Image.width% "
+                            "to include values from nodes."
+                        ),
                     },
                 ),
                 "image_type": (
-                    [x.value for x in JHSupportedImageTypes],
+                    [x for x in JHSupportedImageTypes],
                     {
-                        "default": JHSupportedImageTypes.PNG.value,
+                        "default": JHSupportedImageTypes.PNGWF,
                     },
                 ),
-                "embed_workflow": ("BOOLEAN", {"default": True}),
             },
             "optional": {
-                "description": ("STRING",),
-                "subject": ("STRING",),
-                "title": ("STRING",),
-                "instructions": ("STRING",),
-                "make": ("STRING", {"default": "ComfyUI"}),
-                "model": ("STRING",),
+                "creator": (
+                    "STRING",
+                    {"tooltip": ("dc:creator"), "forceInput": True},
+                ),
+                "title": (
+                    "STRING",
+                    {"tooltip": ("dc:title"), "forceInput": True},
+                ),
+                "description": (
+                    "STRING",
+                    {"tooltip": ("dc:description"), "forceInput": True},
+                ),
+                "subject": (
+                    "STRING",
+                    {"tooltip": ("dc:subject"), "forceInput": True},
+                ),
+                "instructions": (
+                    "STRING",
+                    {"tooltip": ("photoshop:Instructions"), "forceInput": True},
+                ),
+                "make": (
+                    "STRING",
+                    {"tooltip": ("tiff:Make"), "forceInput": True},
+                ),
+                "model": (
+                    "STRING",
+                    {"tooltip": ("tiff:Model"), "forceInput": True},
+                ),
             },
             "hidden": {
                 "prompt": "PROMPT",
@@ -66,11 +94,11 @@ class JHSaveImageWithXMPMetadata:
         self,
         images,
         filename_prefix="ComfyUI",
-        image_type=JHSupportedImageTypes.PNG.value,
-        embed_workflow=True,
+        image_type=JHSupportedImageTypes.PNGWF,
+        creator=None,
+        title=None,
         description=None,
         subject=None,
-        title=None,
         instructions=None,
         make=None,
         model=None,
@@ -83,21 +111,20 @@ class JHSaveImageWithXMPMetadata:
                 filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0]
             )
         )
+        filename_extension = "png"
         results = list()
 
         match image_type:
-            case JHSupportedImageTypes.PNG.value:
+            case JHSupportedImageTypes.JPEG:
+                filename_extension = "jpg"
+            case JHSupportedImageTypes.PNGWF:
                 filename_extension = "png"
-            case JHSupportedImageTypes.WEBP.value:
+            case JHSupportedImageTypes.PNG:
+                filename_extension = "png"
+            case JHSupportedImageTypes.WEBPL:
                 filename_extension = "webp"
-
-        xmpmetadata = JHXMPMetadata()
-        xmpmetadata.title = title
-        xmpmetadata.description = description
-        xmpmetadata.subject = subject
-        xmpmetadata.instructions = instructions
-        xmpmetadata.make = make
-        xmpmetadata.model = model
+            case JHSupportedImageTypes.WEBP:
+                filename_extension = "webp"
 
         for batch_number, image in enumerate(images):
             i = 255.0 * image.cpu().numpy()
@@ -105,49 +132,89 @@ class JHSaveImageWithXMPMetadata:
             filename_with_batch_num = filename.replace("%batch_num%", str(batch_number))
             file = f"{filename_with_batch_num}_{counter:05}_.{filename_extension}"
 
+            xmpmetadata = JHXMPMetadata()
+
+            if isinstance(creator, list):
+                xmpmetadata.creator = creator[batch_number]
+            else:
+                xmpmetadata.creator = creator
+
+            if isinstance(title, list):
+                xmpmetadata.title = title[batch_number]
+            else:
+                xmpmetadata.title = title
+
+            if isinstance(description, list):
+                xmpmetadata.description = description[batch_number]
+            else:
+                xmpmetadata.description = description
+
+            if isinstance(subject, list):
+                xmpmetadata.subject = subject[batch_number]
+            else:
+                xmpmetadata.subject = subject
+
+            if isinstance(instructions, list):
+                xmpmetadata.instructions = instructions[batch_number]
+            else:
+                xmpmetadata.instructions = instructions
+
+            if isinstance(make, list):
+                xmpmetadata.make = make[batch_number]
+            else:
+                xmpmetadata.make = make
+
+            if isinstance(model, list):
+                xmpmetadata.model = model[batch_number]
+            else:
+                xmpmetadata.model = model
+
             match image_type:
-                case JHSupportedImageTypes.PNG.value:
+                case JHSupportedImageTypes.PNGWF:
                     pnginfo = PngInfo()
                     pnginfo.add_text(
                         "XML:com.adobe.xmp", xmpmetadata.to_wrapped_string()
                     )
-
-                    if embed_workflow:
-                        if prompt is not None:
-                            pnginfo.add_text("prompt", json.dumps(prompt))
-                        if extra_pnginfo is not None:
-                            pnginfo.add_text(
-                                "workflow", json.dumps(extra_pnginfo["workflow"])
-                            )
-
+                    if prompt is not None:
+                        pnginfo.add_text("prompt", json.dumps(prompt))
+                    if extra_pnginfo is not None:
+                        pnginfo.add_text(
+                            "workflow", json.dumps(extra_pnginfo["workflow"])
+                        )
                     img.save(
                         os.path.join(full_output_folder, file),
                         pnginfo=pnginfo,
                         compress_level=self.compress_level,
                     )
 
-                case JHSupportedImageTypes.WEBP.value:
-                    if embed_workflow:
-                        exif_dict = {}
-                        if prompt is not None:
-                            exif_dict["prompt"] = json.dumps(prompt)
-                        if extra_pnginfo is not None:
-                            exif_dict.update(extra_pnginfo)
-
-                        exif = img.getexif()
-                        exif_addr = ExifTags.Base.UserComment
-                        for key in exif_dict:
-                            exif[exif_addr] = "{}:{}".format(
-                                key, json.dumps(exif_dict[key])
-                            )
-                            exif_addr -= 1
-
+                case JHSupportedImageTypes.PNG:
+                    pnginfo = PngInfo()
+                    pnginfo.add_text(
+                        "XML:com.adobe.xmp", xmpmetadata.to_wrapped_string()
+                    )
                     img.save(
                         os.path.join(full_output_folder, file),
-                        exif=exif,
+                        pnginfo=pnginfo,
+                        compress_level=self.compress_level,
+                    )
+
+                case JHSupportedImageTypes.JPEG:
+                    img.save(
+                        os.path.join(full_output_folder, file),
+                        xmp=xmpmetadata.to_wrapped_string().encode("utf-8"),
+                    )
+
+                case JHSupportedImageTypes.WEBPL:
+                    img.save(
+                        os.path.join(full_output_folder, file),
                         xmp=xmpmetadata.to_wrapped_string(),
-                        quality=100,
                         lossless=True,
+                    )
+
+                case JHSupportedImageTypes.WEBP:
+                    img.save(
+                        os.path.join(full_output_folder, file),
+                        xmp=xmpmetadata.to_wrapped_string(),
                     )
 
             results.append(
@@ -155,4 +222,4 @@ class JHSaveImageWithXMPMetadata:
             )
             counter += 1
 
-        return {"result": images, "ui": {"images": results}}
+        return {"result": (images,), "ui": {"images": results}}
