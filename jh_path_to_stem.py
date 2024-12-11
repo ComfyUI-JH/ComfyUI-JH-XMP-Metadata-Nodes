@@ -12,7 +12,7 @@ class JHPathToStem:
 
     RETURN_TYPES = ("STRING",)
     FUNCTION = "path_to_stem"
-    CATEGORY = "JHXMP"
+    CATEGORY = "XMP Metadata Nodes/Utilities"
     OUTPUT_NODE = False
 
     def path_to_stem(self, path):

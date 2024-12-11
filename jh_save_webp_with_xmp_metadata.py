@@ -48,7 +48,7 @@ class JHSaveWebPWithXMPMetadata:
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "save_images"
-    CATEGORY = "JHXMP"
+    CATEGORY = "XMP Metadata Nodes"
     OUTPUT_NODE = True
 
     def save_images(
