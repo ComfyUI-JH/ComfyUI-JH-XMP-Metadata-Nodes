@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-class JHPathToStem:
+class JHPathToStemNode:
     @classmethod
     def INPUT_TYPES(cls):
         return {
