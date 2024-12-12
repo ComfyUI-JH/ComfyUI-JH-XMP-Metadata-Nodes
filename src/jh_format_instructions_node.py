@@ -2,20 +2,6 @@ import textwrap
 from typing import Final
 
 
-# The following hack is copyright pythongosssss
-# https://github.com/pythongosssss/ComfyUI-Custom-Scripts
-# ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓
-# Hack: string type that is always equal in not equal comparisons
-class AnyType(str):
-    def __ne__(self, __value: object) -> bool:
-        return False
-
-
-# Our any instance wants to be a wildcard string
-any = AnyType("*")
-# ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑
-
-
 class JHFormatInstructionsNode:
     DEFAULT_FORMAT_STRING: Final = textwrap.dedent(
         """
@@ -41,19 +27,29 @@ class JHFormatInstructionsNode:
                         "multiline": True,
                         "default": cls.DEFAULT_FORMAT_STRING,
                         "placeholder": cls.DEFAULT_FORMAT_STRING,
+                        "dynamicPrompts": False,
                     },
                 ),
             },
             "optional": {
-                "prompt": ("STRING", {"defaultInput": True, "default": None}),
-                "negative_prompt": ("STRING", {"defaultInput": True, "default": None}),
-                "model_name": ("STRING", {"defaultInput": True, "default": None}),
-                "seed": (any, {}),
-                "sampler_name": ("STRING", {"defaultInput": True, "default": None}),
-                "scheduler_name": ("STRING", {"defaultInput": True, "default": None}),
-                "steps": (any, {"defaultInput": True, "default": None}),
-                "cfg": (any, {"defaultInput": True, "default": None}),
-                "guidance": (any, {"defaultInput": True, "default": None}),
+                "prompt": (("STRING"), {"defaultInput": True, "default": None}),
+                "negative_prompt": (
+                    ("STRING"),
+                    {"defaultInput": True, "default": None},
+                ),
+                "model_name": (("STRING"), {"defaultInput": True, "default": None}),
+                "seed": (("INT"), {"defaultInput": True, "default": None}),
+                "sampler_name": (
+                    ("STRING"),
+                    {"defaultInput": True, "default": None},
+                ),
+                "scheduler_name": (
+                    ("STRING"),
+                    {"defaultInput": True, "default": None},
+                ),
+                "steps": ("INT", {"defaultInput": True, "default": None}),
+                "cfg": (("FLOAT"), {"defaultInput": True, "default": None}),
+                "guidance": (("FLOAT"), {"defaultInput": True, "default": None}),
             },
         }
 
