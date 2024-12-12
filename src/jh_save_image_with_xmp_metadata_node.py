@@ -19,7 +19,7 @@ class JHSupportedImageTypes(StrEnum):
     WEBP = "WebP"
 
 
-class JHSaveImageWithXMPMetadata:
+class JHSaveImageWithXMPMetadataNode:
     def __init__(self):
         self.output_dir = folder_paths.get_output_directory()
         self.type = "output"

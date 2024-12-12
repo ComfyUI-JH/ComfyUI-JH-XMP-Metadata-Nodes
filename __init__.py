@@ -1,20 +1,19 @@
-from .jh_save_image_with_xmp_metadata import JHSaveImageWithXMPMetadata
-from .jh_save_png_with_xmp_metadata import JHSavePNGWithXMPMetadata
-from .jh_save_webp_with_xmp_metadata import JHSaveWebPWithXMPMetadata
-from .jh_path_to_stem import JHPathToStem
+from pathlib import Path
+import sys
+
+sys.path.append(str(Path(__file__).parent.resolve()))
+
+from src.jh_path_to_stem import JHPathToStem
+from src.jh_save_image_with_xmp_metadata_node import JHSaveImageWithXMPMetadataNode
 
 NODE_CLASS_MAPPINGS = {
-    "JHSaveImageWithXMPMetadata": JHSaveImageWithXMPMetadata,
-    "JHSavePNGWithXMPMetadata": JHSavePNGWithXMPMetadata,
-    "JHSaveWebPWithXMPMetadata": JHSaveWebPWithXMPMetadata,
     "JHPathToStem": JHPathToStem,
+    "JHSaveImageWithXMPMetadata": JHSaveImageWithXMPMetadataNode,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "JHSaveImageWithXMPMetadata": "Save Image With XMP Metadata",
-    "JHSavePNGWithXMPMetadata": "Save PNG With XMP Metadata",
-    "JHSaveWebPWithXMPMetadata": "Save WebP With XMP Metadata",
     "JHPathToStem": "Path to Stem",
+    "JHSaveImageWithXMPMetadata": "Save Image With XMP Metadata",
 }
 
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
