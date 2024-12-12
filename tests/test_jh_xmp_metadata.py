@@ -14,7 +14,7 @@ def test_init():
 def test_set_creator():
     metadata = JHXMPMetadata()
     metadata.creator = "John Doe"
-    assert metadata._creator == "John Doe"
+    assert metadata._creator == {"John Doe"}
 
 def test_set_title():
     metadata = JHXMPMetadata()
@@ -29,7 +29,7 @@ def test_set_description():
 def test_set_subject():
     metadata = JHXMPMetadata()
     metadata.subject = "My Subject"
-    assert metadata._subject == "My Subject"
+    assert metadata._subject == {"My Subject"}
 
 def test_set_instructions():
     metadata = JHXMPMetadata()
@@ -56,6 +56,7 @@ def test_to_string():
     metadata.make = "My Make"
     metadata.model = "My Model"
     xml_string = metadata.to_string()
+    assert xml_string.startswith("<x:xmpmeta")
     assert "John Doe" in xml_string
     assert "My Title" in xml_string
     assert "My Description" in xml_string
