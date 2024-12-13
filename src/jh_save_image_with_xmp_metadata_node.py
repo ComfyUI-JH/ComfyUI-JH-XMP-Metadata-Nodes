@@ -198,7 +198,7 @@ class JHSaveImageWithXMPMetadataNode:
                 case JHSupportedImageTypes.JPEG:
                     img.save(
                         os.path.join(full_output_folder, file),
-                        xmp=xmp.encode("utf-8"),
+                        xmp=xmp,
                     )
 
                 case JHSupportedImageTypes.LOSSLESS_WEBP:
