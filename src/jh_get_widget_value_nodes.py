@@ -1,15 +1,6 @@
-# The following hack is copyright pythongosssss
-# https://github.com/pythongosssss/ComfyUI-Custom-Scripts
-# ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓
-# Hack: string type that is always equal in not equal comparisons
-class AnyType(str):
-    def __ne__(self, __value: object) -> bool:
-        return False
+from .any_type import AnyType
 
-
-# Our any instance wants to be a wildcard string
-any = AnyType("*")
-# ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑
+any_type = AnyType("*")
 
 
 class JHGetWidgetValueNode:
@@ -38,7 +29,7 @@ class JHGetWidgetValueNode:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "any_input": (any, {"rawLink": True}),
+                "any_input": (any_type, {"rawLink": True}),
                 "widget_name": ("STRING", {"multiline": False}),
             },
             "hidden": {
@@ -94,7 +85,9 @@ class JHGetWidgetValueIntNode(JHGetWidgetValueNode):
     ):
         widget_value = None
         try:
-            widget_value = int(super().get_widget_value(any_input, widget_name, prompt)[0])
+            widget_value = int(
+                super().get_widget_value(any_input, widget_name, prompt)[0]
+            )
         except ValueError:
             raise ValueError(f"""Widget "{widget_name}" is not an integer""")
         return (widget_value,)
@@ -111,7 +104,9 @@ class JHGetWidgetValueFloatNode(JHGetWidgetValueNode):
     ):
         widget_value = None
         try:
-            widget_value = float(super().get_widget_value(any_input, widget_name, prompt)[0])
+            widget_value = float(
+                super().get_widget_value(any_input, widget_name, prompt)[0]
+            )
         except ValueError:
             raise ValueError(f"""Widget "{widget_name}" is not a float""")
         return (widget_value,)

@@ -1,11 +1,13 @@
 import pytest
+from src.any_type import AnyType
 from src.jh_get_widget_value_nodes import (
-    any,
     JHGetWidgetValueNode,
     JHGetWidgetValueStringNode,
     JHGetWidgetValueIntNode,
     JHGetWidgetValueFloatNode,
 )
+
+any_type = AnyType("*")
 
 
 def test_JHGetWidgetValueNode_IS_CHANGED():
@@ -16,7 +18,7 @@ def test_JHGetWidgetValueNode_INPUT_TYPES():
     input_types = JHGetWidgetValueNode.INPUT_TYPES()
     expected_input_types = {
         "required": {
-            "any_input": (any, {"rawLink": True}),
+            "any_input": (any_type, {"rawLink": True}),
             "widget_name": ("STRING", {"multiline": False}),
         },
         "hidden": {
