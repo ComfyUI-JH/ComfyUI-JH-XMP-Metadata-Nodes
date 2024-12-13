@@ -19,13 +19,15 @@ class JHSupportedImageTypes(StrEnum):
 
 
 class JHSaveImageWithXMPMetadataNode:
-    def __init__(self, output_dir=None):
-        self.output_dir = output_dir
-        if self.output_dir is None:
-            self.output_dir = folder_paths.get_output_directory()
-        self.type = "output"
-        self.prefix_append = ""
-        self.compress_level = 0
+    def __init__(self, output_dir: str | None = None):
+        self.output_dir: str = (
+            output_dir
+            if output_dir is not None
+            else folder_paths.get_output_directory()
+        )
+        self.type: str = "output"
+        self.prefix_append: str = ""
+        self.compress_level: int = 0
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -94,54 +96,58 @@ class JHSaveImageWithXMPMetadataNode:
 
     def save_images(
         self,
-        images,
-        filename_prefix="ComfyUI",
-        image_type=JHSupportedImageTypes.PNG_WITH_WORKFLOW,
-        creator=None,
-        title=None,
-        description=None,
-        subject=None,
-        instructions=None,
-        xml_string=None,
-        prompt=None,
-        extra_pnginfo=None,
-    ):
+        images: list,
+        filename_prefix: str = "ComfyUI",
+        image_type: JHSupportedImageTypes = JHSupportedImageTypes.PNG_WITH_WORKFLOW,
+        creator: str | list | None = None,
+        title: str | list | None = None,
+        description: str | list | None = None,
+        subject: str | list | None = None,
+        instructions: str | list | None = None,
+        xml_string: str | None = None,
+        prompt: str | None = None,
+        extra_pnginfo: dict | None = None,
+    ) -> dict:
         if images is None or len(images) == 0:
             raise ValueError("No images to save.")
 
         filename_prefix += self.prefix_append
+        full_output_folder: str
+        filename: str
+        counter: int
+        subfolder: str
         full_output_folder, filename, counter, subfolder, filename_prefix = (
             folder_paths.get_save_image_path(
                 filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0]
             )
         )
-        xmpmetadata = None
-        results = list()
+        xmpmetadata: JHXMPMetadata | None = None
+        results: list = []
 
         match image_type:
             case JHSupportedImageTypes.JPEG:
-                filename_extension = "jpg"
+                filename_extension: str = "jpg"
             case JHSupportedImageTypes.PNG_WITH_WORKFLOW:
-                filename_extension = "png"
+                filename_extension: str = "png"
             case JHSupportedImageTypes.PNG:
-                filename_extension = "png"
+                filename_extension: str = "png"
             case JHSupportedImageTypes.LOSSLESS_WEBP:
-                filename_extension = "webp"
+                filename_extension: str = "webp"
             case JHSupportedImageTypes.WEBP:
-                filename_extension = "webp"
+                filename_extension: str = "webp"
             case _:
                 raise ValueError(f"Unsupported image type: {image_type}")
 
         for batch_number, image in enumerate(images):
-            i = 255.0 * image.cpu().numpy()
-            img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
-            filename_with_batch_num = filename.replace("%batch_num%", str(batch_number))
+            i: np.ndarray = 255.0 * image.cpu().numpy()
+            img: Image = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
+            filename_with_batch_num: str = filename.replace("%batch_num%", str(batch_number))
             file: str = f"{filename_with_batch_num}_{counter:05}_.{filename_extension}"
 
             if xml_string is not None:
-                xmp = xml_string
+                xmp: str = xml_string
             else:
-                xmpmetadata: JHXMPMetadata = JHXMPMetadata()
+                xmpmetadata = JHXMPMetadata()
                 if isinstance(creator, list):
                     xmpmetadata.creator = creator[batch_number]
                 else:
@@ -166,10 +172,8 @@ class JHSaveImageWithXMPMetadataNode:
 
             match image_type:
                 case JHSupportedImageTypes.PNG_WITH_WORKFLOW:
-                    pnginfo = PngInfo()
-                    pnginfo.add_text(
-                        "XML:com.adobe.xmp", xmp
-                    )
+                    pnginfo: PngInfo = PngInfo()
+                    pnginfo.add_text("XML:com.adobe.xmp", xmp)
                     if prompt is not None:
                         pnginfo.add_text("prompt", json.dumps(prompt))
                     if extra_pnginfo is not None:
@@ -183,10 +187,8 @@ class JHSaveImageWithXMPMetadataNode:
                     )
 
                 case JHSupportedImageTypes.PNG:
-                    pnginfo = PngInfo()
-                    pnginfo.add_text(
-                        "XML:com.adobe.xmp", xmp
-                    )
+                    pnginfo: PngInfo = PngInfo()
+                    pnginfo.add_text("XML:com.adobe.xmp", xmp)
                     img.save(
                         os.path.join(full_output_folder, file),
                         pnginfo=pnginfo,
