@@ -153,9 +153,9 @@ class JHFormatInstructionsNode:
             model_name=model_name or "",
             sampler_name=sampler_name or "",
             scheduler_name=scheduler_name or "",
-            steps=steps or "",
+            steps="" if steps is None else steps,  # Ensure 0 is not treated as None
             seed=seed or "",
-            cfg=cfg or "",
-            guidance=guidance or "",
+            cfg="" if cfg is None else cfg,        # Same for cfg
+            guidance="" if guidance is None else guidance,
         )
         return (formatted_string,)
