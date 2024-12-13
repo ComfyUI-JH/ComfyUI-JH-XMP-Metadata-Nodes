@@ -151,3 +151,20 @@ def test_save_large_image():
                 image_type=JHSupportedImageTypes.PNG,
             )
             mock_save.assert_called_once()
+
+
+def test_invalid_output_directory():
+    node = JHSaveImageWithXMPMetadataNode()
+    mock_image = MagicMock()
+    mock_image.cpu.return_value.numpy.return_value = np.zeros((64, 64, 3))
+
+    with patch(
+        "folder_paths.get_save_image_path",
+        side_effect=OSError("Invalid directory"),  # Simulate invalid output directory
+    ):
+        with pytest.raises(OSError, match="Invalid directory"):
+            node.save_images(
+                images=[mock_image],
+                filename_prefix="InvalidDirTest",
+                image_type=JHSupportedImageTypes.PNG,
+            )
