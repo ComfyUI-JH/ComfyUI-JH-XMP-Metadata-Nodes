@@ -75,7 +75,7 @@ class JHLoadImageWithXMPMetadataNode:
             "required": {"image": (sorted(files), {"image_upload": True})},
         }
 
-    RETURN_TYPES = ("IMAGE", "MASK", "STRING", "STRING", "STRING", "STRING", "STRING")
+    RETURN_TYPES = ("IMAGE", "MASK", "STRING", "STRING", "STRING", "STRING", "STRING", "STRING")
     RETURN_NAMES = (
         "IMAGE",
         "MASK",
@@ -84,6 +84,7 @@ class JHLoadImageWithXMPMetadataNode:
         "description",
         "subject",
         "instructions",
+        "xml_string",
     )
     FUNCTION = "load_image"
     CATEGORY = "XMP Metadata Nodes"
@@ -109,9 +110,11 @@ class JHLoadImageWithXMPMetadataNode:
         for i in ImageSequence.Iterator(image_object):
 
             if len(output_images) == 0:
-                xmp_metadata_string = i.info.get("xmp", None)
-                if xmp_metadata_string is not None:
-                    xmp_metadata = JHXMPMetadata.from_string(xmp_metadata_string)
+                xml_string = i.info.get("xmp", None)
+                if isinstance(xml_string, bytes):
+                    xml_string = xml_string.decode("utf-8")
+                if xml_string is not None:
+                    xmp_metadata = JHXMPMetadata.from_string(xml_string)
                     creator = xmp_metadata.creator
                     title = xmp_metadata.title
                     description = xmp_metadata.description
@@ -158,6 +161,7 @@ class JHLoadImageWithXMPMetadataNode:
             description,
             subject,
             instructions,
+            xml_string,
         )
 
     @classmethod

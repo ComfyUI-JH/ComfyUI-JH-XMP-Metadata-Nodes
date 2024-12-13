@@ -71,6 +71,15 @@ class JHSaveImageWithXMPMetadataNode:
                     "STRING",
                     {"tooltip": ("photoshop:Instructions"), "forceInput": True},
                 ),
+                "xml_string": (
+                    "STRING",
+                    {
+                        "tooltip": (
+                            "XMP metadata as an XML string. This will override all other fields."
+                        ),
+                        "forceInput": True,
+                    },
+                ),
             },
             "hidden": {
                 "prompt": "PROMPT",
@@ -93,6 +102,7 @@ class JHSaveImageWithXMPMetadataNode:
         description=None,
         subject=None,
         instructions=None,
+        xml_string=None,
         prompt=None,
         extra_pnginfo=None,
     ):
@@ -105,6 +115,7 @@ class JHSaveImageWithXMPMetadataNode:
                 filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0]
             )
         )
+        xmpmetadata = None
         results = list()
 
         match image_type:
@@ -184,9 +195,13 @@ class JHSaveImageWithXMPMetadataNode:
                     )
 
                 case JHSupportedImageTypes.JPEG:
+                    if xml_string is not None:
+                        xmp = xml_string.encode("utf-8")
+                    else:
+                        xmp = xmpmetadata.to_wrapped_string().encode("utf-8")
                     img.save(
                         os.path.join(full_output_folder, file),
-                        xmp=xmpmetadata.to_wrapped_string().encode("utf-8"),
+                        xmp=xmp,
                     )
 
                 case JHSupportedImageTypes.WEBPL:
