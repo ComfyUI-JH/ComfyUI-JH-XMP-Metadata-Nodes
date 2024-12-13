@@ -56,7 +56,7 @@ class JHXMPMetadata:
 
     @creator.setter
     def creator(self, value: Optional[str]) -> None:
-        if value is None:
+        if value is None or value == "":
             self._creator = None
             if self._dc_creator_element is not None:
                 self._rdf_description.remove(self._dc_creator_element)
@@ -85,11 +85,12 @@ class JHXMPMetadata:
 
     @title.setter
     def title(self, value: Optional[str]) -> None:
-        self._title = value
-        if self._title is None:
+        if value is None or value == "":
+            self._title = None
             if self._dc_title_element is not None:
                 self._rdf_description.remove(self._dc_title_element)
         else:
+            self._title = value
             self._dc_title_element = etree.SubElement(
                 self._rdf_description, "{http://purl.org/dc/elements/1.1/}title"
             )
@@ -110,11 +111,12 @@ class JHXMPMetadata:
 
     @description.setter
     def description(self, value: Optional[str]) -> None:
-        self._description = value
-        if self._description is None:
+        if value is None or value == "":
+            self._description = None
             if self._dc_description_element is not None:
                 self._rdf_description.remove(self._dc_description_element)
         else:
+            self._description = value
             self._dc_description_element = etree.SubElement(
                 self._rdf_description, "{http://purl.org/dc/elements/1.1/}description"
             )
@@ -135,7 +137,7 @@ class JHXMPMetadata:
 
     @subject.setter
     def subject(self, value: Optional[str]) -> None:
-        if value is None:
+        if value is None or value == "":
             self._subject = None
             if self._dc_subject_element is not None:
                 self._rdf_description.remove(self._dc_subject_element)
@@ -164,11 +166,12 @@ class JHXMPMetadata:
 
     @instructions.setter
     def instructions(self, value: Optional[str]) -> None:
-        self._instructions = value
-        if self._instructions is None:
+        if value is None or value == "":
+            self._instructions = None
             if self._photoshop_instructions_element is not None:
                 self._rdf_description.remove(self._photoshop_instructions_element)
         else:
+            self._instructions = value
             self._photoshop_instructions_element = etree.SubElement(
                 self._rdf_description,
                 "{http://ns.adobe.com/photoshop/1.0/}Instructions",
