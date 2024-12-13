@@ -1,12 +1,11 @@
-from enum import StrEnum
-import os
-
 import json
+import os
+from enum import StrEnum
+
+import folder_paths
 import numpy as np
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
-
-import folder_paths
 
 from .jh_xmp_metadata import JHXMPMetadata
 
