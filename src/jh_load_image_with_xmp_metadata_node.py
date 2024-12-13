@@ -114,7 +114,7 @@ class JHLoadImageWithXMPMetadataNode:
                 xml_string = i.info.get("xmp", None)
                 if isinstance(xml_string, bytes):
                     xml_string = xml_string.decode("utf-8")
-                if xml_string is not None:
+                if xml_string:  # Ensure xml_string is not None or empty
                     xmp_metadata = JHXMPMetadata.from_string(xml_string)
                     creator = xmp_metadata.creator
                     title = xmp_metadata.title
