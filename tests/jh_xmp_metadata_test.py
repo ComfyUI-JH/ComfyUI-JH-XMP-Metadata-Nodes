@@ -1,7 +1,7 @@
 import textwrap
 
-from lxml import etree
 import pytest
+from lxml import etree
 
 from src.jh_xmp_metadata import JHXMPMetadata
 
