@@ -89,3 +89,47 @@ def test_save_images_with_prompt_and_workflow():
                 extra_pnginfo={"workflow": {"step": 1}},
             )
             mock_save.assert_called_once()
+
+
+def test_save_images_empty_metadata():
+    node = JHSaveImageWithXMPMetadataNode()
+    mock_image = MagicMock()
+    mock_image.cpu.return_value.numpy.return_value = np.zeros((64, 64, 3))
+
+    with patch(
+        "folder_paths.get_save_image_path",
+        return_value=("output", "file", 1, "subfolder", "prefix"),
+    ):
+        with patch("PIL.Image.Image.save") as mock_save:
+            node.save_images(
+                images=[mock_image],
+                filename_prefix="EmptyMetadataTest",
+                image_type=JHSupportedImageTypes.PNG,
+                creator="",
+                title=None,
+                description="",
+                subject=None,
+                instructions="",
+            )
+            mock_save.assert_called_once()
+
+
+def test_save_images_mismatched_metadata_lengths():
+    node = JHSaveImageWithXMPMetadataNode()
+    mock_image = MagicMock()
+    mock_image.cpu.return_value.numpy.return_value = np.zeros((64, 64, 3))
+
+    with patch(
+        "folder_paths.get_save_image_path",
+        return_value=("output", "file", 1, "subfolder", "prefix"),
+    ):
+        with patch("PIL.Image.Image.save") as mock_save:
+            with pytest.raises(IndexError):
+                node.save_images(
+                    images=[mock_image, mock_image],
+                    filename_prefix="MismatchTest",
+                    image_type=JHSupportedImageTypes.PNG,
+                    creator=["Creator 1"],  # Fewer creators than images
+                    title=["Title 1", "Title 2"],
+                )
+            mock_save.assert_called_once()
