@@ -56,7 +56,7 @@ class JHXMPMetadata:
 
     @creator.setter
     def creator(self, value: Optional[str]) -> None:
-        if value is None or value == "":
+        if value is None or value == "" or isinstance(value, str) and value.strip() == "":
             self._creator = None
             if self._dc_creator_element is not None:
                 self._rdf_description.remove(self._dc_creator_element)
@@ -85,7 +85,7 @@ class JHXMPMetadata:
 
     @title.setter
     def title(self, value: Optional[str]) -> None:
-        if value is None or value == "":
+        if value is None or value == "" or isinstance(value, str) and value.strip() == "":
             self._title = None
             if self._dc_title_element is not None:
                 self._rdf_description.remove(self._dc_title_element)
@@ -111,7 +111,7 @@ class JHXMPMetadata:
 
     @description.setter
     def description(self, value: Optional[str]) -> None:
-        if value is None or value == "":
+        if value is None or value == "" or isinstance(value, str) and value.strip() == "":
             self._description = None
             if self._dc_description_element is not None:
                 self._rdf_description.remove(self._dc_description_element)
@@ -137,7 +137,7 @@ class JHXMPMetadata:
 
     @subject.setter
     def subject(self, value: Optional[str]) -> None:
-        if value is None or value == "":
+        if value is None or value == "" or isinstance(value, str) and value.strip() == "":
             self._subject = None
             if self._dc_subject_element is not None:
                 self._rdf_description.remove(self._dc_subject_element)
@@ -166,7 +166,7 @@ class JHXMPMetadata:
 
     @instructions.setter
     def instructions(self, value: Optional[str]) -> None:
-        if value is None or value == "":
+        if value is None or value == "" or isinstance(value, str) and value.strip() == "":
             self._instructions = None
             if self._photoshop_instructions_element is not None:
                 self._rdf_description.remove(self._photoshop_instructions_element)
