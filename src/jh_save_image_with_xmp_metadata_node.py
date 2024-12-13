@@ -136,40 +136,39 @@ class JHSaveImageWithXMPMetadataNode:
             i = 255.0 * image.cpu().numpy()
             img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
             filename_with_batch_num = filename.replace("%batch_num%", str(batch_number))
-            file = f"{filename_with_batch_num}_{counter:05}_.{filename_extension}"
+            file: str = f"{filename_with_batch_num}_{counter:05}_.{filename_extension}"
 
-            xmpmetadata = JHXMPMetadata()
-
-            if isinstance(creator, list):
-                xmpmetadata.creator = creator[batch_number]
+            if xml_string is not None:
+                xmp = xml_string
             else:
-                xmpmetadata.creator = creator
-
-            if isinstance(title, list):
-                xmpmetadata.title = title[batch_number]
-            else:
-                xmpmetadata.title = title
-
-            if isinstance(description, list):
-                xmpmetadata.description = description[batch_number]
-            else:
-                xmpmetadata.description = description
-
-            if isinstance(subject, list):
-                xmpmetadata.subject = subject[batch_number]
-            else:
-                xmpmetadata.subject = subject
-
-            if isinstance(instructions, list):
-                xmpmetadata.instructions = instructions[batch_number]
-            else:
-                xmpmetadata.instructions = instructions
+                xmpmetadata: JHXMPMetadata = JHXMPMetadata()
+                if isinstance(creator, list):
+                    xmpmetadata.creator = creator[batch_number]
+                else:
+                    xmpmetadata.creator = creator
+                if isinstance(title, list):
+                    xmpmetadata.title = title[batch_number]
+                else:
+                    xmpmetadata.title = title
+                if isinstance(description, list):
+                    xmpmetadata.description = description[batch_number]
+                else:
+                    xmpmetadata.description = description
+                if isinstance(subject, list):
+                    xmpmetadata.subject = subject[batch_number]
+                else:
+                    xmpmetadata.subject = subject
+                if isinstance(instructions, list):
+                    xmpmetadata.instructions = instructions[batch_number]
+                else:
+                    xmpmetadata.instructions = instructions
+                xmp = xmpmetadata.to_wrapped_string().encode("utf-8")
 
             match image_type:
                 case JHSupportedImageTypes.PNGWF:
                     pnginfo = PngInfo()
                     pnginfo.add_text(
-                        "XML:com.adobe.xmp", xmpmetadata.to_wrapped_string()
+                        "XML:com.adobe.xmp", xmp
                     )
                     if prompt is not None:
                         pnginfo.add_text("prompt", json.dumps(prompt))
@@ -186,7 +185,7 @@ class JHSaveImageWithXMPMetadataNode:
                 case JHSupportedImageTypes.PNG:
                     pnginfo = PngInfo()
                     pnginfo.add_text(
-                        "XML:com.adobe.xmp", xmpmetadata.to_wrapped_string()
+                        "XML:com.adobe.xmp", xmp
                     )
                     img.save(
                         os.path.join(full_output_folder, file),
@@ -195,26 +194,22 @@ class JHSaveImageWithXMPMetadataNode:
                     )
 
                 case JHSupportedImageTypes.JPEG:
-                    if xml_string is not None:
-                        xmp = xml_string.encode("utf-8")
-                    else:
-                        xmp = xmpmetadata.to_wrapped_string().encode("utf-8")
                     img.save(
                         os.path.join(full_output_folder, file),
-                        xmp=xmp,
+                        xmp=xmp.encode("utf-8"),
                     )
 
                 case JHSupportedImageTypes.WEBPL:
                     img.save(
                         os.path.join(full_output_folder, file),
-                        xmp=xmpmetadata.to_wrapped_string(),
+                        xmp=xmp,
                         lossless=True,
                     )
 
                 case JHSupportedImageTypes.WEBP:
                     img.save(
                         os.path.join(full_output_folder, file),
-                        xmp=xmpmetadata.to_wrapped_string(),
+                        xmp=xmp,
                     )
 
             results.append(
