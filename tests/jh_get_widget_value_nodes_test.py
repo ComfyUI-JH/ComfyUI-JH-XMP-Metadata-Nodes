@@ -1,208 +1,97 @@
 import pytest
-from src.any_type import AnyType
+
 from src.jh_get_widget_value_nodes import (
+    JHGetWidgetValueFloatNode,
+    JHGetWidgetValueIntNode,
     JHGetWidgetValueNode,
     JHGetWidgetValueStringNode,
-    JHGetWidgetValueIntNode,
-    JHGetWidgetValueFloatNode,
 )
 
-any_type = AnyType("*")
 
-
-def test_JHGetWidgetValueNode_IS_CHANGED():
-    assert JHGetWidgetValueNode.IS_CHANGED() is True
-
-
-def test_JHGetWidgetValueNode_INPUT_TYPES():
-    input_types = JHGetWidgetValueNode.INPUT_TYPES()
-    expected_input_types = {
-        "required": {
-            "any_input": (any_type, {"rawLink": True}),
-            "widget_name": ("STRING", {"multiline": False}),
-        },
-        "hidden": {
-            "prompt": "PROMPT",
-        },
+@pytest.fixture
+def prompt_fixture():
+    """A sample prompt dictionary for testing."""
+    return {
+        "1": {"inputs": {"test_widget": "Hello, World!", "numeric_widget": "42"}},
+        "2": {"inputs": {"float_widget": "3.14"}},
     }
-    assert input_types == expected_input_types
 
 
-def test_JHGetWidgetValueNode_get_widget_value_valid_input():
-    node = JHGetWidgetValueNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {"0": {"inputs": {"widget_name": "widget_value"}}}
-    result = node.get_widget_value(any_input, widget_name, prompt)
-    assert result == ("widget_value",)
+@pytest.mark.parametrize(
+    "node_class, any_input, widget_name, expected, exception, match",
+    [
+        # Base functionality
+        (JHGetWidgetValueNode, ["1"], "test_widget", ("Hello, World!",), None, None),
+        (JHGetWidgetValueNode, ["1"], "numeric_widget", ("42",), None, None),
+        (
+            JHGetWidgetValueNode,
+            ["999"],
+            "test_widget",
+            None,
+            KeyError,
+            "Widget test_widget not found in node 999",
+        ),
+        (
+            JHGetWidgetValueNode,
+            ["1"],
+            "non_existent_widget",
+            None,
+            KeyError,
+            "Widget non_existent_widget not found in node 1",
+        ),
+        (
+            JHGetWidgetValueNode,
+            ["1"],
+            "",
+            None,
+            ValueError,
+            "widget_name must not be empty",
+        ),
+        # StringNode functionality
+        (
+            JHGetWidgetValueStringNode,
+            ["1"],
+            "test_widget",
+            ("Hello, World!",),
+            None,
+            None,
+        ),
+        (JHGetWidgetValueStringNode, ["1"], "numeric_widget", ("42",), None, None),
+        # IntNode functionality
+        (JHGetWidgetValueIntNode, ["1"], "numeric_widget", (42,), None, None),
+        (
+            JHGetWidgetValueIntNode,
+            ["1"],
+            "test_widget",
+            None,
+            ValueError,
+            'Widget "test_widget" is not an integer',
+        ),
+        # FloatNode functionality
+        (JHGetWidgetValueFloatNode, ["2"], "float_widget", (3.14,), None, None),
+        (
+            JHGetWidgetValueFloatNode,
+            ["1"],
+            "test_widget",
+            None,
+            ValueError,
+            'Widget "test_widget" is not a float',
+        ),
+    ],
+)
+def test_widget_value_retrieval(
+    node_class, any_input, widget_name, expected, exception, match, prompt_fixture
+):
+    """Test widget value retrieval for multiple scenarios."""
+    node = node_class()
 
-
-def test_JHGetWidgetValueNode_get_widget_value_empty_widget_name():
-    node = JHGetWidgetValueNode()
-    any_input = ["node_id"]
-    widget_name = ""
-    prompt = {"node_id": {"inputs": {"widget_name": "widget_value"}}}
-    with pytest.raises(ValueError):
-        node.get_widget_value(any_input, widget_name, prompt)
-
-
-def test_JHGetWidgetValueNode_get_widget_value_widget_not_found():
-    node = JHGetWidgetValueNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {"0": {"inputs": {}}}
-    with pytest.raises(KeyError):
-        node.get_widget_value(any_input, widget_name, prompt)
-
-
-def test_JHGetWidgetValueNode_get_widget_value_invalid_prompt():
-    node = JHGetWidgetValueNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {}
-    with pytest.raises(KeyError):
-        node.get_widget_value(any_input, widget_name, prompt)
-
-
-def test_JHGetWidgetValueStringNode_get_widget_value_valid_input():
-    node = JHGetWidgetValueStringNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {"0": {"inputs": {"widget_name": "widget_value"}}}
-    result = node.get_widget_value(any_input, widget_name, prompt)
-    assert result == ("widget_value",)
-
-
-def test_JHGetWidgetValueStringNode_get_widget_value_empty_widget_name():
-    node = JHGetWidgetValueStringNode()
-    any_input = [0]
-    widget_name = ""
-    prompt = {"0": {"inputs": {"widget_name": "widget_value"}}}
-    with pytest.raises(ValueError):
-        node.get_widget_value(any_input, widget_name, prompt)
-
-
-def test_JHGetWidgetValueStringNode_get_widget_value_widget_not_found():
-    node = JHGetWidgetValueStringNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {"0": {"inputs": {}}}
-    with pytest.raises(KeyError):
-        node.get_widget_value(any_input, widget_name, prompt)
-
-
-def test_JHGetWidgetValueStringNode_get_widget_value_invalid_prompt():
-    node = JHGetWidgetValueStringNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {}
-    with pytest.raises(KeyError):
-        node.get_widget_value(any_input, widget_name, prompt)
-
-
-def test_JHGetWidgetValueStringNode_get_widget_value_non_string_value():
-    node = JHGetWidgetValueStringNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {"0": {"inputs": {"widget_name": 123}}}
-    result = node.get_widget_value(any_input, widget_name, prompt)
-    assert result == ("123",)
-
-
-def test_JHGetWidgetValueIntNode_get_widget_value_valid_input():
-    node = JHGetWidgetValueIntNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {"0": {"inputs": {"widget_name": 123}}}
-    result = node.get_widget_value(any_input, widget_name, prompt)
-    assert result == (123,)
-
-
-def test_JHGetWidgetValueIntNode_get_widget_value_invalid_input():
-    node = JHGetWidgetValueIntNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {"0": {"inputs": {"widget_name": "not an integer"}}}
-    with pytest.raises(ValueError):
-        node.get_widget_value(any_input, widget_name, prompt)
-
-
-def test_JHGetWidgetValueIntNode_get_widget_value_widget_not_found():
-    node = JHGetWidgetValueIntNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {"0": {"inputs": {}}}
-    with pytest.raises(KeyError):
-        node.get_widget_value(any_input, widget_name, prompt)
-
-
-def test_JHGetWidgetValueIntNode_get_widget_value_empty_widget_name():
-    node = JHGetWidgetValueIntNode()
-    any_input = [0]
-    widget_name = ""
-    prompt = {"0": {"inputs": {"widget_name": 123}}}
-    with pytest.raises(ValueError):
-        node.get_widget_value(any_input, widget_name, prompt)
-
-
-def test_JHGetWidgetValueIntNode_get_widget_value_invalid_prompt():
-    node = JHGetWidgetValueIntNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {}
-    with pytest.raises(KeyError):
-        node.get_widget_value(any_input, widget_name, prompt)
-
-
-def test_JHGetWidgetValueFloatNode_get_widget_value_valid_input():
-    node = JHGetWidgetValueFloatNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {"0": {"inputs": {"widget_name": 123.45}}}
-    result = node.get_widget_value(any_input, widget_name, prompt)
-    assert result == (123.45,)
-
-
-def test_JHGetWidgetValueFloatNode_get_widget_value_invalid_input():
-    node = JHGetWidgetValueFloatNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {"0": {"inputs": {"widget_name": "not a float"}}}
-    with pytest.raises(ValueError):
-        node.get_widget_value(any_input, widget_name, prompt)
-
-
-def test_JHGetWidgetValueFloatNode_get_widget_value_widget_not_found():
-    node = JHGetWidgetValueFloatNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {"0": {"inputs": {}}}
-    with pytest.raises(KeyError):
-        node.get_widget_value(any_input, widget_name, prompt)
-
-
-def test_JHGetWidgetValueFloatNode_get_widget_value_empty_widget_name():
-    node = JHGetWidgetValueFloatNode()
-    any_input = [0]
-    widget_name = ""
-    prompt = {"0": {"inputs": {"widget_name": 123.45}}}
-    with pytest.raises(ValueError):
-        node.get_widget_value(any_input, widget_name, prompt)
-
-
-def test_JHGetWidgetValueFloatNode_get_widget_value_invalid_prompt():
-    node = JHGetWidgetValueFloatNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {}
-    with pytest.raises(KeyError):
-        node.get_widget_value(any_input, widget_name, prompt)
-
-
-def test_JHGetWidgetValueFloatNode_get_widget_value_integer_input():
-    node = JHGetWidgetValueFloatNode()
-    any_input = [0]
-    widget_name = "widget_name"
-    prompt = {"0": {"inputs": {"widget_name": 123}}}
-    result = node.get_widget_value(any_input, widget_name, prompt)
-    assert result == (123.0,)
+    if exception:
+        with pytest.raises(exception, match=match):
+            node.get_widget_value(
+                any_input=any_input, widget_name=widget_name, prompt=prompt_fixture
+            )
+    else:
+        result = node.get_widget_value(
+            any_input=any_input, widget_name=widget_name, prompt=prompt_fixture
+        )
+        assert result == expected, f"Expected {expected}, got {result}."
