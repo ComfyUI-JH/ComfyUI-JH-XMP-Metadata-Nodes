@@ -13,7 +13,7 @@ def test_JHSaveImageWithXMPMetadataNode_save_images_valid_input(tmp_path):
     node = JHSaveImageWithXMPMetadataNode(output_dir=str(tmp_path))
     images = torch.rand(2, 128, 128, 3)
     filename_prefix = "test_image"
-    image_type = JHSupportedImageTypes.PNGWF
+    image_type = JHSupportedImageTypes.PNG_WITH_WORKFLOW
     creator = "John Doe, Jane Doe"
     title = "Test Title"
     description = "Test Description"
@@ -83,7 +83,7 @@ def test_JHSaveImageWithXMPMetadataNode_save_images_empty_images():
     node = JHSaveImageWithXMPMetadataNode()
     images = []
     filename_prefix = "test_image"
-    image_type = JHSupportedImageTypes.PNGWF
+    image_type = JHSupportedImageTypes.PNG_WITH_WORKFLOW
     creator = "John Doe, Jane Doe"
     title = "Test Title"
     description = "Test Description"

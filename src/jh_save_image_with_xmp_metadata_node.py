@@ -12,9 +12,9 @@ from .jh_xmp_metadata import JHXMPMetadata
 
 class JHSupportedImageTypes(StrEnum):
     JPEG = "JPEG"
-    PNGWF = "PNG with embedded workflow"
+    PNG_WITH_WORKFLOW = "PNG with embedded workflow"
     PNG = "PNG"
-    WEBPL = "Lossless WebP"
+    LOSSLESS_WEBP = "Lossless WebP"
     WEBP = "WebP"
 
 
@@ -46,7 +46,7 @@ class JHSaveImageWithXMPMetadataNode:
                 "image_type": (
                     [x for x in JHSupportedImageTypes],
                     {
-                        "default": JHSupportedImageTypes.PNGWF,
+                        "default": JHSupportedImageTypes.PNG_WITH_WORKFLOW,
                     },
                 ),
             },
@@ -96,7 +96,7 @@ class JHSaveImageWithXMPMetadataNode:
         self,
         images,
         filename_prefix="ComfyUI",
-        image_type=JHSupportedImageTypes.PNGWF,
+        image_type=JHSupportedImageTypes.PNG_WITH_WORKFLOW,
         creator=None,
         title=None,
         description=None,
@@ -121,11 +121,11 @@ class JHSaveImageWithXMPMetadataNode:
         match image_type:
             case JHSupportedImageTypes.JPEG:
                 filename_extension = "jpg"
-            case JHSupportedImageTypes.PNGWF:
+            case JHSupportedImageTypes.PNG_WITH_WORKFLOW:
                 filename_extension = "png"
             case JHSupportedImageTypes.PNG:
                 filename_extension = "png"
-            case JHSupportedImageTypes.WEBPL:
+            case JHSupportedImageTypes.LOSSLESS_WEBP:
                 filename_extension = "webp"
             case JHSupportedImageTypes.WEBP:
                 filename_extension = "webp"
@@ -165,7 +165,7 @@ class JHSaveImageWithXMPMetadataNode:
                 xmp = xmpmetadata.to_wrapped_string().encode("utf-8")
 
             match image_type:
-                case JHSupportedImageTypes.PNGWF:
+                case JHSupportedImageTypes.PNG_WITH_WORKFLOW:
                     pnginfo = PngInfo()
                     pnginfo.add_text(
                         "XML:com.adobe.xmp", xmp
@@ -199,7 +199,7 @@ class JHSaveImageWithXMPMetadataNode:
                         xmp=xmp.encode("utf-8"),
                     )
 
-                case JHSupportedImageTypes.WEBPL:
+                case JHSupportedImageTypes.LOSSLESS_WEBP:
                     img.save(
                         os.path.join(full_output_folder, file),
                         xmp=xmp,
