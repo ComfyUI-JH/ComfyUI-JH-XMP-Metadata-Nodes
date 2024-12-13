@@ -1,9 +1,15 @@
 import textwrap
-from typing import Final
+from typing import Any, Dict, Final, Tuple
 
 
 class JHFormatInstructionsNode:
-    DEFAULT_FORMAT_STRING: Final = textwrap.dedent(
+    """
+    A utility class for formatting metadata into a structured string based on customizable templates.
+    This class provides a default format string and allows users to supply custom templates
+    with placeholders for specific metadata fields.
+    """
+
+    DEFAULT_FORMAT_STRING: Final[str] = textwrap.dedent(
         """
         Prompt: {prompt}
         Negative Prompt: {negative_prompt}
@@ -18,7 +24,13 @@ class JHFormatInstructionsNode:
     ).strip()
 
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(cls) -> Dict[str, Any]:
+        """
+        Defines the input types for the format instructions node.
+
+        Returns:
+            A dictionary containing required and optional inputs with their respective types and defaults.
+        """
         return {
             "required": {
                 "format_string": (
@@ -58,22 +70,83 @@ class JHFormatInstructionsNode:
     CATEGORY = "XMP Metadata Nodes"
 
     @classmethod
-    def IS_CHANGED(cls, **kwargs):
+    def IS_CHANGED(cls, **kwargs: Any) -> bool:
+        """
+        Determines if the node has changed based on the provided arguments.
+
+        Args:
+            kwargs: Arbitrary keyword arguments representing node attributes.
+
+        Returns:
+            True, indicating the node always reports as changed.
+        """
         return True
+
+    @staticmethod
+    def validate_format_string(format_string: str) -> None:
+        """
+        Validates the format string to ensure it contains only supported placeholders.
+
+        Args:
+            format_string: The format string to validate.
+
+        Raises:
+            ValueError: If the format string contains invalid placeholders.
+        """
+        try:
+            format_string.format(
+                prompt="",
+                negative_prompt="",
+                model_name="",
+                sampler_name="",
+                scheduler_name="",
+                steps="",
+                seed="",
+                cfg="",
+                guidance="",
+            )
+        except KeyError as e:
+            raise ValueError(
+                f"Invalid placeholder '{e.args[0]}' in format_string. "
+                "Ensure all placeholders match the available keys: "
+                "{prompt, negative_prompt, model_name, seed, sampler_name, scheduler_name, steps, cfg, guidance}."
+            )
 
     def format_instructions(
         self,
-        prompt=None,
-        negative_prompt=None,
-        model_name=None,
-        seed=None,
-        sampler_name=None,
-        scheduler_name=None,
-        steps=None,
-        cfg=None,
-        guidance=None,
-        format_string=DEFAULT_FORMAT_STRING,
-    ):
+        prompt: str = None,
+        negative_prompt: str = None,
+        model_name: str = None,
+        seed: int = None,
+        sampler_name: str = None,
+        scheduler_name: str = None,
+        steps: int = None,
+        cfg: float = None,
+        guidance: float = None,
+        format_string: str = DEFAULT_FORMAT_STRING,
+    ) -> Tuple[str]:
+        """
+        Formats the input metadata into a structured string based on a template.
+
+        Args:
+            prompt: The prompt text.
+            negative_prompt: The negative prompt text.
+            model_name: The name of the model.
+            seed: The random seed used.
+            sampler_name: The name of the sampler.
+            scheduler_name: The name of the scheduler.
+            steps: The number of steps.
+            cfg: The classifier-free guidance scale.
+            guidance: The guidance scale.
+            format_string: The format string template. Must include valid placeholders.
+
+        Returns:
+            A tuple containing the formatted string.
+
+        Raises:
+            ValueError: If the format_string contains invalid placeholders.
+        """
+        self.validate_format_string(format_string)
         formatted_string = format_string.format(
             prompt=prompt or "",
             negative_prompt=negative_prompt or "",
