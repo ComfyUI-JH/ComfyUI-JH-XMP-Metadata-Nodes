@@ -178,7 +178,7 @@ class JHXMPMetadata:
     def _string_to_list(self, string):
         return re.split(r"[;,]\s*", string)
 
-    def to_string(self, pretty_print=False) -> Optional[str]:
+    def to_string(self, pretty_print=True) -> Optional[str]:
         return etree.tostring(
             self._xmpmetadata, pretty_print=pretty_print, encoding="UTF-8"
         ).decode("utf-8")
