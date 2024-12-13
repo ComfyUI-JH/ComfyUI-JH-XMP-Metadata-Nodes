@@ -43,8 +43,7 @@ def test_JHSaveImageWithXMPMetadataNode_save_images_valid_input(tmp_path):
         # Check that the XMP metadata was saved
         image = Image.open(image_path)
         xml_string = image.info.get("xmp", "")
-        xmp_metadata = JHXMPMetadata()
-        xmp_metadata.from_string(xml_string)
+        xmp_metadata = JHXMPMetadata.from_string(xml_string)
         assert xmp_metadata.creator == creator
         assert xmp_metadata.title == title
         assert xmp_metadata.description == description
