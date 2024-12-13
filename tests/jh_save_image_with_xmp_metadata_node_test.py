@@ -133,3 +133,21 @@ def test_save_images_mismatched_metadata_lengths():
                     title=["Title 1", "Title 2"],
                 )
             mock_save.assert_called_once()
+
+
+def test_save_large_image():
+    node = JHSaveImageWithXMPMetadataNode()
+    large_image = MagicMock()
+    large_image.cpu.return_value.numpy.return_value = np.zeros((10000, 10000, 3))  # Large image
+
+    with patch(
+        "folder_paths.get_save_image_path",
+        return_value=("output", "large_file", 1, "subfolder", "prefix"),
+    ):
+        with patch("PIL.Image.Image.save") as mock_save:
+            node.save_images(
+                images=[large_image],
+                filename_prefix="LargeImageTest",
+                image_type=JHSupportedImageTypes.PNG,
+            )
+            mock_save.assert_called_once()
