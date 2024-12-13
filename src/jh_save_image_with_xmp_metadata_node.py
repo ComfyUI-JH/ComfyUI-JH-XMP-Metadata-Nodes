@@ -72,14 +72,6 @@ class JHSaveImageWithXMPMetadataNode:
                     "STRING",
                     {"tooltip": ("photoshop:Instructions"), "forceInput": True},
                 ),
-                "make": (
-                    "STRING",
-                    {"tooltip": ("tiff:Make"), "forceInput": True},
-                ),
-                "model": (
-                    "STRING",
-                    {"tooltip": ("tiff:Model"), "forceInput": True},
-                ),
             },
             "hidden": {
                 "prompt": "PROMPT",
@@ -102,8 +94,6 @@ class JHSaveImageWithXMPMetadataNode:
         description=None,
         subject=None,
         instructions=None,
-        make=None,
-        model=None,
         prompt=None,
         extra_pnginfo=None,
     ):
@@ -164,16 +154,6 @@ class JHSaveImageWithXMPMetadataNode:
                 xmpmetadata.instructions = instructions[batch_number]
             else:
                 xmpmetadata.instructions = instructions
-
-            if isinstance(make, list):
-                xmpmetadata.make = make[batch_number]
-            else:
-                xmpmetadata.make = make
-
-            if isinstance(model, list):
-                xmpmetadata.model = model[batch_number]
-            else:
-                xmpmetadata.model = model
 
             match image_type:
                 case JHSupportedImageTypes.PNGWF:

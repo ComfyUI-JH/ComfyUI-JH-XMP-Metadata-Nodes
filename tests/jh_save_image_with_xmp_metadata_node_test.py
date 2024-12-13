@@ -90,8 +90,6 @@ def test_JHSaveImageWithXMPMetadataNode_save_images_empty_images():
     description = "Test Description"
     subject = "Subject 1, Subject 2"
     instructions = "Test Instructions"
-    make = "Test Make"
-    model = "Test Model"
     prompt = "Test Prompt"
     extra_pnginfo = {"key": "value"}
 
@@ -105,8 +103,6 @@ def test_JHSaveImageWithXMPMetadataNode_save_images_empty_images():
             description,
             subject,
             instructions,
-            make,
-            model,
             prompt,
             extra_pnginfo,
         )
