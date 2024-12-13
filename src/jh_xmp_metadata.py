@@ -186,31 +186,45 @@ class JHXMPMetadata:
     def to_wrapped_string(self) -> Optional[str]:
         return f"""<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?>{self.to_string()}<?xpacket end="w"?>"""
 
-    def from_string(self, xml_string: str) -> None:
+    @classmethod
+    def from_string(cls, xml_string: str) -> "JHXMPMetadata":
+        instance = cls()
         root = etree.fromstring(xml_string)
 
         creator_list = list()
-        for creator in root.xpath(
-            "//dc:creator/rdf:Seq/rdf:li", namespaces=self.NAMESPACES
-        ):
-            creator_list.append(creator.text)
-        self.creator = ", ".join(creator_list)
+        dc_creator_element = root.xpath(
+            "//dc:creator/rdf:Seq/rdf:li", namespaces=cls.NAMESPACES
+        )
+        if len(dc_creator_element) > 0:
+            for creator in dc_creator_element:
+                creator_list.append(creator.text)
+            instance.creator = ", ".join(creator_list)
 
-        self.title = root.xpath(
-            "//dc:title/rdf:Alt/rdf:li", namespaces=self.NAMESPACES
-        )[0].text
+        dc_title_Element = root.xpath(
+            "//dc:title/rdf:Alt/rdf:li", namespaces=cls.NAMESPACES
+        )
+        if len(dc_title_Element) > 0:
+            instance.title = dc_title_Element[0].text
 
-        self.description = root.xpath(
-            "//dc:description/rdf:Alt/rdf:li", namespaces=self.NAMESPACES
-        )[0].text
+        dc_description_element = root.xpath(
+            "//dc:description/rdf:Alt/rdf:li", namespaces=cls.NAMESPACES
+        )
+        if len(dc_description_element) > 0:
+            instance.description = dc_description_element[0].text
 
-        subject_list = list()
-        for subject in root.xpath(
-            "//dc:subject/rdf:Seq/rdf:li", namespaces=self.NAMESPACES
-        ):
-            subject_list.append(subject.text)
-        self.subject = ", ".join(subject_list)
+        dc_subject_element = root.xpath(
+            "//dc:subject/rdf:Seq/rdf:li", namespaces=cls.NAMESPACES
+        )
+        if len(dc_subject_element) > 0:
+            subject_list = list()
+            for subject in dc_subject_element:
+                subject_list.append(subject.text)
+            instance.subject = ", ".join(subject_list)
 
-        self.instructions = root.xpath(
-            "//photoshop:Instructions", namespaces=self.NAMESPACES
-        )[0].text
+        photoshop_instructions_element = root.xpath(
+            "//photoshop:Instructions", namespaces=cls.NAMESPACES
+        )
+        if len(photoshop_instructions_element) > 0:
+            instance.instructions = photoshop_instructions_element[0].text
+
+        return instance
