@@ -20,8 +20,10 @@ class JHSupportedImageTypes(StrEnum):
 
 
 class JHSaveImageWithXMPMetadataNode:
-    def __init__(self):
-        self.output_dir = folder_paths.get_output_directory()
+    def __init__(self, output_dir=None):
+        self.output_dir = output_dir
+        if self.output_dir is None:
+            self.output_dir = folder_paths.get_output_directory()
         self.type = "output"
         self.prefix_append = ""
         self.compress_level = 0
@@ -105,13 +107,15 @@ class JHSaveImageWithXMPMetadataNode:
         prompt=None,
         extra_pnginfo=None,
     ):
+        if images is None or len(images) == 0:
+            raise ValueError("No images to save.")
+
         filename_prefix += self.prefix_append
         full_output_folder, filename, counter, subfolder, filename_prefix = (
             folder_paths.get_save_image_path(
                 filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0]
             )
         )
-        filename_extension = "png"
         results = list()
 
         match image_type:
@@ -125,6 +129,8 @@ class JHSaveImageWithXMPMetadataNode:
                 filename_extension = "webp"
             case JHSupportedImageTypes.WEBP:
                 filename_extension = "webp"
+            case _:
+                raise ValueError(f"Unsupported image type: {image_type}")
 
         for batch_number, image in enumerate(images):
             i = 255.0 * image.cpu().numpy()
