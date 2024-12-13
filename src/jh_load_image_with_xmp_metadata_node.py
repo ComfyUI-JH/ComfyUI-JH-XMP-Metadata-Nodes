@@ -109,6 +109,7 @@ class JHLoadImageWithXMPMetadataNode:
 
         for i in ImageSequence.Iterator(image_object):
 
+            # Extract XMP metadata from the first frame, if available
             if len(output_images) == 0:
                 xml_string = i.info.get("xmp", None)
                 if isinstance(xml_string, bytes):
@@ -129,23 +130,29 @@ class JHLoadImageWithXMPMetadataNode:
                 i = i.point(lambda i: i * (1 / 255))
             image = i.convert("RGB")
 
-            # Only load images of the same size
+            # Ensure all frames are the same size as the first frame
             if len(output_images) == 0:
                 w = image.size[0]
                 h = image.size[1]
             if image.size[0] != w or image.size[1] != h:
                 continue
 
+            # Normalize the image to a tensor with values in [0, 1]
             image = np.array(image).astype(np.float32) / 255.0
             image = torch.from_numpy(image)[None,]
+
+            # Generate the mask if the frame has an alpha channel, otherwise use an empty mask
             if "A" in i.getbands():
                 mask = np.array(i.getchannel("A")).astype(np.float32) / 255.0
                 mask = 1.0 - torch.from_numpy(mask)
             else:
                 mask = torch.zeros((64, 64), dtype=torch.float32, device="cpu")
+
+            # Append the processed image and mask to the outputs
             output_images.append(image)
             output_masks.append(mask.unsqueeze(0))
 
+        # Combine frames into a single tensor if multiple frames exist
         if len(output_images) > 1 and image_object.format not in excluded_formats:
             output_image = torch.cat(output_images, dim=0)
             output_mask = torch.cat(output_masks, dim=0)
