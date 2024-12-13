@@ -1,6 +1,5 @@
 import re
-from typing import Optional
-
+from typing import Optional, Final
 from lxml import etree
 
 
@@ -10,29 +9,28 @@ from lxml import etree
 
 
 class JHXMPMetadata:
+    NAMESPACES: Final = {
+        "x": "adobe:ns:meta/",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "dc": "http://purl.org/dc/elements/1.1/",
+        "xml": "http://www.w3.org/XML/1998/namespace",
+        "xmp": "http://ns.adobe.com/xap/1.0/",
+        "photoshop": "http://ns.adobe.com/photoshop/1.0/",
+        "exif": "http://ns.adobe.com/exif/1.0/",
+    }
+
     def __init__(self):
         self._creator: Optional[str] = None
         self._title: Optional[str] = None
         self._description: Optional[str] = None
         self._subject: Optional[str] = None
         self._instructions: Optional[str] = None
-        self._make: Optional[str] = None
-        self._model: Optional[str] = None
 
         # Set up the empty XMP metadata tree. We will add (and remove) elements as needed.
 
-        NAMESPACES = {
-            "x": "adobe:ns:meta/",
-            "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            "dc": "http://purl.org/dc/elements/1.1/",
-            "xml": "http://www.w3.org/XML/1998/namespace",
-            "xmp": "http://ns.adobe.com/xap/1.0/",
-            "photoshop": "http://ns.adobe.com/photoshop/1.0/",
-            "exif": "http://ns.adobe.com/exif/1.0/",
-            "tiff": "http://ns.adobe.com/tiff/1.0/",
-        }
-
-        self._xmpmetadata = etree.Element("{adobe:ns:meta/}xmpmeta", nsmap=NAMESPACES)
+        self._xmpmetadata = etree.Element(
+            "{adobe:ns:meta/}xmpmeta", nsmap=self.NAMESPACES
+        )
         self._xmpmetadata.set(
             "{adobe:ns:meta/}xmptk",
             "Adobe XMP Core 6.0-c002 79.164861, 2016/09/14-01:09:01",
@@ -51,23 +49,21 @@ class JHXMPMetadata:
         self._dc_description_element = None
         self._dc_subject_element = None
         self._photoshop_instructions_element = None
-        self._tiff_make_element = None
-        self._tiff_model_element = None
-    
+
     @property
     def creator(self) -> Optional[str]:
         return self._creator
-    
+
     @creator.setter
     def creator(self, value: Optional[str]) -> None:
-        if value is not None:
-            self._creator = set(self._string_to_list(value))
-        else:
+        if value is None:
             self._creator = None
-        if self._creator is None:
             if self._dc_creator_element is not None:
                 self._rdf_description.remove(self._dc_creator_element)
+
         else:
+            self._creator = value
+            _creators = self._string_to_list(self._creator)
             self._dc_creator_element = etree.SubElement(
                 self._rdf_description, "{http://purl.org/dc/elements/1.1/}creator"
             )
@@ -75,7 +71,7 @@ class JHXMPMetadata:
                 self._dc_creator_element,
                 "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Seq",
             )
-            for _creator in self._creator:
+            for _creator in _creators:
                 _li = etree.SubElement(
                     _seq,
                     "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li",
@@ -124,7 +120,7 @@ class JHXMPMetadata:
             )
             _alt = etree.SubElement(
                 self._dc_description_element,
-                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Seq",
+                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Alt",
             )
             _li = etree.SubElement(
                 _alt,
@@ -139,14 +135,14 @@ class JHXMPMetadata:
 
     @subject.setter
     def subject(self, value: Optional[str]) -> None:
-        if value is not None:
-            self._subject = set(self._string_to_list(value))
-        else:
+        if value is None:
             self._subject = None
-        if self._subject is None:
             if self._dc_subject_element is not None:
                 self._rdf_description.remove(self._dc_subject_element)
+
         else:
+            self._subject = value
+            _subjects = self._string_to_list(self._subject)
             self._dc_subject_element = etree.SubElement(
                 self._rdf_description, "{http://purl.org/dc/elements/1.1/}subject"
             )
@@ -154,7 +150,7 @@ class JHXMPMetadata:
                 self._dc_subject_element,
                 "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Seq",
             )
-            for _subject in self._subject:
+            for _subject in _subjects:
                 _li = etree.SubElement(
                     _seq,
                     "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li",
@@ -179,38 +175,6 @@ class JHXMPMetadata:
             )
             self._photoshop_instructions_element.text = self._instructions
 
-    @property
-    def make(self) -> Optional[str]:
-        return self._make
-
-    @make.setter
-    def make(self, value: Optional[str]) -> None:
-        self._make = value
-        if self._make is None:
-            if self._tiff_make_element is not None:
-                self._rdf_description.remove(self._tiff_make_element)
-        else:
-            self._tiff_make_element = etree.SubElement(
-                self._rdf_description, "{http://ns.adobe.com/tiff/1.0/}Make"
-            )
-            self._tiff_make_element.text = self._make
-
-    @property
-    def model(self) -> Optional[str]:
-        return self._model
-
-    @model.setter
-    def model(self, value: Optional[str]) -> None:
-        self._model = value
-        if self._model is None:
-            if self._tiff_model_element is not None:
-                self._rdf_description.remove(self._tiff_model_element)
-        else:
-            self._tiff_model_element = etree.SubElement(
-                self._rdf_description, "{http://ns.adobe.com/tiff/1.0/}Model"
-            )
-            self._tiff_model_element.text = self._model
-
     def _string_to_list(self, string):
         return re.split(r"[;,]\s*", string)
 
@@ -221,3 +185,32 @@ class JHXMPMetadata:
 
     def to_wrapped_string(self) -> Optional[str]:
         return f"""<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?>{self.to_string()}<?xpacket end="w"?>"""
+
+    def from_string(self, xml_string: str) -> None:
+        root = etree.fromstring(xml_string)
+
+        creator_list = list()
+        for creator in root.xpath(
+            "//dc:creator/rdf:Seq/rdf:li", namespaces=self.NAMESPACES
+        ):
+            creator_list.append(creator.text)
+        self.creator = ", ".join(creator_list)
+
+        self.title = root.xpath(
+            "//dc:title/rdf:Alt/rdf:li", namespaces=self.NAMESPACES
+        )[0].text
+
+        self.description = root.xpath(
+            "//dc:description/rdf:Alt/rdf:li", namespaces=self.NAMESPACES
+        )[0].text
+
+        subject_list = list()
+        for subject in root.xpath(
+            "//dc:subject/rdf:Seq/rdf:li", namespaces=self.NAMESPACES
+        ):
+            subject_list.append(subject.text)
+        self.subject = ", ".join(subject_list)
+
+        self.instructions = root.xpath(
+            "//photoshop:Instructions", namespaces=self.NAMESPACES
+        )[0].text
