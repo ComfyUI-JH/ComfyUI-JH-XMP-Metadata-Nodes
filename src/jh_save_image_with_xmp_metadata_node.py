@@ -12,11 +12,11 @@ Classes:
 import json
 from enum import StrEnum
 from pathlib import Path
-from typing import Optional
 
 import folder_paths  # pyright: ignore[reportMissingImports]; pylint: disable=import-error
 import numpy as np
-from PIL import Image
+import PIL.Image
+from PIL.Image import Image
 from PIL.PngImagePlugin import PngInfo
 
 from .jh_xmp_metadata import JHXMPMetadata
@@ -209,7 +209,7 @@ class JHSaveImageWithXMPMetadataNode:
 
         for batch_number, image in enumerate(images):
             i: np.ndarray = 255.0 * image.cpu().numpy()
-            img: Image = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
+            img: Image = PIL.Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
             filename_with_batch_num: str = filename.replace(
                 "%batch_num%", str(batch_number)
             )
@@ -250,7 +250,7 @@ class JHSaveImageWithXMPMetadataNode:
         instructions,
         xml_string,
         batch_number,
-    ):
+    ) -> str:
         """
         Return XMP metadata as a string.
 
@@ -262,8 +262,9 @@ class JHSaveImageWithXMPMetadataNode:
         tag.
         """
 
+        xmp: str
         if xml_string is not None:
-            xmp: str = xml_string
+            xmp = xml_string
         else:
             xmpmetadata = JHXMPMetadata()
             xmpmetadata.creator = (
@@ -323,8 +324,8 @@ class JHSaveImageWithXMPMetadataNode:
         image_type: JHSupportedImageTypes,
         to_path: Path,
         xmp: str,
-        prompt: Optional[str] = None,
-        extra_pnginfo: Optional[dict] = None,
+        prompt: str | None = None,
+        extra_pnginfo: dict | None = None,
     ) -> None:
         """
         Saves an image to the specified path with embedded XMP metadata.
@@ -337,8 +338,8 @@ class JHSaveImageWithXMPMetadataNode:
             image_type (JHSupportedImageTypes): The format in which to save the image.
             to_path (Path): The file path where the image will be saved.
             xmp (str): The XMP metadata, as an XML string, to embed in the image.
-            prompt (Optional[str]): Optional prompt metadata to include in PNG images.
-            extra_pnginfo (Optional[dict]): Additional PNG metadata such as workflow information.
+            prompt (str | None): Optional prompt metadata to include in PNG images.
+            extra_pnginfo (dict | None): Additional PNG metadata such as workflow information.
 
         Raises:
             ValueError: If the provided image type is not supported.

@@ -22,8 +22,10 @@ import os
 
 import folder_paths  # pyright: ignore[reportMissingImports]; pylint: disable=import-error
 import numpy as np
+import PIL.Image
+import PIL.ImageOps
+import PIL.ImageSequence
 import torch
-from PIL import Image, ImageOps, ImageSequence
 
 from .jh_xmp_metadata import JHXMPMetadata
 
@@ -187,7 +189,7 @@ class JHLoadImageWithXMPMetadataNode:
         subject = None
         instructions = None
 
-        image_object = Image.open(image_path)
+        image_object = PIL.Image.open(image_path)
 
         output_images = []
         output_masks = []
@@ -195,7 +197,7 @@ class JHLoadImageWithXMPMetadataNode:
 
         excluded_formats = ["MPO"]
 
-        for i in ImageSequence.Iterator(image_object):
+        for i in PIL.ImageSequence.Iterator(image_object):
 
             # Extract XMP metadata from the first frame, if available
             if len(output_images) == 0:
@@ -211,7 +213,7 @@ class JHLoadImageWithXMPMetadataNode:
                     instructions = xmp_metadata.instructions
 
             # Fix image orientation based on EXIF metadata
-            i = ImageOps.exif_transpose(i)
+            i = PIL.ImageOps.exif_transpose(i)
 
             # Convert 32-bit integer images to RGB
             if i.mode == "I":

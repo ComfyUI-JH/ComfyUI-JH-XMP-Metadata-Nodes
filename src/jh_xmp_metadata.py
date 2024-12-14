@@ -56,7 +56,7 @@ print(parsed_metadata.title)  # Outputs: A Beautiful Sunset
 # pylint: disable=c-extension-no-member
 
 import re
-from typing import Optional, Final
+from typing import Final
 from lxml import etree
 
 
@@ -86,11 +86,11 @@ class JHXMPMetadata:
         """
         Initializes an empty XMP metadata structure with predefined namespaces.
         """
-        self._creator: Optional[str] = None
-        self._title: Optional[str] = None
-        self._description: Optional[str] = None
-        self._subject: Optional[str] = None
-        self._instructions: Optional[str] = None
+        self._creator: str | None = None
+        self._title: str | None = None
+        self._description: str | None = None
+        self._subject: str | None = None
+        self._instructions: str | None = None
 
         # Set up the empty XMP metadata tree. We will add (and remove) elements as needed.
 
@@ -117,7 +117,7 @@ class JHXMPMetadata:
         self._photoshop_instructions_element = None
 
     @property
-    def creator(self) -> Optional[str]:
+    def creator(self) -> str | None:
         """
         The creator(s) of the content, represented as a comma-separated string.
 
@@ -127,7 +127,7 @@ class JHXMPMetadata:
         return self._creator
 
     @creator.setter
-    def creator(self, value: Optional[str]) -> None:
+    def creator(self, value: str | None) -> None:
         if value is None or value == "" or isinstance(value, str) and value.strip() == "":
             self._creator = None
             if self._dc_creator_element is not None:
@@ -152,7 +152,7 @@ class JHXMPMetadata:
                 _li.text = _creator
 
     @property
-    def title(self) -> Optional[str]:
+    def title(self) -> str | None:
         """
         The title of the content.
 
@@ -162,7 +162,7 @@ class JHXMPMetadata:
         return self._title
 
     @title.setter
-    def title(self, value: Optional[str]) -> None:
+    def title(self, value: str | None) -> None:
         if value is None or value == "" or isinstance(value, str) and value.strip() == "":
             self._title = None
             if self._dc_title_element is not None:
@@ -184,7 +184,7 @@ class JHXMPMetadata:
             _li.text = self._title
 
     @property
-    def description(self) -> Optional[str]:
+    def description(self) -> str | None:
         """
         The description or summary of the content.
 
@@ -194,7 +194,7 @@ class JHXMPMetadata:
         return self._description
 
     @description.setter
-    def description(self, value: Optional[str]) -> None:
+    def description(self, value: str | None) -> None:
         if value is None or value == "" or isinstance(value, str) and value.strip() == "":
             self._description = None
             if self._dc_description_element is not None:
@@ -216,7 +216,7 @@ class JHXMPMetadata:
             _li.text = self._description
 
     @property
-    def subject(self) -> Optional[str]:
+    def subject(self) -> str | None:
         """
         The subject or keywords associated with the content, represented as a comma-separated
         string.
@@ -227,7 +227,7 @@ class JHXMPMetadata:
         return self._subject
 
     @subject.setter
-    def subject(self, value: Optional[str]) -> None:
+    def subject(self, value: str | None) -> None:
         if value is None or value == "" or isinstance(value, str) and value.strip() == "":
             self._subject = None
             if self._dc_subject_element is not None:
@@ -252,7 +252,7 @@ class JHXMPMetadata:
                 _li.text = _subject
 
     @property
-    def instructions(self) -> Optional[str]:
+    def instructions(self) -> str | None:
         """
         Special instructions or notes for the content, typically used in a Photoshop context.
 
@@ -262,7 +262,7 @@ class JHXMPMetadata:
         return self._instructions
 
     @instructions.setter
-    def instructions(self, value: Optional[str]) -> None:
+    def instructions(self, value: str | None) -> None:
         if value is None or value == "" or isinstance(value, str) and value.strip() == "":
             self._instructions = None
             if self._photoshop_instructions_element is not None:
@@ -287,7 +287,7 @@ class JHXMPMetadata:
         """
         return re.split(r"[;,]\s*", string)
 
-    def to_string(self, pretty_print=True) -> Optional[str]:
+    def to_string(self, pretty_print=True) -> str:
         """
         Converts the XMP metadata tree to a string representation.
 
@@ -301,7 +301,7 @@ class JHXMPMetadata:
             self._xmpmetadata, pretty_print=pretty_print, encoding="UTF-8"
         ).decode("utf-8")
 
-    def to_wrapped_string(self) -> Optional[str]:
+    def to_wrapped_string(self) -> str:
         """
         Converts the XMP metadata tree to a wrapped string with an XMP packet header and footer.
 
