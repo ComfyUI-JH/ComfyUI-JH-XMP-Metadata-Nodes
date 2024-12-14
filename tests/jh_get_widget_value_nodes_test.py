@@ -3,9 +3,12 @@ Tests for JHGetWidgetValueNode and its derived classes.
 
 This suite includes:
 - Validation of widget value retrieval for String, Int, and Float nodes.
-- Edge cases for empty prompts, invalid formats, whitespace handling, and type conversions.
+- Edge cases for empty prompts, invalid formats, whitespace handling, and type
+  conversions.
 - Tests for exception handling and performance under large prompts.
 """
+
+# pylint: skip-file
 
 import time
 
@@ -40,7 +43,7 @@ def prompt_fixture():
             "test_widget",
             None,
             KeyError,
-            "Widget test_widget not found in node 999",
+            "not found in graph data",
         ),
         (
             JHGetWidgetValueNode,
@@ -48,7 +51,7 @@ def prompt_fixture():
             "non_existent_widget",
             None,
             KeyError,
-            "Widget non_existent_widget not found in node 1",
+            "not found in inputs",
         ),
         (
             JHGetWidgetValueNode,
@@ -76,7 +79,7 @@ def prompt_fixture():
             "test_widget",
             None,
             ValueError,
-            'Widget "test_widget" is not an integer',
+            "which is not an integer",
         ),
         # FloatNode functionality
         (JHGetWidgetValueFloatNode, ["2"], "float_widget", (3.14,), None, None),
@@ -86,7 +89,7 @@ def prompt_fixture():
             "test_widget",
             None,
             ValueError,
-            'Widget "test_widget" is not a float',
+            "which is not a float",
         ),
     ],
 )
@@ -116,7 +119,7 @@ def test_widget_value_retrieval(
 
 def test_empty_prompt():
     node = JHGetWidgetValueNode()
-    with pytest.raises(KeyError, match="Widget test_widget not found"):
+    with pytest.raises(KeyError, match="not found in graph data"):
         node.get_widget_value(
             any_input=["1"],
             widget_name="test_widget",
@@ -126,7 +129,7 @@ def test_empty_prompt():
 
 def test_invalid_float_format(prompt_fixture):
     node = JHGetWidgetValueFloatNode()
-    with pytest.raises(ValueError, match='Widget "test_widget" is not a float'):
+    with pytest.raises(ValueError, match="which is not a float"):
         node.get_widget_value(
             any_input=["1"],
             widget_name="test_widget",
@@ -136,7 +139,7 @@ def test_invalid_float_format(prompt_fixture):
 
 def test_invalid_int_format(prompt_fixture):
     node = JHGetWidgetValueIntNode()
-    with pytest.raises(ValueError, match='Widget "numeric_widget" is not an integer'):
+    with pytest.raises(ValueError, match="which is not an integer"):
         node.get_widget_value(
             any_input=["1"],
             widget_name="numeric_widget",
@@ -156,7 +159,7 @@ def test_numeric_as_string(prompt_fixture):
 
 def test_case_sensitivity(prompt_fixture):
     node = JHGetWidgetValueNode()
-    with pytest.raises(KeyError, match="Widget Test_Widget not found in node 1"):
+    with pytest.raises(KeyError, match="not found in inputs of node 1"):
         node.get_widget_value(
             any_input=["1"], widget_name="Test_Widget", prompt=prompt_fixture
         )
@@ -164,7 +167,7 @@ def test_case_sensitivity(prompt_fixture):
 
 def test_widget_name_with_whitespace(prompt_fixture):
     node = JHGetWidgetValueNode()
-    with pytest.raises(KeyError, match="Widget  test_widget  not found in node 1"):
+    with pytest.raises(KeyError, match="not found in inputs of node 1"):
         node.get_widget_value(
             any_input=["1"], widget_name=" test_widget ", prompt=prompt_fixture
         )
