@@ -153,15 +153,15 @@ class JHFormatInstructionsNode:
 
     def format_instructions(
         self,
-        prompt: str = None,
-        negative_prompt: str = None,
-        model_name: str = None,
-        seed: int = None,
-        sampler_name: str = None,
-        scheduler_name: str = None,
-        steps: int = None,
-        cfg: float = None,
-        guidance: float = None,
+        prompt: str | None = None,
+        negative_prompt: str | None = None,
+        model_name: str | None = None,
+        seed: int | None = None,
+        sampler_name: str | None = None,
+        scheduler_name: str | None = None,
+        steps: int | None = None,
+        cfg: float | None = None,
+        guidance: float | None = None,
         format_string: str = DEFAULT_FORMAT_STRING,
     ) -> Tuple[str]:
         """
