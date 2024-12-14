@@ -1,3 +1,23 @@
+"""
+jh_get_widget_value_nodes
+
+This module provides utility nodes for retrieving the value of specific widgets
+from a graph structure in ComfyUI. These nodes are designed to work with the
+XMP Metadata Nodes extension, offering support for extracting values in
+different types (string, integer, float, or primitive).
+
+Classes:
+    - JHGetWidgetValueNode: Base class for extracting a widget value.
+    - JHGetWidgetValueStringNode: Extracts widget values as strings.
+    - JHGetWidgetValueIntNode: Extracts widget values as integers.
+    - JHGetWidgetValueFloatNode: Extracts widget values as floats.
+
+These nodes operate by peeking into the graph's internal data structure
+to access widget inputs. While functional, they are somewhat fragile
+and may break if the graph's internal representation changes.
+
+"""
+
 from .any_type import AnyType
 
 any_type = AnyType("*")
@@ -22,11 +42,30 @@ class JHGetWidgetValueNode:
     """
 
     @classmethod
-    def IS_CHANGED(cls, **kwargs):
+    def IS_CHANGED(cls, **kwargs):  # pylint: disable=invalid-name
+        """
+        Determines whether the node's output should be re-evaluated.
+
+        This implementation always returns True, forcing the node to reprocess
+        its inputs on every execution.
+
+        Returns:
+            bool: Always True, indicating the node's state has changed.
+        """
         return True
 
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(cls):  # pylint: disable=invalid-name
+        """
+        Defines the input types required by the node.
+
+        Specifies the inputs that the node accepts, including any raw links to
+        other nodes, the name of the widget to retrieve the value from, and
+        the prompt dictionary.
+
+        Returns:
+            dict: A dictionary describing required and hidden inputs.
+        """
         return {
             "required": {
                 "any_input": (any_type, {"rawLink": True}),
@@ -48,6 +87,25 @@ class JHGetWidgetValueNode:
         widget_name,
         prompt,
     ):
+        """
+        Retrieves the value of a specified widget from the graph.
+
+        Accesses the upstream node's data structure to fetch the value of
+        the widget identified by its name. This method assumes the graph's
+        internal representation and may fail if the structure changes.
+
+        Args:
+            any_input (tuple): A raw link to another node in the graph.
+            widget_name (str): The name of the widget to fetch the value for.
+            prompt (dict): The prompt dictionary representing the graph.
+
+        Returns:
+            tuple: A single-item tuple containing the widget's value.
+
+        Raises:
+            ValueError: If the widget name is empty.
+            KeyError: If the widget or upstream node ID is not found.
+        """
         if widget_name == "":
             raise ValueError("widget_name must not be empty")
 
@@ -62,6 +120,20 @@ class JHGetWidgetValueNode:
 
 
 class JHGetWidgetValueStringNode(JHGetWidgetValueNode):
+    """
+    A node that retrieves a widget's value as a string.
+
+    Inherits from `JHGetWidgetValueNode` and converts the retrieved value
+    to a string before returning it.
+
+    Args:
+        any_input (tuple): A raw link to another node in the graph.
+        widget_name (str): The name of the widget to fetch the value for.
+        prompt (dict): The prompt dictionary representing the graph.
+
+    Returns:
+        tuple: A single-item tuple containing the widget's value as a string.
+    """
     RETURN_TYPES = ("STRING",)
 
     def get_widget_value(
@@ -75,6 +147,24 @@ class JHGetWidgetValueStringNode(JHGetWidgetValueNode):
 
 
 class JHGetWidgetValueIntNode(JHGetWidgetValueNode):
+    """
+    A node that retrieves a widget's value as an integer.
+
+    Inherits from `JHGetWidgetValueNode` and converts the retrieved value
+    to an integer before returning it. Raises a `ValueError` if the value
+    cannot be converted to an integer.
+
+    Args:
+        any_input (tuple): A raw link to another node in the graph.
+        widget_name (str): The name of the widget to fetch the value for.
+        prompt (dict): The prompt dictionary representing the graph.
+
+    Returns:
+        tuple: A single-item tuple containing the widget's value as an integer.
+
+    Raises:
+        ValueError: If the widget's value cannot be converted to an integer.
+    """
     RETURN_TYPES = ("INT",)
 
     def get_widget_value(
@@ -94,6 +184,24 @@ class JHGetWidgetValueIntNode(JHGetWidgetValueNode):
 
 
 class JHGetWidgetValueFloatNode(JHGetWidgetValueNode):
+    """
+    A node that retrieves a widget's value as a float.
+
+    Inherits from `JHGetWidgetValueNode` and converts the retrieved value
+    to a float before returning it. Raises a `ValueError` if the value
+    cannot be converted to a float.
+
+    Args:
+        any_input (tuple): A raw link to another node in the graph.
+        widget_name (str): The name of the widget to fetch the value for.
+        prompt (dict): The prompt dictionary representing the graph.
+
+    Returns:
+        tuple: A single-item tuple containing the widget's value as a float.
+
+    Raises:
+        ValueError: If the widget's value cannot be converted to a float.
+    """
     RETURN_TYPES = ("FLOAT",)
 
     def get_widget_value(
