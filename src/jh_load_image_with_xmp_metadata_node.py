@@ -1,7 +1,7 @@
 import hashlib
 import os
 
-import folder_paths  # pylint: disable=import-error
+import folder_paths  # pyright: ignore[reportMissingImports]; pylint: disable=import-error
 import numpy as np
 import torch
 from PIL import Image, ImageOps, ImageSequence

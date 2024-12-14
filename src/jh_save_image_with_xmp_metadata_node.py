@@ -14,7 +14,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Optional
 
-import folder_paths  # pylint: disable=import-error
+import folder_paths  # pyright: ignore[reportMissingImports]; pylint: disable=import-error
 import numpy as np
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
