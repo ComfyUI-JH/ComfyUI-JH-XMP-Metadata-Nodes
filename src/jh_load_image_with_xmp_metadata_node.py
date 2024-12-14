@@ -188,6 +188,7 @@ class JHLoadImageWithXMPMetadataNode:
         description = None
         subject = None
         instructions = None
+        xml_string = None
 
         image_object = PIL.Image.open(image_path)
 
