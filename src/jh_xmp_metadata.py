@@ -1,14 +1,77 @@
+"""
+jh_xmp_metadata.py
+
+This module provides the `JHXMPMetadata` class for creating, manipulating,
+and parsing XMP (Extensible Metadata Platform) metadata using the Adobe XMP format.
+
+XMP is a standard for embedding metadata in digital content, such as images and
+documents. It is widely used in creative industries to store information like
+authors, titles, descriptions, keywords, and editing instructions. This module
+is designed to handle such metadata programmatically in an efficient and
+easy-to-use manner.
+
+Key Features:
+- Create and manage XMP metadata elements such as `creator`, `title`,
+  `description`, `subject`, and `instructions`.
+- Serialize XMP metadata to a formatted XML string or a complete XMP packet.
+- Parse existing XMP metadata from an XML string.
+- Uses the `lxml.etree` library for XML processing to ensure compliance with
+  XMP specifications.
+
+Namespaces:
+The module defines standard namespaces used in XMP metadata, such as:
+- `rdf` (Resource Description Framework)
+- `dc` (Dublin Core Metadata)
+- `xmp` (Adobe XMP Schema)
+- `photoshop` (Photoshop-specific fields)
+- `exif` (Exchangeable Image File Format)
+
+References:
+- Adobe XMP Specifications: https://developer.adobe.com/xmp/docs/XMPSpecifications/
+
+Dependencies:
+- `lxml` for XML processing
+
+Example Usage:
+```python
+from jh_xmp_metadata import JHXMPMetadata
+
+# Create a new XMP metadata object
+metadata = JHXMPMetadata()
+metadata.creator = "John Doe"
+metadata.title = "A Beautiful Sunset"
+metadata.description = "A vivid depiction of a sunset over the ocean."
+metadata.subject = "sunset, ocean, photography"
+metadata.instructions = "Enhance colors slightly."
+
+# Convert to XML string
+xml_string = metadata.to_string()
+print(xml_string)
+
+# Parse existing XMP metadata from XML
+parsed_metadata = JHXMPMetadata.from_string(xml_string)
+print(parsed_metadata.title)  # Outputs: A Beautiful Sunset
+"""
+
+# pylint: disable=c-extension-no-member
+
 import re
 from typing import Optional, Final
 from lxml import etree
 
 
-#
-# https://developer.adobe.com/xmp/docs/XMPSpecifications/
-#
-
 
 class JHXMPMetadata:
+    """
+    A class for managing and manipulating XMP metadata using the Adobe XMP format.
+
+    This class provides properties for common metadata fields such as creator, title,
+    description, subject, and instructions. It allows creating, modifying, and parsing
+    XMP metadata represented as XML.
+
+    References:
+    - https://developer.adobe.com/xmp/docs/XMPSpecifications/
+    """
     NAMESPACES: Final = {
         "x": "adobe:ns:meta/",
         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -20,6 +83,9 @@ class JHXMPMetadata:
     }
 
     def __init__(self):
+        """
+        Initializes an empty XMP metadata structure with predefined namespaces.
+        """
         self._creator: Optional[str] = None
         self._title: Optional[str] = None
         self._description: Optional[str] = None
@@ -52,6 +118,12 @@ class JHXMPMetadata:
 
     @property
     def creator(self) -> Optional[str]:
+        """
+        The creator(s) of the content, represented as a comma-separated string.
+
+        Setting this property updates the corresponding XMP metadata field. If set to None
+        or an empty string, the field is removed from the metadata.
+        """
         return self._creator
 
     @creator.setter
@@ -81,6 +153,12 @@ class JHXMPMetadata:
 
     @property
     def title(self) -> Optional[str]:
+        """
+        The title of the content.
+
+        Setting this property updates the corresponding XMP metadata field. If set to None
+        or an empty string, the field is removed from the metadata.
+        """
         return self._title
 
     @title.setter
@@ -107,6 +185,12 @@ class JHXMPMetadata:
 
     @property
     def description(self) -> Optional[str]:
+        """
+        The description or summary of the content.
+
+        Setting this property updates the corresponding XMP metadata field. If set to None
+        or an empty string, the field is removed from the metadata.
+        """
         return self._description
 
     @description.setter
@@ -133,6 +217,13 @@ class JHXMPMetadata:
 
     @property
     def subject(self) -> Optional[str]:
+        """
+        The subject or keywords associated with the content, represented as a comma-separated
+        string.
+
+        Setting this property updates the corresponding XMP metadata field. If set to None
+        or an empty string, the field is removed from the metadata.
+        """
         return self._subject
 
     @subject.setter
@@ -162,6 +253,12 @@ class JHXMPMetadata:
 
     @property
     def instructions(self) -> Optional[str]:
+        """
+        Special instructions or notes for the content, typically used in a Photoshop context.
+
+        Setting this property updates the corresponding XMP metadata field. If set to None
+        or an empty string, the field is removed from the metadata.
+        """
         return self._instructions
 
     @instructions.setter
@@ -178,19 +275,52 @@ class JHXMPMetadata:
             )
             self._photoshop_instructions_element.text = self._instructions
 
-    def _string_to_list(self, string):
+    def _string_to_list(self, string: str) -> list[str]:
+        """
+        Splits a string into a list of items using semicolons or commas as delimiters.
+
+        Args:
+            string: A string containing items separated by semicolons or commas.
+
+        Returns:
+            A list of individual items.
+        """
         return re.split(r"[;,]\s*", string)
 
     def to_string(self, pretty_print=True) -> Optional[str]:
+        """
+        Converts the XMP metadata tree to a string representation.
+
+        Args:
+            pretty_print: Whether to format the output with indentation and line breaks.
+
+        Returns:
+            A string containing the XMP metadata in XML format.
+        """
         return etree.tostring(
             self._xmpmetadata, pretty_print=pretty_print, encoding="UTF-8"
         ).decode("utf-8")
 
     def to_wrapped_string(self) -> Optional[str]:
-        return f"""<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?>{self.to_string()}<?xpacket end="w"?>"""
+        """
+        Converts the XMP metadata tree to a wrapped string with an XMP packet header and footer.
+
+        Returns:
+            A string containing the XMP metadata wrapped in an XMP packet.
+        """
+        return f"""<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?>{self.to_string()}<?xpacket end="w"?>"""  # pylint: disable=line-too-long
 
     @classmethod
     def from_string(cls, xml_string: str) -> "JHXMPMetadata":
+        """
+        Creates a JHXMPMetadata instance from an XML string.
+
+        Args:
+            xml_string: A string containing XMP metadata in XML format.
+
+        Returns:
+            An instance of JHXMPMetadata with fields populated from the XML.
+        """
         instance = cls()
         root = etree.fromstring(xml_string)
 
@@ -203,11 +333,11 @@ class JHXMPMetadata:
                 creator_list.append(creator.text)
             instance.creator = ", ".join(creator_list)
 
-        dc_title_Element = root.xpath(
+        dc_title_element = root.xpath(
             "//dc:title/rdf:Alt/rdf:li", namespaces=cls.NAMESPACES
         )
-        if len(dc_title_Element) > 0:
-            instance.title = dc_title_Element[0].text
+        if len(dc_title_element) > 0:
+            instance.title = dc_title_element[0].text
 
         dc_description_element = root.xpath(
             "//dc:description/rdf:Alt/rdf:li", namespaces=cls.NAMESPACES
