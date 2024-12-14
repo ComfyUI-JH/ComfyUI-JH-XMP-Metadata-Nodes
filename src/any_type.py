@@ -1,11 +1,11 @@
 """
-This module defines a specialized string subclass, `AnyType`, which overrides the
-inequality operator (`!=`) to always return `False`. This behavior makes
+This module defines a specialized string subclass, `AnyType`, which overrides
+the inequality operator (`!=`) to always return `False`. This behavior makes
 instances of `AnyType` appear equal to any value when compared using `!=`.
 
 Copyright:
     This code is authored by pythongosssss and licensed under the MIT License.
-    For more details, visit: https://github.com/pythongosssss/ComfyUI-Custom-Scripts
+    https://github.com/pythongosssss/ComfyUI-Custom-Scripts
 """
 
 

@@ -1,6 +1,4 @@
 """
-jh_get_widget_value_nodes
-
 This module provides utility nodes for retrieving the value of specific widgets
 from a graph structure in ComfyUI. These nodes are designed to work with the
 XMP Metadata Nodes extension, offering support for extracting values in
@@ -15,7 +13,6 @@ Classes:
 These nodes operate by peeking into the graph's internal data structure
 to access widget inputs. While functional, they are somewhat fragile
 and may break if the graph's internal representation changes.
-
 """
 
 from .any_type import AnyType
