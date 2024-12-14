@@ -25,9 +25,10 @@ any_type = AnyType("*")
 
 class JHGetWidgetValueNode:
     """
-    Get the value of a specific widget from the graph. This class is slightly fragile
-    because it peeks into the inner data structure of the graph directly rather than
-    through any kind of API. Any change in how the graph is stored could break this.
+    Get the value of a specific widget from the graph. This class is slightly
+    fragile because it peeks into the inner data structure of the graph directly
+    rather than through any kind of API. Any change in how the graph is stored
+    could break this.
 
     Args:
         any_input: A raw link to any node in the graph.
@@ -115,18 +116,67 @@ class JHGetWidgetValueNode:
     @staticmethod
     def _get_widget_value_from_graph(node_id, widget_name, graph_data):
         """
-        Retrieves the value of a widget from the graph's internal data structure.
+        Retrieves the value of a widget from the graph's internal data
+        structure.
 
-        This method abstracts the logic for accessing the graph's internals,
-        making it easier to update if the structure changes in future versions
-        of ComfyUI. The way it's written right now is basically magic, and will
-        break if Comfy changes the graph data structure(s) basically at all. Here's
-        hoping they stay as they are.
+        This method handles the tricky business of digging into the graph's
+        internals, so if ComfyUI changes how the graph is structured in the
+        future, you'll only need to fix it here. Right now, it's a bit of a hack
+        (okay, maybe a lot of a hack), and it will almost certainly break if the
+        graph's data structure changes.
+
+        If you want a deeper understanding of how this method works, let's look
+        at an example of the graph data structure:
+
+            graph_data: {
+                "13": {
+                    "inputs": {
+                        "scheduler": "beta", "steps": 5, "denoise": 1.0,
+                        "model": ["471", 0],
+                    }, "class_type": "BasicScheduler", "_meta": {
+                        "title": "BasicScheduler"
+                    },
+                }, "471": {
+                    "inputs": {
+                        "unet_name": "FLUX1\\flux1-schnell-Q4_K_S.gguf"
+                    }, "class_type": "UnetLoaderGGUF", "_meta": {
+                        "title": "Unet Loader (GGUF)"
+                    },
+                }, "617": {
+                    "inputs": {
+                        "widget_name": "steps", "any_input": ["13", 0]
+                    }, "class_type": "JHGetWidgetValueIntNode", "_meta": {
+                        "title": "Get Widget Value (Integer)"
+                    }, "is_changed": [True],
+                },
+            }
+
+        In this example, there are three nodes: 13, 471 and 617. Each node is
+        associated with a dictionary containing its inputs, class type, and some
+        metadata (which in this case is the node's user-friendly title). Given
+        an upstream node ID (as an int) we can get that dictionary by using
+
+            graph_data[str(node_id)]
+
+        noting that the graph data structure keys are strings, not integers
+        (it's a JSON thing). This returns us the upstream node's dictionary; the
+        dictionary has a key called "inputs" which in turn is another dictionary
+        that lists input names and their values. We get this dictionary by using
+
+            graph_data[str(node_id)]["inputs"]
+
+        and then we look for the value of the given widget name like so:
+
+            graph_data[str(node_id)]["inputs"][widget_name]
+
+        As you can see, if any part of this data structure changes, this method
+        will break. The graph data structure has been stable for a while, so
+        this should all be fine. 🤞
 
         Args:
-            node_id (int): The ID of the upstream node.
-            widget_name (str): The name of the widget to fetch the value for.
-            graph_data (dict): The graph's prompt dictionary.
+            node_id (int): The ID of the upstream node. widget_name (str): The
+            name of the widget to fetch the value for. graph_data (dict): The
+            graph's prompt dictionary.
 
         Returns:
             The value of the widget.
@@ -134,21 +184,35 @@ class JHGetWidgetValueNode:
         Raises:
             KeyError: If the node ID or widget name is not found in the graph.
         """
+        _node: dict
         try:
-            return graph_data[str(node_id)]["inputs"][widget_name]
+            _node = graph_data[str(node_id)]
         except KeyError as exc:
             raise KeyError(
-                f"Failed to retrieve widget '{widget_name}' from node {node_id}."
-                " This may indicate a graph structure change or invalid input."
+                f"Node {node_id} not found in graph data. Available nodes: "
+                f"{list(graph_data.keys())}"
             ) from exc
+
+        if "inputs" not in _node:
+            raise KeyError(
+                f"Node {node_id} does not contain 'inputs'. Node data: {_node}"
+            )
+
+        if widget_name not in _node["inputs"]:
+            raise KeyError(
+                f"Widget '{widget_name}' not found in inputs of node {node_id}. "
+                f"Available widgets: {list(_node['inputs'].keys())}"
+            )
+
+        return _node["inputs"][widget_name]
 
 
 class JHGetWidgetValueStringNode(JHGetWidgetValueNode):
     """
     A node that retrieves a widget's value as a string.
 
-    Inherits from `JHGetWidgetValueNode` and converts the retrieved value
-    to a string before returning it.
+    Inherits from `JHGetWidgetValueNode` and converts the retrieved value to a
+    string before returning it.
 
     Args:
         any_input (tuple): A raw link to another node in the graph.
@@ -175,9 +239,9 @@ class JHGetWidgetValueIntNode(JHGetWidgetValueNode):
     """
     A node that retrieves a widget's value as an integer.
 
-    Inherits from `JHGetWidgetValueNode` and converts the retrieved value
-    to an integer before returning it. Raises a `ValueError` if the value
-    cannot be converted to an integer.
+    Inherits from `JHGetWidgetValueNode` and converts the retrieved value to an
+    integer before returning it. Raises a `ValueError` if the value cannot be
+    converted to an integer.
 
     Args:
         any_input (tuple): A raw link to another node in the graph.
@@ -205,7 +269,9 @@ class JHGetWidgetValueIntNode(JHGetWidgetValueNode):
                 super().get_widget_value(any_input, widget_name, prompt)[0]
             )
         except ValueError as exc:
-            raise ValueError(f"""Widget "{widget_name}" is not an integer""") from exc
+            raise ValueError(
+                f"""Widget "{widget_name}" has value "{widget_value}" which is not an integer"""
+            ) from exc
         return (widget_value,)
 
 
@@ -213,9 +279,9 @@ class JHGetWidgetValueFloatNode(JHGetWidgetValueNode):
     """
     A node that retrieves a widget's value as a float.
 
-    Inherits from `JHGetWidgetValueNode` and converts the retrieved value
-    to a float before returning it. Raises a `ValueError` if the value
-    cannot be converted to a float.
+    Inherits from `JHGetWidgetValueNode` and converts the retrieved value to a
+    float before returning it. Raises a `ValueError` if the value cannot be
+    converted to a float.
 
     Args:
         any_input (tuple): A raw link to another node in the graph.
@@ -243,5 +309,7 @@ class JHGetWidgetValueFloatNode(JHGetWidgetValueNode):
                 super().get_widget_value(any_input, widget_name, prompt)[0]
             )
         except ValueError as exc:
-            raise ValueError(f"""Widget "{widget_name}" is not a float""") from exc
+            raise ValueError(
+                f"""Widget "{widget_name}" has value "{widget_value}" which is not a float"""
+            ) from exc
         return (widget_value,)
