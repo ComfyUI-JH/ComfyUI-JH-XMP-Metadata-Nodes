@@ -1,14 +1,13 @@
 """
-jh_xmp_metadata.py
+This module provides the `JHXMPMetadata` class for creating,
+manipulating, and parsing XMP (Extensible Metadata Platform) metadata
+using the Adobe XMP format.
 
-This module provides the `JHXMPMetadata` class for creating, manipulating,
-and parsing XMP (Extensible Metadata Platform) metadata using the Adobe XMP format.
-
-XMP is a standard for embedding metadata in digital content, such as images and
-documents. It is widely used in creative industries to store information like
-authors, titles, descriptions, keywords, and editing instructions. This module
-is designed to handle such metadata programmatically in an efficient and
-easy-to-use manner.
+XMP is a standard for embedding metadata in digital content, such as
+images and documents. It is widely used in creative industries to store
+information like authors, titles, descriptions, keywords, and editing
+instructions. This module is designed to handle such metadata
+programmatically in an efficient and easy-to-use manner.
 
 Key Features:
 - Create and manage XMP metadata elements such as `creator`, `title`,
@@ -27,7 +26,8 @@ The module defines standard namespaces used in XMP metadata, such as:
 - `exif` (Exchangeable Image File Format)
 
 References:
-- Adobe XMP Specifications: https://developer.adobe.com/xmp/docs/XMPSpecifications/
+- Adobe XMP Specifications:
+  https://developer.adobe.com/xmp/docs/XMPSpecifications/
 
 Dependencies:
 - `lxml` for XML processing
@@ -60,18 +60,19 @@ from typing import Final
 from lxml import etree
 
 
-
 class JHXMPMetadata:
     """
-    A class for managing and manipulating XMP metadata using the Adobe XMP format.
+    A class for managing and manipulating XMP metadata using the Adobe
+    XMP format.
 
-    This class provides properties for common metadata fields such as creator, title,
-    description, subject, and instructions. It allows creating, modifying, and parsing
-    XMP metadata represented as XML.
+    This class provides properties for common metadata fields such as
+    creator, title, description, subject, and instructions. It allows
+    creating, modifying, and parsing XMP metadata represented as XML.
 
     References:
     - https://developer.adobe.com/xmp/docs/XMPSpecifications/
     """
+
     NAMESPACES: Final = {
         "x": "adobe:ns:meta/",
         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -84,7 +85,8 @@ class JHXMPMetadata:
 
     def __init__(self):
         """
-        Initializes an empty XMP metadata structure with predefined namespaces.
+        Initializes an empty XMP metadata structure with predefined
+        namespaces.
         """
         self._creator: str | None = None
         self._title: str | None = None
@@ -119,16 +121,23 @@ class JHXMPMetadata:
     @property
     def creator(self) -> str | None:
         """
-        The creator(s) of the content, represented as a comma-separated string.
+        The creator(s) of the content, represented as a comma-separated
+        string.
 
-        Setting this property updates the corresponding XMP metadata field. If set to None
-        or an empty string, the field is removed from the metadata.
+        Setting this property updates the corresponding XMP metadata
+        field. If set to None or an empty string, the field is removed
+        from the metadata.
         """
         return self._creator
 
     @creator.setter
     def creator(self, value: str | None) -> None:
-        if value is None or value == "" or isinstance(value, str) and value.strip() == "":
+        if (
+            value is None
+            or value == ""
+            or isinstance(value, str)
+            and value.strip() == ""
+        ):
             self._creator = None
             if self._dc_creator_element is not None:
                 self._rdf_description.remove(self._dc_creator_element)
@@ -156,14 +165,20 @@ class JHXMPMetadata:
         """
         The title of the content.
 
-        Setting this property updates the corresponding XMP metadata field. If set to None
-        or an empty string, the field is removed from the metadata.
+        Setting this property updates the corresponding XMP metadata
+        field. If set to None or an empty string, the field is removed
+        from the metadata.
         """
         return self._title
 
     @title.setter
     def title(self, value: str | None) -> None:
-        if value is None or value == "" or isinstance(value, str) and value.strip() == "":
+        if (
+            value is None
+            or value == ""
+            or isinstance(value, str)
+            and value.strip() == ""
+        ):
             self._title = None
             if self._dc_title_element is not None:
                 self._rdf_description.remove(self._dc_title_element)
@@ -188,14 +203,20 @@ class JHXMPMetadata:
         """
         The description or summary of the content.
 
-        Setting this property updates the corresponding XMP metadata field. If set to None
-        or an empty string, the field is removed from the metadata.
+        Setting this property updates the corresponding XMP metadata
+        field. If set to None or an empty string, the field is removed
+        from the metadata.
         """
         return self._description
 
     @description.setter
     def description(self, value: str | None) -> None:
-        if value is None or value == "" or isinstance(value, str) and value.strip() == "":
+        if (
+            value is None
+            or value == ""
+            or isinstance(value, str)
+            and value.strip() == ""
+        ):
             self._description = None
             if self._dc_description_element is not None:
                 self._rdf_description.remove(self._dc_description_element)
@@ -218,17 +239,23 @@ class JHXMPMetadata:
     @property
     def subject(self) -> str | None:
         """
-        The subject or keywords associated with the content, represented as a comma-separated
-        string.
+        The subject or keywords associated with the content, represented
+        as a comma-separated string.
 
-        Setting this property updates the corresponding XMP metadata field. If set to None
-        or an empty string, the field is removed from the metadata.
+        Setting this property updates the corresponding XMP metadata
+        field. If set to None or an empty string, the field is removed
+        from the metadata.
         """
         return self._subject
 
     @subject.setter
     def subject(self, value: str | None) -> None:
-        if value is None or value == "" or isinstance(value, str) and value.strip() == "":
+        if (
+            value is None
+            or value == ""
+            or isinstance(value, str)
+            and value.strip() == ""
+        ):
             self._subject = None
             if self._dc_subject_element is not None:
                 self._rdf_description.remove(self._dc_subject_element)
@@ -254,16 +281,23 @@ class JHXMPMetadata:
     @property
     def instructions(self) -> str | None:
         """
-        Special instructions or notes for the content, typically used in a Photoshop context.
+        Special instructions or notes for the content, typically used in
+        a Photoshop context.
 
-        Setting this property updates the corresponding XMP metadata field. If set to None
-        or an empty string, the field is removed from the metadata.
+        Setting this property updates the corresponding XMP metadata
+        field. If set to None or an empty string, the field is removed
+        from the metadata.
         """
         return self._instructions
 
     @instructions.setter
     def instructions(self, value: str | None) -> None:
-        if value is None or value == "" or isinstance(value, str) and value.strip() == "":
+        if (
+            value is None
+            or value == ""
+            or isinstance(value, str)
+            and value.strip() == ""
+        ):
             self._instructions = None
             if self._photoshop_instructions_element is not None:
                 self._rdf_description.remove(self._photoshop_instructions_element)
@@ -277,7 +311,8 @@ class JHXMPMetadata:
 
     def _string_to_list(self, string: str) -> list[str]:
         """
-        Splits a string into a list of items using semicolons or commas as delimiters.
+        Splits a string into a list of items using semicolons or commas
+        as delimiters.
 
         Args:
             string: A string containing items separated by semicolons or commas.
@@ -303,7 +338,8 @@ class JHXMPMetadata:
 
     def to_wrapped_string(self) -> str:
         """
-        Converts the XMP metadata tree to a wrapped string with an XMP packet header and footer.
+        Converts the XMP metadata tree to a wrapped string with an XMP
+        packet header and footer.
 
         Returns:
             A string containing the XMP metadata wrapped in an XMP packet.

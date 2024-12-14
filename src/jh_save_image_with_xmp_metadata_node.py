@@ -1,12 +1,9 @@
 """
-Module for saving images with XMP metadata.
-
-This module provides classes and methods to handle image saving operations,
-including embedding XMP metadata into supported image formats.
-
-Classes:
-    JHSupportedImageTypes: Enum representing supported image formats.
-    JHSaveImageWithXMPMetadataNode: Handles saving images with metadata.
+This module provides classes and methods to handle image saving
+operations, including embedding XMP metadata into supported image
+formats. This code was partially taken from ComfyUI, which is licensed
+under the GNU GPL v3 license. Used by permission.
+https://github.com/comfyanonymous/ComfyUI
 """
 
 import json
@@ -26,14 +23,19 @@ class JHSupportedImageTypes(StrEnum):
     """
     Enumeration representing supported image types.
 
-    This enum defines a set of image formats that are supported for saving with metadata,
-    including standard formats as well as specialized formats with additional metadata.
+    This enum defines a set of image formats that are supported for
+    saving with metadata, including standard formats as well as
+    specialized formats with additional metadata.
 
     Attributes:
-        JPEG: Represents the JPEG format, a commonly used lossy compressed image format.
-        PNG_WITH_WORKFLOW: Represents a PNG file with an embedded ComfyUI workflow.
-        PNG: Represents the standard PNG format, a lossless image compression format.
-        LOSSLESS_WEBP: Represents the WebP format in its lossless variant.
+        JPEG: Represents the JPEG format, a commonly used lossy
+        compressed image format.
+        PNG_WITH_WORKFLOW: Represents a PNG file with an embedded
+        ComfyUI workflow.
+        PNG: Represents the standard PNG format, a lossless image
+        compression format.
+        LOSSLESS_WEBP: Represents the WebP format in its lossless
+        variant.
         WEBP: Represents the standard lossy WebP format.
     """
 
@@ -48,15 +50,17 @@ class JHSaveImageWithXMPMetadataNode:
     """
     A node for saving images with XMP metadata.
 
-    This class is designed to handle the saving of images with optional XMP metadata.
-    It supports multiple image formats and provides flexibility for embedding metadata
-    like creator, title, description, and custom XML strings.
+    This class is designed to handle the saving of images with optional
+    XMP metadata. It supports multiple image formats and provides
+    flexibility for embedding metadata like creator, title, description,
+    and custom XML strings.
 
     Attributes:
         output_dir (str): The directory where images will be saved.
         type (str): The type of node, typically 'output'.
         prefix_append (str): A string to append to filename prefixes.
-        compress_level (int): Compression level for saving images (applicable for some formats).
+        compress_level (int): Compression level for saving images
+        (applicable for some formats).
     """
 
     def __init__(self, output_dir: str | None = None):
@@ -75,7 +79,8 @@ class JHSaveImageWithXMPMetadataNode:
         Define the input types and their configuration for the node.
 
         Returns:
-            dict: A dictionary of required, optional, and hidden input types.
+            dict: A dictionary of required, optional, and hidden input
+            types.
         """
         return {
             "required": {
@@ -155,29 +160,23 @@ class JHSaveImageWithXMPMetadataNode:
         extra_pnginfo: dict | None = None,
     ) -> dict:
         """
-        Saves a batch of images to disk with metadata and specified formats.
+        Saves a batch of images to disk with metadata and specified
+        formats.
 
-        This method processes a list of images, embeds metadata such as creator,
-        title, description, and XMP workflow, and saves them in the desired file
-        format and directory structure.
+        This method processes a list of images, embeds metadata such as
+        creator, title, description, and XMP workflow, and saves them in
+        the desired file format and directory structure.
 
         Args:
             images (list): List of images to save, where each image is a numpy array.
             filename_prefix (str): Prefix for the saved file names. Default is "ComfyUI".
-            image_type (JHSupportedImageTypes): Format in which to save the images
-                (e.g., JPEG, PNG, WebP). Defaults to PNG with embedded workflow.
-            creator (str | list | None): Creator metadata. Can be a string or a list
-                matching the batch size.
-            title (str | list | None): Title metadata. Can be a string or a list matching
-                the batch size.
-            description (str | list | None): Description metadata. Can be a string or a list
-                matching the batch size.
-            subject (str | list | None): Subject metadata. Can be a string or a list
-                matching the batch size.
-            instructions (str | list | None): Instructions metadata. Can be a string or
-                a list matching the batch size.
-            xml_string (str | None): Optional pre-generated XML metadata string. If provided,
-                this overrides the individual metadata fields.
+            image_type (JHSupportedImageTypes): Format in which to save the images (e.g., JPEG, PNG, WebP). Defaults to PNG with embedded workflow.
+            creator (str | list | None): Creator metadata. Can be a string or a list matching the batch size.
+            title (str | list | None): Title metadata. Can be a string or a list matching the batch size.
+            description (str | list | None): Description metadata. Can be a string or a list matching the batch size.
+            subject (str | list | None): Subject metadata. Can be a string or a list matching the batch size.
+            instructions (str | list | None): Instructions metadata. Can be a string or a list matching the batch size.
+            xml_string (str | None): Optional pre-generated XML metadata string. If provided, this overrides the individual metadata fields.
             prompt (str | None): Prompt metadata to embed in the image (if applicable).
             extra_pnginfo (dict | None): Additional PNG metadata, such as workflow information.
 
@@ -254,12 +253,12 @@ class JHSaveImageWithXMPMetadataNode:
         """
         Return XMP metadata as a string.
 
-        If xml_string is provided, use it as the XMP metadata. Otherwise, create
-        a JHXMPMetadata object and populate it with the provided metadata fields.
-        If the fields are lists, use the value at the index given by batch_number.
-        If the fields are single values, use the same value for all images.
-        Return the XMP metadata as a string wrapped in a <?xpacket begin="..."?>
-        tag.
+        If xml_string is provided, use it as the XMP metadata.
+        Otherwise, create a JHXMPMetadata object and populate it with
+        the provided metadata fields. If the fields are lists, use the
+        value at the index given by batch_number. If the fields are
+        single values, use the same value for all images. Return the XMP
+        metadata as a string wrapped in a <?xpacket begin="..."?> tag.
         """
 
         xmp: str
@@ -330,8 +329,9 @@ class JHSaveImageWithXMPMetadataNode:
         """
         Saves an image to the specified path with embedded XMP metadata.
 
-        This method handles different image formats and embeds XMP metadata
-        and optional additional information such as prompts and workflows.
+        This method handles different image formats and embeds XMP
+        metadata and optional additional information such as prompts and
+        workflows.
 
         Args:
             image (Image): The image to be saved.
