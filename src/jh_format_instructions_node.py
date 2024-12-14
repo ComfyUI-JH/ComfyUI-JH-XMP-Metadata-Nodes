@@ -1,3 +1,38 @@
+"""
+This module defines the `JHFormatInstructionsNode` class, which provides
+functionality for formatting metadata into a structured string based on
+customizable templates. The class includes a default format string and allows
+users to define their own templates with placeholders for specific metadata
+fields.
+
+Key Features:
+- **Default Format String**: A predefined template for common metadata fields,
+  including prompt, model, seed, and more.
+- **Customizable Templates**: Users can supply their own templates to
+  accommodate specific use cases.
+- **Validation**: Ensures that provided templates contain valid placeholders,
+  preventing formatting errors.
+- **Input Definitions**: Provides a structured way to define required and
+  optional inputs for the node.
+- **Change Detection**: Implements logic to always mark the node as changed,
+  enabling dynamic updates.
+
+The primary use case for this module is within the context of AI image
+generation workflows where metadata needs to be structured for storage, display,
+or further processing.
+
+Classes:
+- `JHFormatInstructionsNode`: Encapsulates all functionality related to
+  formatting metadata and defining node inputs.
+
+Dependencies:
+- `textwrap`: For handling multi-line format strings.
+- `typing`: For type annotations, including `Any`, `Dict`, `Final`, and `Tuple`.
+
+This module is intended for use within the ComfyUI framework, specifically as
+part of a custom node package for handling XMP metadata.
+"""
+
 import textwrap
 from typing import Any, Dict, Final, Tuple
 
