@@ -10,8 +10,9 @@ Classes:
 """
 
 import json
-import os
 from enum import StrEnum
+from pathlib import Path
+from typing import Optional
 
 import folder_paths  # pylint: disable=import-error
 import numpy as np
@@ -202,9 +203,105 @@ class JHSaveImageWithXMPMetadataNode:
                 filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0]
             )
         )
-        xmpmetadata: JHXMPMetadata | None = None
         results: list = []
 
+        filename_extension: str = self.extension_for_type(image_type)
+
+        for batch_number, image in enumerate(images):
+            i: np.ndarray = 255.0 * image.cpu().numpy()
+            img: Image = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
+            filename_with_batch_num: str = filename.replace(
+                "%batch_num%", str(batch_number)
+            )
+            file: str = f"{filename_with_batch_num}_{counter:05}_.{filename_extension}"
+
+            xmp = self.xmp(
+                creator,
+                title,
+                description,
+                subject,
+                instructions,
+                xml_string,
+                batch_number,
+            )
+
+            self.save_image(
+                img,
+                image_type,
+                Path(full_output_folder) / file,
+                xmp,
+                prompt,
+                extra_pnginfo,
+            )
+
+            results.append(
+                {"filename": file, "subfolder": subfolder, "type": self.type}
+            )
+            counter += 1
+
+        return {"result": (images,), "ui": {"images": results}}
+
+    def xmp(
+        self,
+        creator,
+        title,
+        description,
+        subject,
+        instructions,
+        xml_string,
+        batch_number,
+    ):
+        """
+        Return XMP metadata as a string.
+
+        If xml_string is provided, use it as the XMP metadata. Otherwise, create
+        a JHXMPMetadata object and populate it with the provided metadata fields.
+        If the fields are lists, use the value at the index given by batch_number.
+        If the fields are single values, use the same value for all images.
+        Return the XMP metadata as a string wrapped in a <?xpacket begin="..."?>
+        tag.
+        """
+
+        if xml_string is not None:
+            xmp: str = xml_string
+        else:
+            xmpmetadata = JHXMPMetadata()
+            xmpmetadata.creator = (
+                creator[batch_number] if isinstance(creator, list) else creator
+            )
+            xmpmetadata.title = (
+                title[batch_number] if isinstance(title, list) else title
+            )
+            xmpmetadata.description = (
+                description[batch_number]
+                if isinstance(description, list)
+                else description
+            )
+            xmpmetadata.subject = (
+                subject[batch_number] if isinstance(subject, list) else subject
+            )
+            xmpmetadata.instructions = (
+                instructions[batch_number]
+                if isinstance(instructions, list)
+                else instructions
+            )
+            xmp = xmpmetadata.to_wrapped_string()
+        return xmp
+
+    def extension_for_type(self, image_type: JHSupportedImageTypes) -> str:
+        """
+        Determines the file extension for a given image type.
+
+        Args:
+            image_type (JHSupportedImageTypes): The type of the image.
+
+        Returns:
+            str: The file extension corresponding to the given image type.
+
+        Raises:
+            ValueError: If the provided image type is not supported.
+        """
+        filename_extension: str
         match image_type:
             case JHSupportedImageTypes.JPEG:
                 filename_extension: str = "jpg"
@@ -218,88 +315,74 @@ class JHSaveImageWithXMPMetadataNode:
                 filename_extension: str = "webp"
             case _:
                 raise ValueError(f"Unsupported image type: {image_type}")
+        return filename_extension
 
-        for batch_number, image in enumerate(images):
-            i: np.ndarray = 255.0 * image.cpu().numpy()
-            img: Image = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
-            filename_with_batch_num: str = filename.replace(
-                "%batch_num%", str(batch_number)
-            )
-            file: str = f"{filename_with_batch_num}_{counter:05}_.{filename_extension}"
+    def save_image(
+        self,
+        image: Image,
+        image_type: JHSupportedImageTypes,
+        to_path: Path,
+        xmp: str,
+        prompt: Optional[str] = None,
+        extra_pnginfo: Optional[dict] = None,
+    ) -> None:
+        """
+        Saves an image to the specified path with embedded XMP metadata.
 
-            if xml_string is not None:
-                xmp: str = xml_string
-            else:
-                xmpmetadata = JHXMPMetadata()
-                if isinstance(creator, list):
-                    xmpmetadata.creator = creator[batch_number]
-                else:
-                    xmpmetadata.creator = creator
-                if isinstance(title, list):
-                    xmpmetadata.title = title[batch_number]
-                else:
-                    xmpmetadata.title = title
-                if isinstance(description, list):
-                    xmpmetadata.description = description[batch_number]
-                else:
-                    xmpmetadata.description = description
-                if isinstance(subject, list):
-                    xmpmetadata.subject = subject[batch_number]
-                else:
-                    xmpmetadata.subject = subject
-                if isinstance(instructions, list):
-                    xmpmetadata.instructions = instructions[batch_number]
-                else:
-                    xmpmetadata.instructions = instructions
-                xmp = xmpmetadata.to_wrapped_string().encode("utf-8")
+        This method handles different image formats and embeds XMP metadata
+        and optional additional information such as prompts and workflows.
 
-            match image_type:
-                case JHSupportedImageTypes.PNG_WITH_WORKFLOW:
-                    pnginfo: PngInfo = PngInfo()
-                    pnginfo.add_text("XML:com.adobe.xmp", xmp)
-                    if prompt is not None:
-                        pnginfo.add_text("prompt", json.dumps(prompt))
-                    if extra_pnginfo is not None:
-                        pnginfo.add_text(
-                            "workflow", json.dumps(extra_pnginfo["workflow"])
-                        )
-                    img.save(
-                        os.path.join(full_output_folder, file),
-                        pnginfo=pnginfo,
-                        compress_level=self.compress_level,
-                    )
+        Args:
+            image (Image): The image to be saved.
+            image_type (JHSupportedImageTypes): The format in which to save the image.
+            to_path (Path): The file path where the image will be saved.
+            xmp (str): The XMP metadata, as an XML string, to embed in the image.
+            prompt (Optional[str]): Optional prompt metadata to include in PNG images.
+            extra_pnginfo (Optional[dict]): Additional PNG metadata such as workflow information.
 
-                case JHSupportedImageTypes.PNG:
-                    pnginfo: PngInfo = PngInfo()
-                    pnginfo.add_text("XML:com.adobe.xmp", xmp)
-                    img.save(
-                        os.path.join(full_output_folder, file),
-                        pnginfo=pnginfo,
-                        compress_level=self.compress_level,
-                    )
+        Raises:
+            ValueError: If the provided image type is not supported.
+        """
+        print(f"Saving image to {to_path}")
+        print(f"type(xmp): {type(xmp)}")
+        match image_type:
+            case JHSupportedImageTypes.PNG_WITH_WORKFLOW:
+                pnginfo: PngInfo = PngInfo()
+                pnginfo.add_text("XML:com.adobe.xmp", xmp)
+                if prompt is not None:
+                    pnginfo.add_text("prompt", json.dumps(prompt))
+                if extra_pnginfo is not None:
+                    pnginfo.add_text("workflow", json.dumps(extra_pnginfo["workflow"]))
+                image.save(
+                    to_path,
+                    pnginfo=pnginfo,
+                    compress_level=self.compress_level,
+                )
 
-                case JHSupportedImageTypes.JPEG:
-                    img.save(
-                        os.path.join(full_output_folder, file),
-                        xmp=xmp,
-                    )
+            case JHSupportedImageTypes.PNG:
+                pnginfo: PngInfo = PngInfo()
+                pnginfo.add_text("XML:com.adobe.xmp", xmp)
+                image.save(
+                    to_path,
+                    pnginfo=pnginfo,
+                    compress_level=self.compress_level,
+                )
 
-                case JHSupportedImageTypes.LOSSLESS_WEBP:
-                    img.save(
-                        os.path.join(full_output_folder, file),
-                        xmp=xmp,
-                        lossless=True,
-                    )
+            case JHSupportedImageTypes.JPEG:
+                image.save(
+                    to_path,
+                    xmp=xmp.encode("utf-8"),
+                )
 
-                case JHSupportedImageTypes.WEBP:
-                    img.save(
-                        os.path.join(full_output_folder, file),
-                        xmp=xmp,
-                    )
+            case JHSupportedImageTypes.LOSSLESS_WEBP:
+                image.save(
+                    to_path,
+                    xmp=xmp,
+                    lossless=True,
+                )
 
-            results.append(
-                {"filename": file, "subfolder": subfolder, "type": self.type}
-            )
-            counter += 1
+            case JHSupportedImageTypes.WEBP:
+                image.save(to_path, xmp=xmp)
 
-        return {"result": (images,), "ui": {"images": results}}
+            case _:
+                raise ValueError(f"Unsupported image type: {image_type}")
