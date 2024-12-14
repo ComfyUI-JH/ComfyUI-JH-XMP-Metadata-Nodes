@@ -42,7 +42,9 @@ class JHGetWidgetValueNode:
     """
 
     @classmethod
-    def IS_CHANGED(cls, *args, **kwargs):  # pylint: disable=invalid-name,unused-argument
+    def IS_CHANGED(
+        cls, *args, **kwargs
+    ):  # pylint: disable=invalid-name,unused-argument
         """
         Determines whether the node's output should be re-evaluated.
 
@@ -85,18 +87,9 @@ class JHGetWidgetValueNode:
     FUNCTION = "get_widget_value"
     CATEGORY = "XMP Metadata Nodes/Utilities"
 
-    def get_widget_value(
-        self,
-        any_input,
-        widget_name,
-        prompt,
-    ):
+    def get_widget_value(self, any_input, widget_name, prompt):
         """
         Retrieves the value of a specified widget from the graph.
-
-        Accesses the upstream node's data structure to fetch the value of
-        the widget identified by its name. This method assumes the graph's
-        internal representation and may fail if the structure changes.
 
         Args:
             any_input (tuple): A raw link to another node in the graph.
@@ -114,13 +107,40 @@ class JHGetWidgetValueNode:
             raise ValueError("widget_name must not be empty")
 
         upstream_node_id = int(any_input[0])
-
-        try:
-            widget_value = prompt[str(upstream_node_id)]["inputs"][widget_name]
-        except KeyError as exc:
-            raise KeyError(f"Widget {widget_name} not found in node {upstream_node_id}") from exc
-
+        widget_value = self._get_widget_value_from_graph(
+            upstream_node_id, widget_name, prompt
+        )
         return (widget_value,)
+
+    @staticmethod
+    def _get_widget_value_from_graph(node_id, widget_name, graph_data):
+        """
+        Retrieves the value of a widget from the graph's internal data structure.
+
+        This method abstracts the logic for accessing the graph's internals,
+        making it easier to update if the structure changes in future versions
+        of ComfyUI. The way it's written right now is basically magic, and will
+        break if Comfy changes the graph data structure(s) basically at all. Here's
+        hoping they stay as they are.
+
+        Args:
+            node_id (int): The ID of the upstream node.
+            widget_name (str): The name of the widget to fetch the value for.
+            graph_data (dict): The graph's prompt dictionary.
+
+        Returns:
+            The value of the widget.
+
+        Raises:
+            KeyError: If the node ID or widget name is not found in the graph.
+        """
+        try:
+            return graph_data[str(node_id)]["inputs"][widget_name]
+        except KeyError as exc:
+            raise KeyError(
+                f"Failed to retrieve widget '{widget_name}' from node {node_id}."
+                " This may indicate a graph structure change or invalid input."
+            ) from exc
 
 
 class JHGetWidgetValueStringNode(JHGetWidgetValueNode):
@@ -138,6 +158,7 @@ class JHGetWidgetValueStringNode(JHGetWidgetValueNode):
     Returns:
         tuple: A single-item tuple containing the widget's value as a string.
     """
+
     RETURN_TYPES = ("STRING",)
 
     def get_widget_value(
@@ -169,6 +190,7 @@ class JHGetWidgetValueIntNode(JHGetWidgetValueNode):
     Raises:
         ValueError: If the widget's value cannot be converted to an integer.
     """
+
     RETURN_TYPES = ("INT",)
 
     def get_widget_value(
@@ -206,6 +228,7 @@ class JHGetWidgetValueFloatNode(JHGetWidgetValueNode):
     Raises:
         ValueError: If the widget's value cannot be converted to a float.
     """
+
     RETURN_TYPES = ("FLOAT",)
 
     def get_widget_value(
