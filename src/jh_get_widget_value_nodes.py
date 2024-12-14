@@ -42,15 +42,19 @@ class JHGetWidgetValueNode:
     """
 
     @classmethod
-    def IS_CHANGED(cls, **kwargs):  # pylint: disable=invalid-name
+    def IS_CHANGED(cls, *args, **kwargs):  # pylint: disable=invalid-name,unused-argument
         """
         Determines whether the node's output should be re-evaluated.
 
-        This implementation always returns True, forcing the node to reprocess
-        its inputs on every execution.
+        Always returns True, regardless of the arguments passed, ensuring that
+        the node reprocesses its inputs on every execution.
+
+        Args:
+            *args: Positional arguments passed dynamically by the framework.
+            **kwargs: Keyword arguments passed dynamically by the framework.
 
         Returns:
-            bool: Always True, indicating the node's state has changed.
+            bool: Always True.
         """
         return True
 
