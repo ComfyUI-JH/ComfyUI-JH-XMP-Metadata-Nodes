@@ -4,9 +4,10 @@ from typing import Any, Dict, Final, Tuple
 
 class JHFormatInstructionsNode:
     """
-    A utility class for formatting metadata into a structured string based on customizable templates.
-    This class provides a default format string and allows users to supply custom templates
-    with placeholders for specific metadata fields.
+    A utility class for formatting metadata into a structured string based on
+    customizable templates. This class provides a default format string and
+    allows users to supply custom templates with placeholders for specific
+    metadata fields.
     """
 
     DEFAULT_FORMAT_STRING: Final[str] = textwrap.dedent(
@@ -24,12 +25,13 @@ class JHFormatInstructionsNode:
     ).strip()
 
     @classmethod
-    def INPUT_TYPES(cls) -> Dict[str, Any]:
+    def INPUT_TYPES(cls) -> Dict[str, Any]:  # pylint: disable=invalid-name
         """
         Defines the input types for the format instructions node.
 
         Returns:
-            A dictionary containing required and optional inputs with their respective types and defaults.
+            A dictionary containing required and optional inputs with their
+            respective types and defaults.
         """
         return {
             "required": {
@@ -70,7 +72,7 @@ class JHFormatInstructionsNode:
     CATEGORY = "XMP Metadata Nodes"
 
     @classmethod
-    def IS_CHANGED(cls, **kwargs: Any) -> bool:
+    def IS_CHANGED(cls, **kwargs: Any) -> bool:  # pylint: disable=unused-argument,invalid-name
         """
         Determines if the node has changed based on the provided arguments.
 
@@ -85,7 +87,8 @@ class JHFormatInstructionsNode:
     @staticmethod
     def validate_format_string(format_string: str) -> None:
         """
-        Validates the format string to ensure it contains only supported placeholders.
+        Validates the format string to ensure it contains only supported
+        placeholders.
 
         Args:
             format_string: The format string to validate.
@@ -105,12 +108,13 @@ class JHFormatInstructionsNode:
                 cfg="",
                 guidance="",
             )
-        except KeyError as e:
+        except KeyError as exc:
             raise ValueError(
-                f"Invalid placeholder '{e.args[0]}' in format_string. "
+                f"Invalid placeholder '{exc.args[0]}' in format_string. "
                 "Ensure all placeholders match the available keys: "
-                "{prompt, negative_prompt, model_name, seed, sampler_name, scheduler_name, steps, cfg, guidance}."
-            )
+                "{prompt, negative_prompt, model_name, seed, sampler_name, "
+                "scheduler_name, steps, cfg, guidance}."
+            ) from exc
 
     def format_instructions(
         self,
@@ -138,7 +142,7 @@ class JHFormatInstructionsNode:
             steps: The number of steps.
             cfg: The classifier-free guidance scale.
             guidance: The guidance scale.
-            format_string: The format string template. Must include valid placeholders.
+            format_string: The format string template.
 
         Returns:
             A tuple containing the formatted string.
@@ -155,7 +159,7 @@ class JHFormatInstructionsNode:
             scheduler_name=scheduler_name or "",
             steps="" if steps is None else steps,  # Ensure 0 is not treated as None
             seed=seed or "",
-            cfg="" if cfg is None else cfg,        # Same for cfg
+            cfg="" if cfg is None else cfg,  # Same for cfg
             guidance="" if guidance is None else guidance,
         )
         return (formatted_string,)
