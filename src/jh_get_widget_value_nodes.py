@@ -117,8 +117,8 @@ class JHGetWidgetValueNode:
 
         try:
             widget_value = prompt[str(upstream_node_id)]["inputs"][widget_name]
-        except KeyError:
-            raise KeyError(f"Widget {widget_name} not found in node {upstream_node_id}")
+        except KeyError as exc:
+            raise KeyError(f"Widget {widget_name} not found in node {upstream_node_id}") from exc
 
         return (widget_value,)
 
@@ -182,8 +182,8 @@ class JHGetWidgetValueIntNode(JHGetWidgetValueNode):
             widget_value = int(
                 super().get_widget_value(any_input, widget_name, prompt)[0]
             )
-        except ValueError:
-            raise ValueError(f"""Widget "{widget_name}" is not an integer""")
+        except ValueError as exc:
+            raise ValueError(f"""Widget "{widget_name}" is not an integer""") from exc
         return (widget_value,)
 
 
@@ -219,6 +219,6 @@ class JHGetWidgetValueFloatNode(JHGetWidgetValueNode):
             widget_value = float(
                 super().get_widget_value(any_input, widget_name, prompt)[0]
             )
-        except ValueError:
-            raise ValueError(f"""Widget "{widget_name}" is not a float""")
+        except ValueError as exc:
+            raise ValueError(f"""Widget "{widget_name}" is not a float""") from exc
         return (widget_value,)
