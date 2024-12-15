@@ -58,7 +58,11 @@ class JHFormatInstructionsNode:
     CATEGORY = "XMP Metadata Nodes"
 
     @classmethod
-    def IS_CHANGED(cls, *args: tuple[Any], **kwargs: dict[str, Any]) -> bool:
+    def IS_CHANGED(
+        cls,  # pylint: disable=unused-argument
+        *args: tuple[Any],
+        **kwargs: dict[str, Any],
+    ) -> bool:
         return True
 
     @staticmethod
