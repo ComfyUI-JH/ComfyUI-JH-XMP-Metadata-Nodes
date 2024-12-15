@@ -104,7 +104,7 @@ class JHFormatInstructionsNode:
             sampler_name=sampler_name or "",
             scheduler_name=scheduler_name or "",
             steps="" if steps is None else steps,  # Ensure 0 is not treated as None
-            seed=seed or "",
+            seed="" if seed is None else seed,  # Ensure 0 is treated as a valid value
             cfg="" if cfg is None else cfg,  # Same for cfg
             guidance="" if guidance is None else guidance,
         )
