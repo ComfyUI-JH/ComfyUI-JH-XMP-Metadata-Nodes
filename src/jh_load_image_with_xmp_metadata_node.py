@@ -1,15 +1,3 @@
-"""
-This module defines the `JHLoadImageWithXMPMetadataNode` class, which
-provides functionality for loading images along with their embedded XMP
-metadata. The class integrates seamlessly with the ComfyUI framework to
-enable developers to work with image files that include metadata for
-workflows involving AI image generation and processing.
-
-This code was partially taken from ComfyUI, which is licensed under the
-GNU GPL v3 license. Used by permission.
-https://github.com/comfyanonymous/ComfyUI
-"""
-
 import hashlib
 import os
 
@@ -24,77 +12,8 @@ from .jh_xmp_metadata import JHXMPMetadata
 
 
 class JHLoadImageWithXMPMetadataNode:
-    """
-    A class representing a custom node to load images with embedded XMP
-    metadata.
-
-    This node provides functionality for loading images, extracting
-    their XMP metadata, and converting them into a format suitable for
-    processing, including generating image masks. It can handle
-    multi-frame images and ensure consistent dimensions across loaded
-    frames.
-
-    Attributes:
-        INPUT_TYPES (dict): Defines the input types for the node,
-            specifying the directory to fetch images and the required
-            inputs.
-        RETURN_TYPES (tuple): Specifies the types of outputs returned by
-            the node, including the image, mask, and XMP metadata fields.
-        RETURN_NAMES (tuple): Defines the names of the returned outputs
-            for clarity and easy referencing.
-        FUNCTION (str): The name of the function to invoke for
-            processing the inputs.
-        CATEGORY (str): Specifies the category under which this node is
-            grouped.
-        OUTPUT_NODE (bool): Indicates whether this node is an output
-            node.
-
-    Methods:
-        INPUT_TYPES():
-            Defines the input schema for the node, dynamically fetching
-            available images from the input directory.
-
-        load_image(image):
-            Loads an image, processes it into a tensor, extracts its
-            metadata if present, and generates a corresponding mask.
-            Handles multi-frame images and ensures consistent dimensions
-            across frames.
-
-        IS_CHANGED(image):
-            Generates a SHA-256 hash for the specified image file to
-            check if the image has changed.
-
-        VALIDATE_INPUTS(image):
-            Validates the input image file by checking if the annotated
-            file path exists.
-
-    Dependencies:
-        - Uses `Pillow` (PIL) for image handling and metadata
-          extraction.
-        - Uses `numpy` and `torch` for numerical operations and tensor
-          manipulation.
-        - Relies on `folder_paths` for managing input file paths and
-          annotations.
-        - Integrates with `JHXMPMetadata` for parsing and handling XMP
-          metadata.
-
-    Example Usage:
-        # Instantiate and use the node
-        node = JHLoadImageWithXMPMetadataNode()
-        inputs = node.INPUT_TYPES()
-        result = node.load_image("example_image.jpg")
-        print(result)  # Outputs image, mask, and metadata fields.
-    """
-
     @classmethod
-    def INPUT_TYPES(cls):  # pylint: disable=invalid-name
-        """
-        Defines the input types for the `JHLoadImageWithXMPMetadataNode`.
-
-        This method dynamically fetches the available image files from
-        the input directory and returns a dictionary specifying the
-        required inputs for the node.
-        """
+    def INPUT_TYPES(cls):
         input_dir = folder_paths.get_input_directory()
         files = [
             f
@@ -130,46 +49,6 @@ class JHLoadImageWithXMPMetadataNode:
     OUTPUT_NODE = False
 
     def load_image(self, image):
-        """
-        Loads an image, processes it into a tensor, extracts embedded
-        XMP metadata if available, and generates a corresponding mask.
-
-        This method handles multi-frame images, ensuring consistent
-        dimensions across frames, and processes metadata fields such as
-        creator, title, description, and instructions from XMP metadata
-        embedded in the image. It also normalizes images for further
-        processing in ComfyUI workflows.
-
-        Args:
-            image (str): The filename of the image to be loaded.
-
-        Returns:
-            tuple: A tuple containing:
-                - Tensor: The processed image as a tensor.
-                - Tensor: The generated mask tensor.
-                - str: The creator metadata field (or None).
-                - str: The title metadata field (or None).
-                - str: The description metadata field (or None).
-                - str: The subject metadata field (or None).
-                - str: The instructions metadata field (or None).
-                - str: The raw XMP metadata as an XML string (or None).
-
-        Dependencies:
-            - `Pillow` for image handling and metadata extraction.
-            - `numpy` and `torch` for numerical operations and tensor
-              manipulation.
-            - `folder_paths` for resolving image paths and file
-              annotations.
-            - `JHXMPMetadata` for parsing XMP metadata.
-
-        Notes:
-            - Multi-frame images are combined into tensors unless the
-              format is explicitly excluded.
-            - Image orientation is fixed based on EXIF metadata where
-              applicable.
-            - Masks are generated from the alpha channel if present;
-              otherwise, an empty mask is created.
-        """
         image_path = folder_paths.get_annotated_filepath(image)
 
         creator = None
@@ -252,22 +131,7 @@ class JHLoadImageWithXMPMetadataNode:
         )
 
     @classmethod
-    def IS_CHANGED(cls, image):  # pylint: disable=invalid-name
-        """
-        Determines if the specified image file has changed by
-        calculating its SHA-256 hash.
-
-        This method reads the entire content of the image file, computes
-        its hash, and returns the hexadecimal representation of the
-        hash. This can be used to detect changes in the file content.
-
-        Args:
-            image (str): The filename of the image to be checked.
-
-        Returns:
-            str: The hexadecimal string of the computed SHA-256 hash for
-            the image file.
-        """
+    def IS_CHANGED(cls, image):
         image_path = folder_paths.get_annotated_filepath(image)
         m = hashlib.sha256()
         with open(image_path, "rb") as f:
@@ -275,26 +139,7 @@ class JHLoadImageWithXMPMetadataNode:
         return m.digest().hex()
 
     @classmethod
-    def VALIDATE_INPUTS(cls, image):  # pylint: disable=invalid-name
-        """
-        Validates the input image file by checking if the annotated file
-        path exists.
-
-        This method ensures that the specified image file has a
-        corresponding annotated file path within the expected directory
-        structure, returning an error message if the file is invalid.
-
-        Args:
-            image (str): The filename of the image to be validated.
-
-        Returns:
-            bool or str: Returns `True` if the image file is valid,
-            otherwise returns an error message indicating the issue.
-
-        Dependencies:
-            - `folder_paths.exists_annotated_filepath` for verifying the
-              existence of the annotated file path.
-        """
+    def VALIDATE_INPUTS(cls, image):
         if not folder_paths.exists_annotated_filepath(image):
             return f"Invalid image file: {image}"
         return True

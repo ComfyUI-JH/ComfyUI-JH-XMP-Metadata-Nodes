@@ -10,7 +10,9 @@ from src.jh_xmp_metadata import JHXMPMetadata
 def test_input_types():
     with patch("folder_paths.get_input_directory", return_value="test_dir"):
         with patch("os.listdir", return_value=["image1.jpg", "image2.png"]):
-            with patch("os.path.isfile", return_value=True):  # Ensure files are recognized as files
+            with patch(
+                "os.path.isfile", return_value=True
+            ):  # Ensure files are recognized as files
                 result = JHLoadImageWithXMPMetadataNode.INPUT_TYPES()
                 assert "image" in result["required"]
                 assert sorted(result["required"]["image"][0]) == [
@@ -72,7 +74,9 @@ def test_load_image_with_metadata():
 
 
 def test_load_corrupted_image():
-    with patch("folder_paths.get_annotated_filepath", return_value="corrupted_image.jpg"):
+    with patch(
+        "folder_paths.get_annotated_filepath", return_value="corrupted_image.jpg"
+    ):
         with patch("PIL.Image.open", side_effect=OSError("Corrupted file")):
             with pytest.raises(OSError, match="Corrupted file"):
                 JHLoadImageWithXMPMetadataNode().load_image("corrupted_image.jpg")

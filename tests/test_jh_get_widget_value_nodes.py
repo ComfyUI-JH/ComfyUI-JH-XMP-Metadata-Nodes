@@ -1,15 +1,3 @@
-"""
-Tests for JHGetWidgetValueNode and its derived classes.
-
-This suite includes:
-- Validation of widget value retrieval for String, Int, and Float nodes.
-- Edge cases for empty prompts, invalid formats, whitespace handling, and type
-  conversions.
-- Tests for exception handling and performance under large prompts.
-"""
-
-# pylint: skip-file
-
 import time
 
 import pytest
@@ -24,7 +12,6 @@ from src.jh_get_widget_value_nodes import (
 
 @pytest.fixture
 def prompt_fixture():
-    """A sample prompt dictionary for testing."""
     return {
         "1": {"inputs": {"test_widget": "Hello, World!", "numeric_widget": "42"}},
         "2": {"inputs": {"float_widget": "3.14"}},
@@ -96,7 +83,6 @@ def prompt_fixture():
 def test_widget_value_retrieval(
     node_class, any_input, widget_name, expected, exception, match, prompt_fixture
 ):
-    """Test widget value retrieval for multiple scenarios."""
     print(
         f"Testing {node_class.__name__} with any_input={any_input}, widget_name={widget_name}"
     )
@@ -121,7 +107,7 @@ def test_empty_prompt():
     node = JHGetWidgetValueNode()
     with pytest.raises(KeyError, match="not found in graph data"):
         node.get_widget_value(
-            any_input=["1"],
+            any_input=("1", 1),
             widget_name="test_widget",
             prompt={},
         ), "Expected KeyError for an empty prompt dictionary."
@@ -131,7 +117,7 @@ def test_invalid_float_format(prompt_fixture):
     node = JHGetWidgetValueFloatNode()
     with pytest.raises(ValueError, match="which is not a float"):
         node.get_widget_value(
-            any_input=["1"],
+            any_input=("1", 1),
             widget_name="test_widget",
             prompt={"1": {"inputs": {"test_widget": "3.14abc"}}},
         ), "Expected ValueError for a non-float value '3.14abc'."
@@ -141,7 +127,7 @@ def test_invalid_int_format(prompt_fixture):
     node = JHGetWidgetValueIntNode()
     with pytest.raises(ValueError, match="which is not an integer"):
         node.get_widget_value(
-            any_input=["1"],
+            any_input=("1", 1),
             widget_name="numeric_widget",
             prompt={"1": {"inputs": {"numeric_widget": "42.0"}}},
         ), "Expected ValueError for a non-integer value '42.0'."
@@ -150,7 +136,7 @@ def test_invalid_int_format(prompt_fixture):
 def test_numeric_as_string(prompt_fixture):
     node = JHGetWidgetValueStringNode()
     result = node.get_widget_value(
-        any_input=["1"], widget_name="numeric_widget", prompt=prompt_fixture
+        any_input=("1", 1), widget_name="numeric_widget", prompt=prompt_fixture
     )
     assert result == (
         "42",
@@ -161,7 +147,7 @@ def test_case_sensitivity(prompt_fixture):
     node = JHGetWidgetValueNode()
     with pytest.raises(KeyError, match="not found in inputs of node 1"):
         node.get_widget_value(
-            any_input=["1"], widget_name="Test_Widget", prompt=prompt_fixture
+            any_input=("1", 1), widget_name="Test_Widget", prompt=prompt_fixture
         )
 
 
@@ -169,7 +155,7 @@ def test_widget_name_with_whitespace(prompt_fixture):
     node = JHGetWidgetValueNode()
     with pytest.raises(KeyError, match="not found in inputs of node 1"):
         node.get_widget_value(
-            any_input=["1"], widget_name=" test_widget ", prompt=prompt_fixture
+            any_input=("1", 1), widget_name=" test_widget ", prompt=prompt_fixture
         )
 
 
@@ -181,7 +167,7 @@ def test_large_prompt_performance():
 
     start_time = time.time()
     result = node.get_widget_value(
-        any_input=["999"], widget_name="test_widget", prompt=large_prompt
+        any_input=("999", 999), widget_name="test_widget", prompt=large_prompt
     )
     elapsed_time = time.time() - start_time
 

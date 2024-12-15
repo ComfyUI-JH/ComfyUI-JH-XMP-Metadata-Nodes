@@ -57,22 +57,11 @@ print(parsed_metadata.title)  # Outputs: A Beautiful Sunset
 
 import re
 from typing import Final
+
 from lxml import etree
 
 
 class JHXMPMetadata:
-    """
-    A class for managing and manipulating XMP metadata using the Adobe
-    XMP format.
-
-    This class provides properties for common metadata fields such as
-    creator, title, description, subject, and instructions. It allows
-    creating, modifying, and parsing XMP metadata represented as XML.
-
-    References:
-    - https://developer.adobe.com/xmp/docs/XMPSpecifications/
-    """
-
     NAMESPACES: Final = {
         "x": "adobe:ns:meta/",
         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -84,18 +73,12 @@ class JHXMPMetadata:
     }
 
     def __init__(self):
-        """
-        Initializes an empty XMP metadata structure with predefined
-        namespaces.
-        """
         self._creator: str | None = None
         self._title: str | None = None
         self._description: str | None = None
         self._subject: str | None = None
         self._instructions: str | None = None
-
         # Set up the empty XMP metadata tree. We will add (and remove) elements as needed.
-
         self._xmpmetadata = etree.Element(
             "{adobe:ns:meta/}xmpmeta", nsmap=self.NAMESPACES
         )
@@ -111,7 +94,6 @@ class JHXMPMetadata:
             "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Description",
             attrib={"{http://www.w3.org/1999/02/22-rdf-syntax-ns#}about": ""},
         )
-
         self._dc_creator_element = None
         self._dc_title_element = None
         self._dc_description_element = None
@@ -120,14 +102,6 @@ class JHXMPMetadata:
 
     @property
     def creator(self) -> str | None:
-        """
-        The creator(s) of the content, represented as a comma-separated
-        string.
-
-        Setting this property updates the corresponding XMP metadata
-        field. If set to None or an empty string, the field is removed
-        from the metadata.
-        """
         return self._creator
 
     @creator.setter
@@ -141,7 +115,6 @@ class JHXMPMetadata:
             self._creator = None
             if self._dc_creator_element is not None:
                 self._rdf_description.remove(self._dc_creator_element)
-
         else:
             self._creator = value
             _creators = self._string_to_list(self._creator)
@@ -162,13 +135,6 @@ class JHXMPMetadata:
 
     @property
     def title(self) -> str | None:
-        """
-        The title of the content.
-
-        Setting this property updates the corresponding XMP metadata
-        field. If set to None or an empty string, the field is removed
-        from the metadata.
-        """
         return self._title
 
     @title.setter
@@ -200,13 +166,6 @@ class JHXMPMetadata:
 
     @property
     def description(self) -> str | None:
-        """
-        The description or summary of the content.
-
-        Setting this property updates the corresponding XMP metadata
-        field. If set to None or an empty string, the field is removed
-        from the metadata.
-        """
         return self._description
 
     @description.setter
@@ -238,14 +197,6 @@ class JHXMPMetadata:
 
     @property
     def subject(self) -> str | None:
-        """
-        The subject or keywords associated with the content, represented
-        as a comma-separated string.
-
-        Setting this property updates the corresponding XMP metadata
-        field. If set to None or an empty string, the field is removed
-        from the metadata.
-        """
         return self._subject
 
     @subject.setter
@@ -259,7 +210,6 @@ class JHXMPMetadata:
             self._subject = None
             if self._dc_subject_element is not None:
                 self._rdf_description.remove(self._dc_subject_element)
-
         else:
             self._subject = value
             _subjects = self._string_to_list(self._subject)
@@ -280,14 +230,6 @@ class JHXMPMetadata:
 
     @property
     def instructions(self) -> str | None:
-        """
-        Special instructions or notes for the content, typically used in
-        a Photoshop context.
-
-        Setting this property updates the corresponding XMP metadata
-        field. If set to None or an empty string, the field is removed
-        from the metadata.
-        """
         return self._instructions
 
     @instructions.setter
@@ -310,56 +252,20 @@ class JHXMPMetadata:
             self._photoshop_instructions_element.text = self._instructions
 
     def _string_to_list(self, string: str) -> list[str]:
-        """
-        Splits a string into a list of items using semicolons or commas
-        as delimiters.
-
-        Args:
-            string: A string containing items separated by semicolons or commas.
-
-        Returns:
-            A list of individual items.
-        """
         return re.split(r"[;,]\s*", string)
 
     def to_string(self, pretty_print=True) -> str:
-        """
-        Converts the XMP metadata tree to a string representation.
-
-        Args:
-            pretty_print: Whether to format the output with indentation and line breaks.
-
-        Returns:
-            A string containing the XMP metadata in XML format.
-        """
         return etree.tostring(
             self._xmpmetadata, pretty_print=pretty_print, encoding="UTF-8"
         ).decode("utf-8")
 
     def to_wrapped_string(self) -> str:
-        """
-        Converts the XMP metadata tree to a wrapped string with an XMP
-        packet header and footer.
-
-        Returns:
-            A string containing the XMP metadata wrapped in an XMP packet.
-        """
         return f"""<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?>{self.to_string()}<?xpacket end="w"?>"""  # pylint: disable=line-too-long
 
     @classmethod
     def from_string(cls, xml_string: str) -> "JHXMPMetadata":
-        """
-        Creates a JHXMPMetadata instance from an XML string.
-
-        Args:
-            xml_string: A string containing XMP metadata in XML format.
-
-        Returns:
-            An instance of JHXMPMetadata with fields populated from the XML.
-        """
         instance = cls()
         root = etree.fromstring(xml_string)
-
         creator_list = list()
         dc_creator_element = root.xpath(
             "//dc:creator/rdf:Seq/rdf:li", namespaces=cls.NAMESPACES
@@ -368,19 +274,16 @@ class JHXMPMetadata:
             for creator in dc_creator_element:
                 creator_list.append(creator.text)
             instance.creator = ", ".join(creator_list)
-
         dc_title_element = root.xpath(
             "//dc:title/rdf:Alt/rdf:li", namespaces=cls.NAMESPACES
         )
         if len(dc_title_element) > 0:
             instance.title = dc_title_element[0].text
-
         dc_description_element = root.xpath(
             "//dc:description/rdf:Alt/rdf:li", namespaces=cls.NAMESPACES
         )
         if len(dc_description_element) > 0:
             instance.description = dc_description_element[0].text
-
         dc_subject_element = root.xpath(
             "//dc:subject/rdf:Seq/rdf:li", namespaces=cls.NAMESPACES
         )
@@ -389,11 +292,9 @@ class JHXMPMetadata:
             for subject in dc_subject_element:
                 subject_list.append(subject.text)
             instance.subject = ", ".join(subject_list)
-
         photoshop_instructions_element = root.xpath(
             "//photoshop:Instructions", namespaces=cls.NAMESPACES
         )
         if len(photoshop_instructions_element) > 0:
             instance.instructions = photoshop_instructions_element[0].text
-
         return instance

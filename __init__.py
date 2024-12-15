@@ -1,13 +1,4 @@
-"""
-This module initializes the `ComfyUI_XMPMetadataNodes` package by defining
-mappings for custom node classes and their display names. These mappings
-enable the integration of custom nodes, such as those for formatting
-instructions, handling XMP metadata, and processing file paths, into the
-ComfyUI framework.
-"""
-
 # pylint: disable=wrong-import-position
-# pylint: disable=invalid-name
 
 import sys
 from pathlib import Path

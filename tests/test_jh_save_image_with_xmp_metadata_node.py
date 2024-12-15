@@ -38,7 +38,7 @@ def test_save_images_with_metadata():
             mock_save.assert_called_once()
 
 
-def test_save_images_invalid_image_type():
+def test_save_images_invalid_image_type() -> None:
     node = JHSaveImageWithXMPMetadataNode()
     mock_image = MagicMock()
     mock_image.cpu.return_value.numpy.return_value = np.zeros((64, 64, 3))
@@ -47,11 +47,11 @@ def test_save_images_invalid_image_type():
         node.save_images(
             images=[mock_image],
             filename_prefix="Test",
-            image_type="INVALID_TYPE",  # Invalid image type
+            image_type=JHSupportedImageTypes.INVALID_TYPE,
         )
 
 
-def test_save_images_batch():
+def test_save_images_batch() -> None:
     node = JHSaveImageWithXMPMetadataNode()
     mock_image = MagicMock()
     mock_image.cpu.return_value.numpy.return_value = np.zeros((64, 64, 3))
@@ -138,7 +138,9 @@ def test_save_images_mismatched_metadata_lengths():
 def test_save_large_image():
     node = JHSaveImageWithXMPMetadataNode()
     large_image = MagicMock()
-    large_image.cpu.return_value.numpy.return_value = np.zeros((10000, 10000, 3))  # Large image
+    large_image.cpu.return_value.numpy.return_value = np.zeros(
+        (10000, 10000, 3)
+    )  # Large image
 
     with patch(
         "folder_paths.get_save_image_path",

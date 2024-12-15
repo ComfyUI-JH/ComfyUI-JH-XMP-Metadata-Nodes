@@ -1,23 +1,8 @@
-"""
-This module defines the `JHFormatInstructionsNode` class, which provides
-functionality for formatting metadata into a structured string based on
-customizable templates. The class includes a default format string and
-allows users to define their own templates with placeholders for
-specific metadata fields.
-"""
-
 import textwrap
 from typing import Any, Dict, Final, Tuple
 
 
 class JHFormatInstructionsNode:
-    """
-    A utility class for formatting metadata into a structured string
-    based on customizable templates. This class provides a default
-    format string and allows users to supply custom templates with
-    placeholders for specific metadata fields.
-    """
-
     DEFAULT_FORMAT_STRING: Final[str] = textwrap.dedent(
         """
         Prompt: {prompt}
@@ -33,14 +18,7 @@ class JHFormatInstructionsNode:
     ).strip()
 
     @classmethod
-    def INPUT_TYPES(cls) -> Dict[str, Any]:  # pylint: disable=invalid-name
-        """
-        Defines the input types for the format instructions node.
-
-        Returns:
-            A dictionary containing required and optional inputs with
-            their respective types and defaults.
-        """
+    def INPUT_TYPES(cls) -> Dict[str, Any]:
         return {
             "required": {
                 "format_string": (
@@ -80,33 +58,11 @@ class JHFormatInstructionsNode:
     CATEGORY = "XMP Metadata Nodes"
 
     @classmethod
-    def IS_CHANGED(cls, *args: tuple[Any], **kwargs: dict[str, Any]) -> bool:  # pylint: disable=unused-argument,invalid-name
-        """
-        Determines if the node has changed based on the provided
-        arguments.
-
-        Args:
-            kwargs: Arbitrary keyword arguments representing node
-            attributes.
-
-        Returns:
-            True, indicating the node always reports as changed.
-        """
+    def IS_CHANGED(cls, *args: tuple[Any], **kwargs: dict[str, Any]) -> bool:
         return True
 
     @staticmethod
     def validate_format_string(format_string: str) -> None:
-        """
-        Validates the format string to ensure it contains only supported
-        placeholders.
-
-        Args:
-            format_string: The format string to validate.
-
-        Raises:
-            ValueError: If the format string contains invalid
-            placeholders.
-        """
         try:
             format_string.format(
                 prompt="",
@@ -140,29 +96,6 @@ class JHFormatInstructionsNode:
         guidance: float | None = None,
         format_string: str = DEFAULT_FORMAT_STRING,
     ) -> Tuple[str]:
-        """
-        Formats the input metadata into a structured string based on a
-        template.
-
-        Args:
-            prompt: The prompt text.
-            negative_prompt: The negative prompt text.
-            model_name: The name of the model.
-            seed: The random seed used.
-            sampler_name: The name of the sampler.
-            scheduler_name: The name of the scheduler.
-            steps: The number of steps.
-            cfg: The classifier-free guidance scale.
-            guidance: The guidance scale.
-            format_string: The format string template.
-
-        Returns:
-            A tuple containing the formatted string.
-
-        Raises:
-            ValueError: If the format_string contains invalid
-            placeholders.
-        """
         self.validate_format_string(format_string)
         formatted_string = format_string.format(
             prompt=prompt or "",
