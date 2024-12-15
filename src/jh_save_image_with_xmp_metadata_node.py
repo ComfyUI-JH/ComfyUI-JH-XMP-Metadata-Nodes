@@ -16,7 +16,8 @@ from typing import Optional
 
 import folder_paths  # pylint: disable=import-error
 import numpy as np
-from PIL import Image
+import PIL.Image
+from PIL.Image import Image
 from PIL.PngImagePlugin import PngInfo
 
 from .jh_xmp_metadata import JHXMPMetadata
@@ -209,7 +210,7 @@ class JHSaveImageWithXMPMetadataNode:
 
         for batch_number, image in enumerate(images):
             i: np.ndarray = 255.0 * image.cpu().numpy()
-            img: Image = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
+            img: Image = PIL.Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
             filename_with_batch_num: str = filename.replace(
                 "%batch_num%", str(batch_number)
             )
