@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Literal
 
 
 class JHPathToStemNode:
@@ -11,10 +10,10 @@ class JHPathToStemNode:
             },
         }
 
-    RETURN_TYPES: tuple[Literal["STRING"]] = ("STRING",)
+    RETURN_TYPES: tuple[str] = ("STRING",)
     FUNCTION = "path_to_stem"
     CATEGORY = "XMP Metadata Nodes/Utilities"
     OUTPUT_NODE = False
 
-    def path_to_stem(self, path) -> tuple[str]:
+    def path_to_stem(self, path: str) -> tuple[str]:
         return (Path(path).stem,)
