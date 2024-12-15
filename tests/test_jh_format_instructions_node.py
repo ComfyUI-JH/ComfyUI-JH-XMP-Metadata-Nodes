@@ -1,0 +1,92 @@
+import pytest
+
+from src.jh_format_instructions_node import JHFormatInstructionsNode
+
+# pylint: disable=redefined-outer-name
+
+
+@pytest.fixture
+def node():
+    return JHFormatInstructionsNode()
+
+
+def test_IS_CHANGED(node: JHFormatInstructionsNode):
+    # The IS_CHANGED method should always return True
+    assert node.IS_CHANGED()
+
+
+def test_default_format_string(node: JHFormatInstructionsNode):
+    result = node.format_instructions()
+    expected = (
+        "Prompt: \n"
+        "Negative Prompt: \n"
+        "Model: \n"
+        "Seed: \n"
+        "Sampler: \n"
+        "Scheduler: \n"
+        "Steps: \n"
+        "CFG: \n"
+        "Guidance: "
+    )
+    assert result == (expected,)
+
+
+def test_custom_format_string(node: JHFormatInstructionsNode):
+    custom_format = "Custom Prompt: {prompt}"
+    result = node.format_instructions(prompt="Test Prompt", format_string=custom_format)
+    expected = "Custom Prompt: Test Prompt"
+    assert result == (expected,)
+
+
+def test_missing_placeholder_in_format_string(node: JHFormatInstructionsNode):
+    invalid_format = "Invalid {missing_placeholder}"
+    with pytest.raises(
+        ValueError, match="Invalid placeholder 'missing_placeholder' in format_string"
+    ):
+        node.format_instructions(format_string=invalid_format)
+
+
+def test_all_fields_provided(node: JHFormatInstructionsNode):
+    result = node.format_instructions(
+        prompt="Test Prompt",
+        negative_prompt="Test Negative",
+        model_name="Test Model",
+        seed=123,
+        sampler_name="Test Sampler",
+        scheduler_name="Test Scheduler",
+        steps=50,
+        cfg=7.5,
+        guidance=1.0,
+    )
+    expected = (
+        "Prompt: Test Prompt\n"
+        "Negative Prompt: Test Negative\n"
+        "Model: Test Model\n"
+        "Seed: 123\n"
+        "Sampler: Test Sampler\n"
+        "Scheduler: Test Scheduler\n"
+        "Steps: 50\n"
+        "CFG: 7.5\n"
+        "Guidance: 1.0"
+    )
+    assert result == (expected,)
+
+
+def test_partial_fields_provided(node: JHFormatInstructionsNode):
+    result = node.format_instructions(
+        prompt="Test Prompt",
+        model_name="Test Model",
+        steps=50,
+    )
+    expected = (
+        "Prompt: Test Prompt\n"
+        "Negative Prompt: \n"
+        "Model: Test Model\n"
+        "Seed: \n"
+        "Sampler: \n"
+        "Scheduler: \n"
+        "Steps: 50\n"
+        "CFG: \n"
+        "Guidance: "
+    )
+    assert result == (expected,)
