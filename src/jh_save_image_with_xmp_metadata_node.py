@@ -344,8 +344,6 @@ class JHSaveImageWithXMPMetadataNode:
         Raises:
             ValueError: If the provided image type is not supported.
         """
-        print(f"Saving image to {to_path}")
-        print(f"type(xmp): {type(xmp)}")
         match image_type:
             case JHSupportedImageTypes.PNG_WITH_WORKFLOW:
                 pnginfo: PngInfo = PngInfo()
