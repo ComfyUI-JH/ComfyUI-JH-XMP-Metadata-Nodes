@@ -106,12 +106,7 @@ class JHXMPMetadata:
 
     @creator.setter
     def creator(self, value: str | None) -> None:
-        if (
-            value is None
-            or value == ""
-            or isinstance(value, str)
-            and value.strip() == ""
-        ):
+        if value is None or value == "" or value.strip() == "":
             self._creator = None
             if self._dc_creator_element is not None:
                 self._rdf_description.remove(self._dc_creator_element)
@@ -139,12 +134,7 @@ class JHXMPMetadata:
 
     @title.setter
     def title(self, value: str | None) -> None:
-        if (
-            value is None
-            or value == ""
-            or isinstance(value, str)
-            and value.strip() == ""
-        ):
+        if value is None or value == "" or value.strip() == "":
             self._title = None
             if self._dc_title_element is not None:
                 self._rdf_description.remove(self._dc_title_element)
@@ -170,12 +160,7 @@ class JHXMPMetadata:
 
     @description.setter
     def description(self, value: str | None) -> None:
-        if (
-            value is None
-            or value == ""
-            or isinstance(value, str)
-            and value.strip() == ""
-        ):
+        if value is None or value == "" or value.strip() == "":
             self._description = None
             if self._dc_description_element is not None:
                 self._rdf_description.remove(self._dc_description_element)
@@ -201,12 +186,7 @@ class JHXMPMetadata:
 
     @subject.setter
     def subject(self, value: str | None) -> None:
-        if (
-            value is None
-            or value == ""
-            or isinstance(value, str)
-            and value.strip() == ""
-        ):
+        if value is None or value == "" or value.strip() == "":
             self._subject = None
             if self._dc_subject_element is not None:
                 self._rdf_description.remove(self._dc_subject_element)
@@ -234,12 +214,7 @@ class JHXMPMetadata:
 
     @instructions.setter
     def instructions(self, value: str | None) -> None:
-        if (
-            value is None
-            or value == ""
-            or isinstance(value, str)
-            and value.strip() == ""
-        ):
+        if value is None or value == "" or value.strip() == "":
             self._instructions = None
             if self._photoshop_instructions_element is not None:
                 self._rdf_description.remove(self._photoshop_instructions_element)
@@ -254,7 +229,7 @@ class JHXMPMetadata:
     def _string_to_list(self, string: str) -> list[str]:
         return re.split(r"[;,]\s*", string)
 
-    def to_string(self, pretty_print=True) -> str:
+    def to_string(self, pretty_print: bool = True) -> str:
         return etree.tostring(
             self._xmpmetadata, pretty_print=pretty_print, encoding="UTF-8"
         ).decode("utf-8")
@@ -266,7 +241,7 @@ class JHXMPMetadata:
     def from_string(cls, xml_string: str) -> "JHXMPMetadata":
         instance = cls()
         root = etree.fromstring(xml_string)
-        creator_list = list()
+        creator_list: list[str] = list()
         dc_creator_element = root.xpath(
             "//dc:creator/rdf:Seq/rdf:li", namespaces=cls.NAMESPACES
         )
@@ -288,7 +263,7 @@ class JHXMPMetadata:
             "//dc:subject/rdf:Seq/rdf:li", namespaces=cls.NAMESPACES
         )
         if len(dc_subject_element) > 0:
-            subject_list = list()
+            subject_list: list[str] = list()
             for subject in dc_subject_element:
                 subject_list.append(subject.text)
             instance.subject = ", ".join(subject_list)
