@@ -14,15 +14,19 @@ from .jh_xmp_metadata import JHXMPMetadata
 class JHLoadImageWithXMPMetadataNode:
     @classmethod
     def INPUT_TYPES(cls):
-        input_dir = folder_paths.get_input_directory()
-        files = [
+        return {
+            "required": {"image": (cls.get_image_files(), {"image_upload": True})},
+        }
+
+    @classmethod
+    def get_image_files(cls) -> list[str]:
+        input_dir: str = folder_paths.get_input_directory()
+        files: list[str] = [
             f
             for f in os.listdir(input_dir)
             if os.path.isfile(os.path.join(input_dir, f))
         ]
-        return {
-            "required": {"image": (sorted(files), {"image_upload": True})},
-        }
+        return sorted(files)
 
     RETURN_TYPES = (
         "IMAGE",
