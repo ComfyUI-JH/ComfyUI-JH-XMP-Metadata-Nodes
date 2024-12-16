@@ -93,7 +93,7 @@ def validate_xml_against_metadata(xml: str, populated_metadata: JHXMPMetadata):
     )
 
     subject_li_list = root.xpath(
-        "//dc:subject/rdf:Seq/rdf:li", namespaces=JHXMPMetadata.NAMESPACES
+        "//dc:subject/rdf:Bag/rdf:li", namespaces=JHXMPMetadata.NAMESPACES
     )
     assert len(subject_li_list) == 3
     for li in subject_li_list:
@@ -116,6 +116,7 @@ def test_to_wrapped_string(populated_metadata: JHXMPMetadata):
 
 def test_from_string(populated_metadata: JHXMPMetadata):
     xml_string = populated_metadata.to_string()
+    print(f"xml_string: {xml_string}")
     parsed_metadata = JHXMPMetadata.from_string(xml_string)
     assert parsed_metadata.creator == populated_metadata.creator
     assert parsed_metadata.title == populated_metadata.title
@@ -138,8 +139,12 @@ def test_from_string_with_garbage_data():
         </rdf:RDF>
     </x:xmpmeta>
     """
-    with pytest.raises(etree.XMLSyntaxError):
-        JHXMPMetadata.from_string(garbage_data)
+    parsed_metadata = JHXMPMetadata.from_string(garbage_data)
+    assert parsed_metadata.creator is None
+    assert parsed_metadata.title is None
+    assert parsed_metadata.description is None
+    assert parsed_metadata.subject is None
+    assert parsed_metadata.instructions is None
 
 
 def test_from_string_with_missing_fields():
@@ -175,8 +180,12 @@ def test_large_metadata_values():
 
 def test_empty_xml_string():
     empty_xml = ""
-    with pytest.raises(etree.XMLSyntaxError):
-        JHXMPMetadata.from_string(empty_xml)
+    parsed_metadata = JHXMPMetadata.from_string(empty_xml)
+    assert parsed_metadata.creator is None
+    assert parsed_metadata.title is None
+    assert parsed_metadata.description is None
+    assert parsed_metadata.subject is None
+    assert parsed_metadata.instructions is None
 
 
 def test_special_characters_in_xml(

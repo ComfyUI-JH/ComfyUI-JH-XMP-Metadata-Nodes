@@ -196,13 +196,13 @@ class JHXMPMetadata:
             self._dc_subject_element = etree.SubElement(
                 self._rdf_description, "{http://purl.org/dc/elements/1.1/}subject"
             )
-            _seq = etree.SubElement(
+            _bag = etree.SubElement(
                 self._dc_subject_element,
-                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Seq",
+                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Bag",
             )
             for _subject in _subjects:
                 _li = etree.SubElement(
-                    _seq,
+                    _bag,
                     "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li",
                     attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"},
                 )
@@ -240,7 +240,12 @@ class JHXMPMetadata:
     @classmethod
     def from_string(cls, xml_string: str) -> "JHXMPMetadata":
         instance = cls()
-        root = etree.fromstring(xml_string)
+
+        try:
+            root = etree.fromstring(xml_string)
+        except etree.XMLSyntaxError:
+            return instance
+
         creator_list: list[str] = list()
         dc_creator_element = root.xpath(
             "//dc:creator/rdf:Seq/rdf:li", namespaces=cls.NAMESPACES
@@ -260,7 +265,7 @@ class JHXMPMetadata:
         if len(dc_description_element) > 0:
             instance.description = dc_description_element[0].text
         dc_subject_element = root.xpath(
-            "//dc:subject/rdf:Seq/rdf:li", namespaces=cls.NAMESPACES
+            "//dc:subject/rdf:Bag/rdf:li", namespaces=cls.NAMESPACES
         )
         if len(dc_subject_element) > 0:
             subject_list: list[str] = list()
