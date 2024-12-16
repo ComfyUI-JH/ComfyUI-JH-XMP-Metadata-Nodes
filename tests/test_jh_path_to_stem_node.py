@@ -10,6 +10,12 @@ def node():
     return JHPathToStemNode()
 
 
+def test_input_types(node: JHPathToStemNode):
+    assert isinstance(node.INPUT_TYPES(), dict)
+    assert "required" in node.INPUT_TYPES()
+    assert "path" in node.INPUT_TYPES()["required"]
+
+
 def test_path_to_stem_valid(node: JHPathToStemNode):
     result = node.path_to_stem("C:/Users/Example/file.txt")
     assert result == ("file",)

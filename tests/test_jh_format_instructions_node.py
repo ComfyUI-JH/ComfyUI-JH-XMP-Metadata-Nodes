@@ -10,6 +10,23 @@ def node():
     return JHFormatInstructionsNode()
 
 
+def test_input_types(node: JHFormatInstructionsNode):
+    input_types = node.INPUT_TYPES()
+    assert input_types.keys() == {"required", "optional"}
+    assert input_types["required"].keys() == {"format_string"}
+    assert input_types["optional"].keys() == {
+        "prompt",
+        "negative_prompt",
+        "model_name",
+        "seed",
+        "sampler_name",
+        "scheduler_name",
+        "steps",
+        "cfg",
+        "guidance",
+    }
+
+
 def test_IS_CHANGED(node: JHFormatInstructionsNode):
     # The IS_CHANGED method should always return True
     assert node.IS_CHANGED()

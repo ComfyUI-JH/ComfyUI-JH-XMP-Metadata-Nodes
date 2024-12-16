@@ -2,6 +2,7 @@ from typing import Any
 
 import pytest
 
+from src.any_type import AnyType
 from src.jh_get_widget_value_nodes import (
     JHGetWidgetValueFloatNode,
     JHGetWidgetValueIntNode,
@@ -39,6 +40,49 @@ def graph_data() -> dict[str, Any]:
     }
 
 
+@pytest.fixture
+def graph_data_invalid() -> dict[str, Any]:
+    return {
+        "13": {
+            "inputs": {
+                "scheduler": "beta",
+                "steps": 5,
+                "denoise": 1.0,
+                "model": ["471", 0],
+            },
+            "class_type": "BasicScheduler",
+            "_meta": {"title": "BasicScheduler"},
+        },
+        "471": {
+            "class_type": "UnetLoaderGGUF",
+            "_meta": {"title": "Unet Loader (GGUF)"},
+        },
+        "617": {
+            "inputs": {"widget_name": "steps", "any_input": ["13", 0]},
+            "class_type": "JHGetWidgetValueIntNode",
+            "_meta": {"title": "Get Widget Value (Integer)"},
+            "is_changed": [True],
+        },
+    }
+
+
+def test_input_types() -> None:
+    expected_input_types = {
+        "required": {
+            "any_input": (AnyType("*"), {"rawLink": True}),
+            "widget_name": ("STRING", {"multiline": False}),
+        },
+        "hidden": {
+            "prompt": "PROMPT",
+        },
+    }
+    assert JHGetWidgetValueNode.INPUT_TYPES() == expected_input_types
+
+
+def test_is_changed() -> None:
+    assert JHGetWidgetValueNode.IS_CHANGED() is True
+
+
 def test_get_widget_value_valid(graph_data: dict[str, Any]) -> None:
     node = JHGetWidgetValueNode()
     result = node.get_widget_value(("13", 0), "steps", graph_data)
@@ -67,6 +111,12 @@ def test_get_widget_value_empty_graph_data():
     node = JHGetWidgetValueNode()
     with pytest.raises(KeyError):
         node.get_widget_value(("13", 0), "steps", {})
+
+
+def test_get_widget_value_invalid_graph_data(graph_data_invalid: dict[str, Any]):
+    node = JHGetWidgetValueNode()
+    with pytest.raises(KeyError):
+        node.get_widget_value(("471", 0), "steps", graph_data_invalid)
 
 
 def test_get_widget_value_invalid_node_id_type(graph_data: dict[str, Any]):
