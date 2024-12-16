@@ -57,47 +57,44 @@ class JHLoadImageWithXMPMetadataNode:
         # just the filename, not the full path.
         image_path = folder_paths.get_annotated_filepath(image)
 
-        creator = None
-        title = None
-        description = None
-        subject = None
-        instructions = None
-        xml_string = None
-
+        # This call to PIL.Image.open can raise a variety of exceptions
+        # depending on the image format and the state of the file. We
+        # deliberately don't catch these exceptions but instead let them
+        # propagate up to ComfyUI, which will handle them by displaying
+        # an error message to the user.
+        #
+        # https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.open
         image_object = PIL.Image.open(image_path)
 
         first_frame: PIL.Image.Image | None = None
         output_images = []
         output_masks = []
-        width: int = 0
-        height: int = 0
 
         excluded_formats = ["MPO"]
+
+        xml_string: str = str()
+        xmp_metadata = JHXMPMetadata()
 
         for raw_frame in PIL.ImageSequence.Iterator(image_object):
 
             if first_frame is None:
-                first_frame = raw_frame
+                first_frame = raw_frame.copy()
 
             # Extract XMP metadata from the first frame, if available
             if len(output_images) == 0:
-                xml_string = raw_frame.info.get("xmp", None)
-                if isinstance(xml_string, bytes):
-                    xml_string = xml_string.decode("utf-8")
-                if xml_string:  # Ensure xml_string is not None or empty
+                xmp_data: bytes | str | None = raw_frame.info.get("xmp", None)
+                if isinstance(xmp_data, bytes):
+                    xml_string = xmp_data.decode("utf-8")
+                if xml_string:  # Can't parse None or an empty string
                     xmp_metadata = JHXMPMetadata.from_string(xml_string)
-                    creator = xmp_metadata.creator
-                    title = xmp_metadata.title
-                    description = xmp_metadata.description
-                    subject = xmp_metadata.subject
-                    instructions = xmp_metadata.instructions
+
+            # Skip frames with different sizes than the first frame
+            # (This is pretty much the unlikeliest of all edge cases)
+            if raw_frame.size != first_frame.size:
+                continue
 
             # Convert the frame to image and mask tensors
-            image_tensor, mask_tensor = self._frame_to_tensors(
-                raw_frame, first_frame.size
-            )
-            if image_tensor is None or mask_tensor is None:
-                continue
+            image_tensor, mask_tensor = self._frame_to_tensors(raw_frame)
 
             # Append the processed image and mask to the outputs
             output_images.append(image_tensor)
@@ -114,29 +111,25 @@ class JHLoadImageWithXMPMetadataNode:
         return (
             output_image,
             output_mask,
-            creator,
-            title,
-            description,
-            subject,
-            instructions,
+            xmp_metadata.creator,
+            xmp_metadata.title,
+            xmp_metadata.description,
+            xmp_metadata.subject,
+            xmp_metadata.instructions,
             xml_string,
         )
 
     def _frame_to_tensors(
-        self, raw_frame, image_size: tuple[int, int]
-    ) -> tuple[torch.Tensor | None, torch.Tensor | None]:
+        self, raw_frame: PIL.Image.Image
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         # Fix image orientation based on EXIF metadata. Do this in
         # place to avoid creating a new image object for each frame.
         PIL.ImageOps.exif_transpose(raw_frame, in_place=True)
 
         # Convert 32-bit integer images to RGB
-        if raw_frame.mode == "I":
+        if raw_frame.mode.startswith("I"):
             raw_frame = raw_frame.point(lambda i: i * (1 / 255))
         rgb_frame = raw_frame.convert("RGB")
-
-        # Compare the size of the current frame to the first frame
-        if rgb_frame.size != image_size:
-            return None, None
 
         # Normalize the image to a tensor with values in [0, 1]
         np_array = np.array(rgb_frame).astype(np.float32) / 255.0

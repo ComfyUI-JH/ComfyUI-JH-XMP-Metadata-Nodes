@@ -1,7 +1,10 @@
-import numpy as np
+import hashlib
+from pathlib import Path
+from unittest.mock import patch
+
+import PIL.Image
 import pytest
 import torch
-from PIL import Image
 
 from src.jh_load_image_with_xmp_metadata_node import JHLoadImageWithXMPMetadataNode
 
@@ -10,74 +13,380 @@ from src.jh_load_image_with_xmp_metadata_node import JHLoadImageWithXMPMetadataN
 
 
 @pytest.fixture
-def valid_frame() -> Image.Image:
-    # Create a valid RGB image with an alpha channel
-    width, height = 64, 64
-    data = np.random.randint(0, 255, (height, width, 4), dtype=np.uint8)
-    return Image.fromarray(data, "RGBA")
+def valid_xml_string() -> str:
+    return """
+    <x:xmpmeta xmlns:x="adobe:ns:meta/">
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+            <rdf:Description rdf:about=""
+                xmlns:dc="http://purl.org/dc/elements/1.1/"
+                xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
+                <dc:creator>
+                    <rdf:Seq>
+                        <rdf:li>Test Creator</rdf:li>
+                    </rdf:Seq>
+                </dc:creator>
+                <dc:title>
+                    <rdf:Alt>
+                        <rdf:li xml:lang="x-default">Test Title</rdf:li>
+                    </rdf:Alt>
+                </dc:title>
+                <dc:description>
+                    <rdf:Alt>
+                        <rdf:li xml:lang="x-default">Test Description</rdf:li>
+                    </rdf:Alt>
+                </dc:description>
+                <dc:subject>
+                    <rdf:Bag>
+                        <rdf:li>Test Subject</rdf:li>
+                    </rdf:Bag>
+                </dc:subject>
+                <photoshop:Instructions>Test Instructions</photoshop:Instructions>
+            </rdf:Description>
+        </rdf:RDF>
+    </x:xmpmeta>
+    """
 
 
 @pytest.fixture
-def int_frame() -> Image.Image:
-    # Create a valid 32-bit integer image
-    width, height = 64, 64
-    data = np.random.randint(0, 65535, (height, width), dtype=np.uint32)
-    return Image.fromarray(data, "I")
+def invalid_xml_string() -> str:
+    return "<x:xmpmeta><rdf:RDF><rdf:Description></rdf:Description></rdf:RDF>"
 
 
 @pytest.fixture
-def different_size_frame() -> Image.Image:
-    # Create a valid RGB image with an alpha channel but different size
-    width, height = 128, 128
-    data = np.random.randint(0, 255, (height, width, 4), dtype=np.uint8)
-    return Image.fromarray(data, "RGBA")
+def garbage_xml_string() -> str:
+    return "This is not XML"
 
 
-def test_frame_to_tensors(valid_frame: Image.Image):
+@pytest.fixture
+def sample_image_file_with_valid_xmp_metadata(
+    tmp_path: Path, valid_xml_string: str
+) -> Path:
+    print(f"tmp_path: {tmp_path}")
+    img_path = tmp_path / "test_image_valid_xml.webp"
+    image = PIL.Image.new(
+        "RGBA", (64, 64), color=(255, 0, 0, 128)
+    )  # Red image with alpha
+    image.save(img_path, xmp=valid_xml_string)  # Save with XMP metadata
+    return img_path
+
+
+@pytest.fixture
+def sample_image_file_with_invalid_xmp_metadata(
+    tmp_path: Path, invalid_xml_string: str
+) -> Path:
+    img_path = tmp_path / "test_image_invalid_xml.webp"
+    image = PIL.Image.new(
+        "RGBA", (64, 64), color=(255, 0, 0, 128)
+    )  # Red image with alpha
+    image.save(img_path, xmp=invalid_xml_string)  # Save with invalid XMP metadata
+    return img_path
+
+
+@pytest.fixture
+def sample_image_file_with_garbage_xmp_metadata(
+    tmp_path: Path, garbage_xml_string: str
+) -> Path:
+    img_path = tmp_path / "test_image_garbage_xml.webp"
+    image = PIL.Image.new(
+        "RGBA", (64, 64), color=(255, 0, 0, 128)
+    )  # Red image with alpha
+    image.save(img_path, xmp=garbage_xml_string)  # Save with invalid XMP metadata
+    return img_path
+
+
+@pytest.fixture
+def sample_multiframe_image_file(tmp_path: Path) -> Path:
+    img_path = tmp_path / "test_image_multiframe.png"
+
+    # Create multiple frames
+    frames = [
+        PIL.Image.new("RGBA", (64, 64), color=(255, 0, 0, 128)),  # Red with alpha
+        PIL.Image.new("RGBA", (64, 64), color=(0, 255, 0, 128)),  # Green with alpha
+        PIL.Image.new("RGBA", (64, 64), color=(0, 0, 255, 128)),  # Blue with alpha
+    ]
+
+    # Save as an animated PNG (APNG)
+    frames[0].save(
+        img_path,
+        save_all=True,
+        append_images=frames[1:],
+        duration=100,  # Frame duration in ms
+        loop=0,  # Infinite loop
+    )
+    return img_path
+
+
+@pytest.fixture
+def sample_invalid_multiframe_image_file(tmp_path: Path) -> Path:
+    """
+    Frankly I admire Comfy for considering this possibility. An APNG
+    _can't_ have frames of different sizes because they all get padded
+    to the largest frame's size. In order to test this scenario we have
+    to use a different format, like TIFF, which _can_ have frames of
+    different sizes."""
+    img_path = tmp_path / "test_image_multiframe_different_size.tiff"
+
+    # Create frames with different sizes
+    frame1 = PIL.Image.new("RGBA", (64, 64), color=(255, 0, 0, 128))
+    frame2 = PIL.Image.new("RGBA", (32, 32), color=(0, 255, 0, 128))
+    frame3 = PIL.Image.new("RGBA", (64, 64), color=(0, 0, 255, 128))
+
+    # Save as multi-frame TIFF
+    frame1.save(
+        img_path,
+        save_all=True,
+        append_images=[frame2, frame3],
+        compression="tiff_deflate",  # Optional compression
+    )
+
+    return img_path
+
+
+@pytest.fixture
+def sample_grayscale_image_file(tmp_path: Path) -> Path:
+    img_path = tmp_path / "test_image_grayscale.png"
+    image = PIL.Image.new("L", (64, 64))  # Grayscale image
+    image.save(img_path)
+    return img_path
+
+
+@pytest.fixture
+def sample_32_bit_integer_image_file(tmp_path: Path) -> Path:
+    img_path = tmp_path / "test_image_32_bit_integer.png"
+    image = PIL.Image.new("I", (64, 64))  # 32-bit integer image
+    image.save(img_path)
+    return img_path
+
+
+def test_get_image_files():
+    with patch("folder_paths.get_input_directory", return_value="/mocked/path"):
+        with patch("os.listdir", return_value=["img3.png", "img1.png", "img2.png"]):
+            with patch("os.path.isfile", return_value=True):
+                files = JHLoadImageWithXMPMetadataNode.get_image_files()
+                assert files == ["img1.png", "img2.png", "img3.png"]
+
+
+def test_get_image_files_with_non_files():
+    with patch("folder_paths.get_input_directory", return_value="/mocked/path"):
+        with patch("os.listdir", return_value=["img1.png", "directory", "img2.png"]):
+            with patch(
+                "os.path.isfile", side_effect=lambda p: not p.endswith("directory")
+            ):
+                files = JHLoadImageWithXMPMetadataNode.get_image_files()
+                assert files == ["img1.png", "img2.png"]
+
+
+def test_input_types():
+    input_types = JHLoadImageWithXMPMetadataNode.INPUT_TYPES()
+    assert "required" in input_types
+    assert "image" in input_types["required"]
+    assert isinstance(input_types["required"]["image"], tuple)
+    assert isinstance(input_types["required"]["image"][0], list)
+    assert input_types["required"]["image"][1] == {"image_upload": True}
+
+
+def test_validate_inputs_valid_file(sample_image_file_with_valid_xmp_metadata: Path):
+    with patch("folder_paths.exists_annotated_filepath", return_value=True):
+        assert (
+            JHLoadImageWithXMPMetadataNode.VALIDATE_INPUTS(
+                sample_image_file_with_valid_xmp_metadata.name
+            )
+            is True
+        )
+
+
+def test_validate_inputs_invalid_file():
+    with patch("folder_paths.exists_annotated_filepath", return_value=False):
+        result = JHLoadImageWithXMPMetadataNode.VALIDATE_INPUTS("nonexistent.png")
+        assert result == "Invalid image file: nonexistent.png"
+
+
+def test_frame_to_tensors():
     node = JHLoadImageWithXMPMetadataNode()
-    image_size = valid_frame.size
+    image = PIL.Image.new("RGBA", (64, 64), color=(255, 255, 255, 128))
+    tensor_image, tensor_mask = node._frame_to_tensors(image)
 
-    image_tensor, mask_tensor = node._frame_to_tensors(valid_frame, image_size)
-
-    assert image_tensor is not None, "Image tensor should not be None"
-    assert mask_tensor is not None, "Mask tensor should not be None"
-    assert image_tensor.shape == (1, 64, 64, 3), "Image tensor shape is incorrect"
-    assert mask_tensor.shape == (64, 64), "Mask tensor shape is incorrect"
-    assert image_tensor.dtype == torch.float32, "Image tensor dtype is incorrect"
-    assert mask_tensor.dtype == torch.float32, "Mask tensor dtype is incorrect"
-    assert torch.all(
-        (image_tensor >= 0) & (image_tensor <= 1)
-    ), "Image tensor values should be in [0, 1]"
-    assert torch.all(
-        (mask_tensor >= 0) & (mask_tensor <= 1)
-    ), "Mask tensor values should be in [0, 1]"
+    assert tensor_image is not None
+    assert tensor_mask is not None
+    assert tensor_image.shape == (1, 64, 64, 3)
+    assert tensor_mask.shape == (64, 64)
+    assert torch.allclose(tensor_mask, torch.full((64, 64), 0.5), atol=0.01)
 
 
-def test_frame_to_tensors_int_mode(int_frame: Image.Image):
-    node = JHLoadImageWithXMPMetadataNode()
-    image_size = int_frame.size
+def test_load_image_with_valid_metadata(
+    sample_image_file_with_valid_xmp_metadata: Path, valid_xml_string: str
+):
+    with patch(
+        "folder_paths.get_annotated_filepath",
+        return_value=str(sample_image_file_with_valid_xmp_metadata),
+    ):
+        # Open the image and mock `info` directly on the instance
+        node = JHLoadImageWithXMPMetadataNode()
+        output = node.load_image(sample_image_file_with_valid_xmp_metadata.name)
 
-    image_tensor, mask_tensor = node._frame_to_tensors(int_frame, image_size)
-
-    assert image_tensor is not None, "Image tensor should not be None"
-    assert mask_tensor is not None, "Mask tensor should not be None"
-    assert image_tensor.shape == (1, 64, 64, 3), "Image tensor shape is incorrect"
-    assert mask_tensor.shape == (64, 64), "Mask tensor shape is incorrect"
-    assert image_tensor.dtype == torch.float32, "Image tensor dtype is incorrect"
-    assert mask_tensor.dtype == torch.float32, "Mask tensor dtype is incorrect"
-    assert torch.all(
-        (image_tensor >= 0) & (image_tensor <= 1)
-    ), "Image tensor values should be in [0, 1]"
-    assert torch.all(
-        (mask_tensor >= 0) & (mask_tensor <= 1)
-    ), "Mask tensor values should be in [0, 1]"
+        # Verify outputs
+        assert isinstance(output[0], torch.Tensor)  # IMAGE
+        assert output[0].shape == (1, 64, 64, 3)
+        assert output[1].shape == (1, 64, 64)  # MASK
+        assert output[2] == "Test Creator"  # creator
+        assert output[3] == "Test Title"  # title
+        assert output[4] == "Test Description"  # description
+        assert output[5] == "Test Subject"  # subject
+        assert output[6] == "Test Instructions"  # instructions
+        assert output[7] == valid_xml_string  # xml_string
 
 
-def test_frame_to_tensors_different_size(different_size_frame: Image.Image):
-    node = JHLoadImageWithXMPMetadataNode()
-    image_size = (64, 64)
+def test_load_image_with_invalid_metadata(
+    sample_image_file_with_invalid_xmp_metadata: Path, invalid_xml_string: str
+):
+    with patch(
+        "folder_paths.get_annotated_filepath",
+        return_value=str(sample_image_file_with_invalid_xmp_metadata),
+    ):
+        node = JHLoadImageWithXMPMetadataNode()
+        output = node.load_image(sample_image_file_with_invalid_xmp_metadata.name)
 
-    image_tensor, mask_tensor = node._frame_to_tensors(different_size_frame, image_size)
+        assert isinstance(output[0], torch.Tensor)  # IMAGE
+        assert output[0].shape == (1, 64, 64, 3)
+        assert output[1].shape == (1, 64, 64)  # MASK
+        assert output[2] is None  # creator
+        assert output[3] is None  # title
+        assert output[4] is None  # description
+        assert output[5] is None  # subject
+        assert output[6] is None  # instructions
+        assert output[7] == invalid_xml_string  # xml_string
 
-    assert image_tensor is None, "Image tensor should be None for different size frame"
-    assert mask_tensor is None, "Mask tensor should be None for different size frame"
+
+def test_load_image_with_garbage_metadata(
+    sample_image_file_with_garbage_xmp_metadata: Path, garbage_xml_string: str
+):
+    with patch(
+        "folder_paths.get_annotated_filepath",
+        return_value=str(sample_image_file_with_garbage_xmp_metadata),
+    ):
+        node = JHLoadImageWithXMPMetadataNode()
+        output = node.load_image(sample_image_file_with_garbage_xmp_metadata.name)
+
+        assert isinstance(output[0], torch.Tensor)  # IMAGE
+        assert output[0].shape == (1, 64, 64, 3)
+        assert output[1].shape == (1, 64, 64)  # MASK
+        assert output[2] is None  # creator
+        assert output[3] is None  # title
+        assert output[4] is None  # description
+        assert output[5] is None  # subject
+        assert output[6] is None  # instructions
+        assert output[7] == garbage_xml_string  # xml_string
+
+
+def test_load_image_with_multiframe_image_file(sample_multiframe_image_file: Path):
+    with patch(
+        "folder_paths.get_annotated_filepath",
+        return_value=str(sample_multiframe_image_file),
+    ):
+        node = JHLoadImageWithXMPMetadataNode()
+        output = node.load_image(sample_multiframe_image_file.name)
+
+        # Verify outputs
+        assert isinstance(output[0], torch.Tensor)  # IMAGE
+        assert output[0].shape == (3, 64, 64, 3)  # 3 frames, RGB
+        assert output[1].shape == (3, 64, 64)  # 3 masks
+        assert output[2] is None  # creator
+        assert output[3] is None  # title
+        assert output[4] is None  # description
+        assert output[5] is None  # subject
+        assert output[6] is None  # instructions
+        assert output[7] == ""  # xml_string
+
+
+def test_load_image_with_invalid_multiframe_image_file(
+    sample_invalid_multiframe_image_file: Path,
+):
+    with patch(
+        "folder_paths.get_annotated_filepath",
+        return_value=str(sample_invalid_multiframe_image_file),
+    ):
+        node = JHLoadImageWithXMPMetadataNode()
+        output = node.load_image(sample_invalid_multiframe_image_file.name)
+
+        # Verify outputs
+        assert isinstance(output[0], torch.Tensor)  # IMAGE
+        assert output[0].shape == (2, 64, 64, 3)  # 2 frames, RGB
+        assert output[1].shape == (2, 64, 64)  # 2 masks
+        assert output[2] is None  # creator
+        assert output[3] is None  # title
+        assert output[4] is None  # description
+        assert output[5] is None  # subject
+        assert output[6] is None  # instructions
+        assert output[7] == ""  # xml_string
+
+
+def test_load_32_bit_integer_image(sample_32_bit_integer_image_file: Path):
+    with patch(
+        "folder_paths.get_annotated_filepath",
+        return_value=str(sample_32_bit_integer_image_file),
+    ):
+        node = JHLoadImageWithXMPMetadataNode()
+        output = node.load_image(sample_32_bit_integer_image_file.name)
+
+        # Verify outputs
+        assert isinstance(output[0], torch.Tensor)  # IMAGE
+        assert output[0].shape == (1, 64, 64, 3)  # 1 frame, RGB
+        assert output[1].shape == (1, 64, 64)  # MASK
+        assert output[2] is None  # creator
+        assert output[3] is None  # title
+        assert output[4] is None  # description
+        assert output[5] is None  # subject
+        assert output[6] is None  # instructions
+        assert output[7] == ""  # xml_string
+
+        # Verify RGB channel consistency
+        rgb_values = output[0][0, :, :, :]
+        assert torch.allclose(rgb_values[:, :, 0], rgb_values[:, :, 1])  # R == G
+        assert torch.allclose(rgb_values[:, :, 1], rgb_values[:, :, 2])  # G == B
+        assert torch.allclose(rgb_values[:, :, 0], rgb_values[:, :, 2])  # R == B
+
+        # Make sure RGB values are in [0, 1]
+        assert torch.all(rgb_values >= 0) and torch.all(rgb_values <= 1)
+
+
+def test_load_grayscale_image(sample_grayscale_image_file: Path):
+    with patch(
+        "folder_paths.get_annotated_filepath",
+        return_value=str(sample_grayscale_image_file),
+    ):
+        node = JHLoadImageWithXMPMetadataNode()
+        output = node.load_image(sample_grayscale_image_file.name)
+
+        # Verify outputs
+        assert isinstance(output[0], torch.Tensor)  # IMAGE
+        assert output[0].shape == (1, 64, 64, 3)  # Converted to RGB
+        assert output[1].shape == (1, 64, 64)  # MASK
+        assert output[2] is None  # creator
+        assert output[3] is None  # title
+        assert output[4] is None  # description
+        assert output[5] is None  # subject
+        assert output[6] is None  # instructions
+        assert output[7] == ""  # xml_string
+
+        # Verify that the image tensor is in RGB format
+        assert output[0].shape[-1] == 3  # Last dimension should be 3 for RGB
+
+
+def test_is_changed(sample_image_file_with_valid_xmp_metadata: Path):
+    with patch(
+        "folder_paths.get_annotated_filepath",
+        return_value=str(sample_image_file_with_valid_xmp_metadata),
+    ):
+        expected_hash = hashlib.sha256(
+            sample_image_file_with_valid_xmp_metadata.read_bytes()
+        ).hexdigest()
+        result = JHLoadImageWithXMPMetadataNode.IS_CHANGED(
+            sample_image_file_with_valid_xmp_metadata.name
+        )
+        assert result == expected_hash
+
+
+def test_is_changed_nonexistent_file():
+    with patch("folder_paths.get_annotated_filepath", return_value="nonexistent.png"):
+        with pytest.raises(FileNotFoundError):
+            JHLoadImageWithXMPMetadataNode.IS_CHANGED("nonexistent.png")
