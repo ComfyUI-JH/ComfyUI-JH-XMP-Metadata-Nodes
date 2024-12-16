@@ -66,6 +66,7 @@ class JHLoadImageWithXMPMetadataNode:
 
         image_object = PIL.Image.open(image_path)
 
+        first_frame: PIL.Image.Image | None = None
         output_images = []
         output_masks = []
         width: int = 0
@@ -74,6 +75,9 @@ class JHLoadImageWithXMPMetadataNode:
         excluded_formats = ["MPO"]
 
         for raw_frame in PIL.ImageSequence.Iterator(image_object):
+
+            if first_frame is None:
+                first_frame = raw_frame
 
             # Extract XMP metadata from the first frame, if available
             if len(output_images) == 0:
@@ -88,35 +92,12 @@ class JHLoadImageWithXMPMetadataNode:
                     subject = xmp_metadata.subject
                     instructions = xmp_metadata.instructions
 
-            # Fix image orientation based on EXIF metadata. Do this in
-            # place to avoid creating a new image object for each frame.
-            PIL.ImageOps.exif_transpose(raw_frame, in_place=True)
-
-            # Convert 32-bit integer images to RGB
-            if raw_frame.mode == "I":
-                raw_frame = raw_frame.point(lambda i: i * (1 / 255))
-            rgb_frame = raw_frame.convert("RGB")
-
-            # Ensure all frames are the same size as the first frame
-            if len(output_images) == 0:
-                width = rgb_frame.size[0]
-                height = rgb_frame.size[1]
-            if rgb_frame.size[0] != width or rgb_frame.size[1] != height:
+            # Convert the frame to image and mask tensors
+            image_tensor, mask_tensor = self._frame_to_tensors(
+                raw_frame, first_frame.size
+            )
+            if image_tensor is None or mask_tensor is None:
                 continue
-
-            # Normalize the image to a tensor with values in [0, 1]
-            np_array = np.array(rgb_frame).astype(np.float32) / 255.0
-            image_tensor = torch.from_numpy(np_array)[None,]
-
-            # Go back to the original multichannel(?) frame and extract
-            # the alpha channel as a mask
-            if "A" in raw_frame.getbands():
-                np_array = (
-                    np.array(raw_frame.getchannel("A")).astype(np.float32) / 255.0
-                )
-                mask_tensor = 1.0 - torch.from_numpy(np_array)
-            else:
-                mask_tensor = torch.zeros((64, 64), dtype=torch.float32, device="cpu")
 
             # Append the processed image and mask to the outputs
             output_images.append(image_tensor)
@@ -140,6 +121,36 @@ class JHLoadImageWithXMPMetadataNode:
             instructions,
             xml_string,
         )
+
+    def _frame_to_tensors(
+        self, raw_frame, image_size: tuple[int, int]
+    ) -> tuple[torch.Tensor | None, torch.Tensor | None]:
+        # Fix image orientation based on EXIF metadata. Do this in
+        # place to avoid creating a new image object for each frame.
+        PIL.ImageOps.exif_transpose(raw_frame, in_place=True)
+
+        # Convert 32-bit integer images to RGB
+        if raw_frame.mode == "I":
+            raw_frame = raw_frame.point(lambda i: i * (1 / 255))
+        rgb_frame = raw_frame.convert("RGB")
+
+        # Compare the size of the current frame to the first frame
+        if rgb_frame.size != image_size:
+            return None, None
+
+        # Normalize the image to a tensor with values in [0, 1]
+        np_array = np.array(rgb_frame).astype(np.float32) / 255.0
+        image_tensor = torch.from_numpy(np_array)[None,]
+
+        # Go back to the original raw frame and extract the alpha
+        # channel as a mask
+        if "A" in raw_frame.getbands():
+            np_array = np.array(raw_frame.getchannel("A")).astype(np.float32) / 255.0
+            mask_tensor = 1.0 - torch.from_numpy(np_array)
+        else:
+            mask_tensor = torch.zeros((64, 64), dtype=torch.float32, device="cpu")
+
+        return image_tensor, mask_tensor
 
     @classmethod
     def IS_CHANGED(cls, image):
