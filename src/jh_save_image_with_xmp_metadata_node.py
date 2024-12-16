@@ -17,6 +17,7 @@ from typing import Optional
 import folder_paths  # pylint: disable=import-error
 import numpy as np
 import PIL.Image
+import torch
 from PIL.Image import Image
 from PIL.PngImagePlugin import PngInfo
 
@@ -207,6 +208,9 @@ class JHSaveImageWithXMPMetadataNode:
         results: list = []
 
         filename_extension: str = self.extension_for_type(image_type)
+
+        batch_number: int = 0
+        image: torch.Tensor
 
         for batch_number, image in enumerate(images):
             i: np.ndarray = 255.0 * image.cpu().numpy()
