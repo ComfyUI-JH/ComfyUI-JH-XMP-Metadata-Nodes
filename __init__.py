@@ -6,7 +6,7 @@ from typing import Any
 
 sys.path.append(str(Path(__file__).parent.resolve()))
 
-from src.jh_format_instructions_node import JHFormatInstructionsNode
+from src.jh_format_metadata_node import JHFormatMetadataNode
 from src.jh_get_widget_value_nodes import (
     JHGetWidgetValueFloatNode,
     JHGetWidgetValueIntNode,
@@ -17,7 +17,7 @@ from src.jh_path_to_stem_node import JHPathToStemNode
 from src.jh_save_image_with_xmp_metadata_node import JHSaveImageWithXMPMetadataNode
 
 NODE_CLASS_MAPPINGS: dict[str, Any] = {
-    "JHFormatInstructionsNode": JHFormatInstructionsNode,
+    "JHFormatMetadataNode": JHFormatMetadataNode,
     "JHPathToStemNode": JHPathToStemNode,
     "JHSaveImageWithXMPMetadata": JHSaveImageWithXMPMetadataNode,
     "JHLoadImageWithXMPMetadataNode": JHLoadImageWithXMPMetadataNode,
@@ -27,7 +27,7 @@ NODE_CLASS_MAPPINGS: dict[str, Any] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "JHFormatInstructionsNode": "Format Instructions",
+    "JHFormatMetadataNode": "Format Metadata",
     "JHPathToStemNode": "Path to Stem",
     "JHSaveImageWithXMPMetadata": "Save Image With XMP Metadata",
     "JHLoadImageWithXMPMetadataNode": "Load Image With XMP Metadata",
