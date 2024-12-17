@@ -2,7 +2,7 @@ import textwrap
 from typing import Any, Dict, Final, Tuple
 
 
-class JHFormatInstructionsNode:
+class JHFormatMetadataNode:
     DEFAULT_FORMAT_STRING: Final[str] = textwrap.dedent(
         """
         Prompt: {prompt}
@@ -54,7 +54,7 @@ class JHFormatInstructionsNode:
         }
 
     RETURN_TYPES = ("STRING",)
-    FUNCTION = "format_instructions"
+    FUNCTION = "format_metadata"
     CATEGORY = "XMP Metadata Nodes"
 
     @classmethod
@@ -87,7 +87,7 @@ class JHFormatInstructionsNode:
                 "scheduler_name, steps, cfg, guidance}."
             ) from exc
 
-    def format_instructions(
+    def format_metadata(
         self,
         prompt: str | None = None,
         negative_prompt: str | None = None,

@@ -1,16 +1,16 @@
 import pytest
 
-from src.jh_format_instructions_node import JHFormatInstructionsNode
+from src.jh_format_metadata_node import JHFormatMetadataNode
 
 # pylint: disable=redefined-outer-name
 
 
 @pytest.fixture
 def node():
-    return JHFormatInstructionsNode()
+    return JHFormatMetadataNode()
 
 
-def test_input_types(node: JHFormatInstructionsNode):
+def test_input_types(node: JHFormatMetadataNode):
     input_types = node.INPUT_TYPES()
     assert input_types.keys() == {"required", "optional"}
     assert input_types["required"].keys() == {"format_string"}
@@ -27,13 +27,13 @@ def test_input_types(node: JHFormatInstructionsNode):
     }
 
 
-def test_IS_CHANGED(node: JHFormatInstructionsNode):
+def test_IS_CHANGED(node: JHFormatMetadataNode):
     # The IS_CHANGED method should always return True
     assert node.IS_CHANGED()
 
 
-def test_default_format_string(node: JHFormatInstructionsNode):
-    result = node.format_instructions()
+def test_default_format_string(node: JHFormatMetadataNode):
+    result = node.format_metadata()
     expected = (
         "Prompt: \n"
         "Negative Prompt: \n"
@@ -48,23 +48,23 @@ def test_default_format_string(node: JHFormatInstructionsNode):
     assert result == (expected,)
 
 
-def test_custom_format_string(node: JHFormatInstructionsNode):
+def test_custom_format_string(node: JHFormatMetadataNode):
     custom_format = "Custom Prompt: {prompt}"
-    result = node.format_instructions(prompt="Test Prompt", format_string=custom_format)
+    result = node.format_metadata(prompt="Test Prompt", format_string=custom_format)
     expected = "Custom Prompt: Test Prompt"
     assert result == (expected,)
 
 
-def test_missing_placeholder_in_format_string(node: JHFormatInstructionsNode):
+def test_missing_placeholder_in_format_string(node: JHFormatMetadataNode):
     invalid_format = "Invalid {missing_placeholder}"
     with pytest.raises(
         ValueError, match="Invalid placeholder 'missing_placeholder' in format_string"
     ):
-        node.format_instructions(format_string=invalid_format)
+        node.format_metadata(format_string=invalid_format)
 
 
-def test_all_fields_provided(node: JHFormatInstructionsNode):
-    result = node.format_instructions(
+def test_all_fields_provided(node: JHFormatMetadataNode):
+    result = node.format_metadata(
         prompt="Test Prompt",
         negative_prompt="Test Negative",
         model_name="Test Model",
@@ -89,8 +89,8 @@ def test_all_fields_provided(node: JHFormatInstructionsNode):
     assert result == (expected,)
 
 
-def test_partial_fields_provided(node: JHFormatInstructionsNode):
-    result = node.format_instructions(
+def test_partial_fields_provided(node: JHFormatMetadataNode):
+    result = node.format_metadata(
         prompt="Test Prompt",
         model_name="Test Model",
         steps=50,
