@@ -58,7 +58,6 @@ def garbage_xml_string() -> str:
 def sample_image_file_with_valid_xmp_metadata(
     tmp_path: Path, valid_xml_string: str
 ) -> Path:
-    print(f"tmp_path: {tmp_path}")
     img_path = tmp_path / "test_image_valid_xml.webp"
     image = PIL.Image.new(
         "RGBA", (64, 64), color=(255, 0, 0, 128)

@@ -113,7 +113,6 @@ def test_to_wrapped_string(populated_metadata: JHXMPMetadata):
 
 def test_from_string(populated_metadata: JHXMPMetadata):
     xml_string = populated_metadata.to_string()
-    print(f"xml_string: {xml_string}")
     parsed_metadata = JHXMPMetadata.from_string(xml_string)
     assert parsed_metadata.creator == populated_metadata.creator
     assert parsed_metadata.title == populated_metadata.title
