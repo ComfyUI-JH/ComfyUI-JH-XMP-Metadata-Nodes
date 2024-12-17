@@ -3,23 +3,5 @@
         "tests"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "files.insertFinalNewline": true,
-    "files.trimFinalNewlines": true,
-    "files.trimTrailingWhitespace": true,
-    "editor.rulers": [
-        72,
-        100,
-    ],
-    "pylint.args": [
-        "--disable=missing-docstring,invalid-name"
-    ],
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.organizeImports": "explicit"
-    },
-    "python.analysis.typeCheckingMode": "standard",
-    "codeium.enableConfig": {
-        "*": true
-    },
+    "python.testing.pytestEnabled": true
 }
