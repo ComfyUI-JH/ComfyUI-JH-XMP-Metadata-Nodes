@@ -1,7 +1,5 @@
 from src.any_type import AnyType
 
-# pylint: disable=unnecessary-negation
-
 
 def test_ne_method():
     any_type_instance = AnyType("test")

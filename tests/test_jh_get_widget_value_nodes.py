@@ -10,8 +10,6 @@ from src.jh_get_widget_value_nodes import (
     JHGetWidgetValueStringNode,
 )
 
-# pylint: disable=redefined-outer-name
-
 
 @pytest.fixture
 def graph_data() -> dict[str, Any]:

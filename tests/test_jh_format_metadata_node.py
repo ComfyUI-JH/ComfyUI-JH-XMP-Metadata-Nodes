@@ -2,15 +2,13 @@ import pytest
 
 from src.jh_format_metadata_node import JHFormatMetadataNode
 
-# pylint: disable=redefined-outer-name
-
 
 @pytest.fixture
-def node():
+def node() -> JHFormatMetadataNode:
     return JHFormatMetadataNode()
 
 
-def test_input_types(node: JHFormatMetadataNode):
+def test_input_types(node: JHFormatMetadataNode) -> None:
     input_types = node.INPUT_TYPES()
     assert input_types.keys() == {"required", "optional"}
     assert input_types["required"].keys() == {"format_string"}
@@ -27,12 +25,12 @@ def test_input_types(node: JHFormatMetadataNode):
     }
 
 
-def test_IS_CHANGED(node: JHFormatMetadataNode):
+def test_IS_CHANGED(node: JHFormatMetadataNode) -> None:
     # The IS_CHANGED method should always return True
     assert node.IS_CHANGED()
 
 
-def test_default_format_string(node: JHFormatMetadataNode):
+def test_default_format_string(node: JHFormatMetadataNode) -> None:
     result = node.format_metadata()
     expected = (
         "Prompt: \n"
@@ -48,7 +46,7 @@ def test_default_format_string(node: JHFormatMetadataNode):
     assert result == (expected,)
 
 
-def test_custom_format_string(node: JHFormatMetadataNode):
+def test_custom_format_string(node: JHFormatMetadataNode) -> None:
     custom_format = "Custom Prompt: {prompt}"
     result = node.format_metadata(prompt="Test Prompt", format_string=custom_format)
     expected = "Custom Prompt: Test Prompt"
@@ -63,7 +61,7 @@ def test_missing_placeholder_in_format_string(node: JHFormatMetadataNode):
         node.format_metadata(format_string=invalid_format)
 
 
-def test_all_fields_provided(node: JHFormatMetadataNode):
+def test_all_fields_provided(node: JHFormatMetadataNode) -> None:
     result = node.format_metadata(
         prompt="Test Prompt",
         negative_prompt="Test Negative",
@@ -89,7 +87,7 @@ def test_all_fields_provided(node: JHFormatMetadataNode):
     assert result == (expected,)
 
 
-def test_partial_fields_provided(node: JHFormatMetadataNode):
+def test_partial_fields_provided(node: JHFormatMetadataNode) -> None:
     result = node.format_metadata(
         prompt="Test Prompt",
         model_name="Test Model",

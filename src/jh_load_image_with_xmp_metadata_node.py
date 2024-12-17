@@ -1,12 +1,13 @@
 import hashlib
 import os
 
-import folder_paths  # pyright: ignore[reportMissingImports]; pylint: disable=import-error
 import numpy as np
 import PIL.Image
 import PIL.ImageOps
 import PIL.ImageSequence
 import torch
+
+import folder_paths  # pyright: ignore[reportMissingImports]
 
 from .jh_xmp_metadata import JHXMPMetadata
 
@@ -76,7 +77,6 @@ class JHLoadImageWithXMPMetadataNode:
         xmp_metadata = JHXMPMetadata()
 
         for raw_frame in PIL.ImageSequence.Iterator(image_object):
-
             if first_frame is None:
                 first_frame = raw_frame.copy()
 

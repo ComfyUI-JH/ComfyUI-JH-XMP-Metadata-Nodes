@@ -2,8 +2,6 @@ import pytest
 
 from src.jh_path_to_stem_node import JHPathToStemNode
 
-# pylint: disable=redefined-outer-name
-
 
 @pytest.fixture
 def node():

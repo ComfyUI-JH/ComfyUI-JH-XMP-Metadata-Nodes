@@ -1,4 +1,3 @@
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -10,8 +9,6 @@ from src.jh_save_image_with_xmp_metadata_node import (
     JHSaveImageWithXMPMetadataNode,
     JHSupportedImageTypes,
 )
-
-# pylint: disable=redefined-outer-name
 
 
 @pytest.fixture

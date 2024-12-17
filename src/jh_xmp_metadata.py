@@ -235,7 +235,7 @@ class JHXMPMetadata:
         ).decode("utf-8")
 
     def to_wrapped_string(self) -> str:
-        return f"""<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?>{self.to_string()}<?xpacket end="w"?>"""  # pylint: disable=line-too-long
+        return f"""<?xpacket begin="\ufeff" id="W5M0MpCehiHzreSzNTczkc9d"?>{self.to_string()}<?xpacket end="w"?>"""  # pylint: disable=line-too-long
 
     @classmethod
     def from_string(cls, xml_string: str) -> "JHXMPMetadata":

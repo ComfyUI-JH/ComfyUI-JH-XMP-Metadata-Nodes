@@ -8,9 +8,6 @@ import torch
 
 from src.jh_load_image_with_xmp_metadata_node import JHLoadImageWithXMPMetadataNode
 
-# pylint: disable=redefined-outer-name
-# pylint: disable=protected-access
-
 
 @pytest.fixture
 def valid_xml_string() -> str:
@@ -123,7 +120,9 @@ def sample_invalid_multiframe_image_file(tmp_path: Path) -> Path:
     _can't_ have frames of different sizes because they all get padded
     to the largest frame's size. In order to test this scenario we have
     to use a different format, like TIFF, which _can_ have frames of
-    different sizes."""
+    different sizes but which is not well supported by ComfyUI at this
+    time.
+    """
     img_path = tmp_path / "test_image_multiframe_different_size.tiff"
 
     # Create frames with different sizes

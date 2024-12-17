@@ -3,9 +3,6 @@ from lxml import etree
 
 from src.jh_xmp_metadata import JHXMPMetadata
 
-# pylint: disable=c-extension-no-member
-# pylint: disable=redefined-outer-name
-
 
 @pytest.fixture
 def metadata() -> JHXMPMetadata:
