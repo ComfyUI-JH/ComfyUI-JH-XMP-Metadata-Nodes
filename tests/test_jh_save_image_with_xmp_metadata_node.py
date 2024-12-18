@@ -13,10 +13,24 @@ from ..comfyui_jh_xmp_metadata_nodes.jh_save_image_with_xmp_metadata_node import
 
 @pytest.fixture
 def mock_folder_paths():
-    with patch(
-        "comfyui_jh_xmp_metadata_nodes.jh_save_image_with_xmp_metadata_node.folder_paths"
-    ) as mock:
-        yield mock
+    with (
+        patch("folder_paths.get_output_directory") as mock_get_output_dir,
+        patch("folder_paths.get_save_image_path") as mock_get_save_path,
+    ):
+        mock_get_output_dir.return_value = "/mock/output/dir"
+        mock_get_save_path.return_value = (
+            "/mock/output/dir",
+            "mock_filename",
+            0,
+            "mock_subfolder",
+            "mock_filename_prefix",
+        )
+
+        # Yield a dictionary of mocks so you can access them in tests
+        yield {
+            "get_output_directory": mock_get_output_dir,
+            "get_save_image_path": mock_get_save_path,
+        }
 
 
 @pytest.fixture
@@ -26,14 +40,6 @@ def mock_image():
 
 @pytest.fixture
 def node(mock_folder_paths):
-    mock_folder_paths.get_output_directory.return_value = "/mock/output/dir"
-    mock_folder_paths.get_save_image_path.return_value = (
-        "/mock/output/dir",
-        "mock_filename",
-        0,
-        "mock_subfolder",
-        "mock_filename_prefix",
-    )
     return JHSaveImageWithXMPMetadataNode()
 
 
