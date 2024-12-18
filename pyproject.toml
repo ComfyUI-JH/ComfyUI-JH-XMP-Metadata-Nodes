@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "comfyui-jh-xmp-metadata-nodes"
 version = "0.1.0"
-description = "Custom nodes for reading and writing XMP metadata"
+description = "Custom nodes for ComfyUI for reading and writing XMP metadata"
 authors = ["Jeffery Harrell <jefferyharrell@gmail.com>"]
 readme = "README.md"
 license = "GPL-3.0-only"
