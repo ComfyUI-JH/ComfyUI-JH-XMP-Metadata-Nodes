@@ -1,6 +1,6 @@
 import pytest
 
-from src.jh_format_metadata_node import JHFormatMetadataNode
+from ..comfyui_jh_xmp_metadata_nodes.jh_format_metadata_node import JHFormatMetadataNode
 
 
 @pytest.fixture

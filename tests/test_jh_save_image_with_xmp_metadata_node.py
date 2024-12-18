@@ -5,7 +5,7 @@ import pytest
 import torch
 from PIL import Image
 
-from src.jh_save_image_with_xmp_metadata_node import (
+from ..comfyui_jh_xmp_metadata_nodes.jh_save_image_with_xmp_metadata_node import (
     JHSaveImageWithXMPMetadataNode,
     JHSupportedImageTypes,
 )
@@ -13,7 +13,9 @@ from src.jh_save_image_with_xmp_metadata_node import (
 
 @pytest.fixture
 def mock_folder_paths():
-    with patch("src.jh_save_image_with_xmp_metadata_node.folder_paths") as mock:
+    with patch(
+        "comfyui_jh_xmp_metadata_nodes.jh_save_image_with_xmp_metadata_node.folder_paths"
+    ) as mock:
         yield mock
 
 

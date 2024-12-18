@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "comfyui-jh-xmp-metadata-nodes"
+version = "0.1.0"
+description = "Custom nodes for reading and writing XMP metadata"
+authors = ["Jeffery Harrell <jefferyharrell@gmail.com>"]
+readme = "README.md"
+license = "GPL-3.0-only"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+lxml = "^5.3.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+pytest-cov = "^6.0.0"
+numpy = "<2.0.0"
+torch = "^2.5.1"
+pillow = "^11.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+fixable = ["ALL"]
+
+[tool.ruff.format]
+docstring-code-format = true

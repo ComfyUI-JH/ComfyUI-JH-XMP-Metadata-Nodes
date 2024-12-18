@@ -6,7 +6,9 @@ import PIL.Image
 import pytest
 import torch
 
-from src.jh_load_image_with_xmp_metadata_node import JHLoadImageWithXMPMetadataNode
+from ..comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node import (
+    JHLoadImageWithXMPMetadataNode,
+)
 
 
 @pytest.fixture

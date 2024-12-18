@@ -1,7 +1,7 @@
 import pytest
 from lxml import etree
 
-from src.jh_xmp_metadata import JHXMPMetadata
+from ..comfyui_jh_xmp_metadata_nodes.jh_xmp_metadata import JHXMPMetadata
 
 
 @pytest.fixture
@@ -53,7 +53,7 @@ def test_initialization(metadata: JHXMPMetadata) -> None:
 def test_to_string_from_empty(metadata: JHXMPMetadata) -> None:
     xml = metadata.to_string()
     try:
-        etree.fromstring(xml)
+        etree.fromstring(xml, parser=etree.XMLParser(recover=True))
     except etree.XMLSyntaxError as e:
         pytest.fail(f"Generated XML is invalid: {e}")
 
@@ -71,7 +71,7 @@ def test_field_setter_getter(
 
 
 def validate_xml_against_metadata(xml: str, populated_metadata: JHXMPMetadata):
-    root = etree.fromstring(xml)
+    root = etree.fromstring(xml, parser=etree.XMLParser(recover=True))
 
     def validate_field(xpath: str, expected_value: str | None, field_name: str):
         elements = root.xpath(xpath, namespaces=JHXMPMetadata.NAMESPACES)

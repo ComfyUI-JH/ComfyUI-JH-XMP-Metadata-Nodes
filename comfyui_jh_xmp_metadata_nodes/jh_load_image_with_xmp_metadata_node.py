@@ -7,7 +7,7 @@ import PIL.ImageOps
 import PIL.ImageSequence
 import torch
 
-import folder_paths  # pyright: ignore[reportMissingImports]
+import folder_paths
 
 from .jh_xmp_metadata import JHXMPMetadata
 

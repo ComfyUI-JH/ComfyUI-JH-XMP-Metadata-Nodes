@@ -1,14 +1,18 @@
 from typing import Any
 
-from .src.jh_format_metadata_node import JHFormatMetadataNode
-from .src.jh_get_widget_value_nodes import (
+from .comfyui_jh_xmp_metadata_nodes.jh_format_metadata_node import JHFormatMetadataNode
+from .comfyui_jh_xmp_metadata_nodes.jh_get_widget_value_nodes import (
     JHGetWidgetValueFloatNode,
     JHGetWidgetValueIntNode,
     JHGetWidgetValueStringNode,
 )
-from .src.jh_load_image_with_xmp_metadata_node import JHLoadImageWithXMPMetadataNode
-from .src.jh_path_to_stem_node import JHPathToStemNode
-from .src.jh_save_image_with_xmp_metadata_node import JHSaveImageWithXMPMetadataNode
+from .comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node import (
+    JHLoadImageWithXMPMetadataNode,
+)
+from .comfyui_jh_xmp_metadata_nodes.jh_path_to_stem_node import JHPathToStemNode
+from .comfyui_jh_xmp_metadata_nodes.jh_save_image_with_xmp_metadata_node import (
+    JHSaveImageWithXMPMetadataNode,
+)
 
 NODE_CLASS_MAPPINGS: dict[str, Any] = {
     "JHFormatMetadataNode": JHFormatMetadataNode,

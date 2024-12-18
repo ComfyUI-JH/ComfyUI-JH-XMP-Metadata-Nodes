@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "type": "debugpy",
+            "request": "launch",
+            "name": "ComfyUI",
+            "python": "${workspaceFolder}/../../.venv/Scripts/python.exe",
+            "program": "${workspaceFolder}/../../main.py",
+            "args": [
+                "--front-end-version", "Comfy-Org/ComfyUI_frontend@latest",
+                "--listen",
+                "--output-directory", "C:\\Users\\jeffe\\OneDrive\\ComfyUI_Output"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "justMyCode": true,
+        },
+    ]
+}
