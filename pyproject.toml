@@ -17,6 +17,7 @@ pytest-cov = "^6.0.0"
 numpy = "<2.0.0"
 torch = "^2.5.1"
 pillow = "^11.0.0"
+types-lxml = "^2024.12.13"
 
 [build-system]
 requires = ["poetry-core"]
