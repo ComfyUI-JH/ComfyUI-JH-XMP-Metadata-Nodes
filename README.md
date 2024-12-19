@@ -2,9 +2,9 @@
 
 # JH XMP Metadata Nodes
 
-![GitHub License](https://img.shields.io/github/license/jefferyharrell/ComfyUI_JH_XMP_Metadata_Nodes)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/jefferyharrell/ComfyUI_JH_XMP_Metadata_Nodes/ci.yml)
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/jefferyharrell/ComfyUI_JH_XMP_Metadata_Nodes/main)
+![GitHub License](https://img.shields.io/github/license/ComfyUI-JH/ComfyUI_JH_XMP_Metadata_Nodes)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ComfyUI-JH/ComfyUI_JH_XMP_Metadata_Nodes/ci.yml)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/ComfyUI-JH/ComfyUI_JH_XMP_Metadata_Nodes/main)
 
 Custom nodes for ComfyUI for the loading and saving of metadata in (originally Adobe's, now ISO-standard) XMP format. For information about XMP, see https://www.adobe.com/products/xmp.html.
 
@@ -18,7 +18,7 @@ Custom nodes for ComfyUI for the loading and saving of metadata in (originally A
 
     ```
     cd ComfyUI/custom_nodes
-    git clone https://github.com/jefferyharrell/ComfyUI_JH_XMP_Metadata_Nodes.git
+    git clone https://github.com/ComfyUI-JH/ComfyUI_JH_XMP_Metadata_Nodes.git
     ```
 
 3. Install the required Python packages. If you're using `venv` and `pip` that looks like this:
