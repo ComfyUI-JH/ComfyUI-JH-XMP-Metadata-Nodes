@@ -8,10 +8,14 @@
     <img src="https://img.shields.io/github/actions/workflow/status/ComfyUI-JH/ComfyUI_JH_XMP_Metadata_Nodes/ci.yml">
     &emsp;
     <img src="https://img.shields.io/github/last-commit/ComfyUI-JH/ComfyUI_JH_XMP_Metadata_Nodes/main">
+    &emsp;
+    <img src="https://img.shields.io/github/issues/ComfyUI-JH/ComfyUI_JH_XMP_Metadata_Nodes">
+    &emsp;
+    <img src="https://img.shields.io/github/issues-pr/ComfyUI-JH/ComfyUI_JH_XMP_Metadata_Nodes">
 </div>
 
 <div align="center">
-    
+
 ---
 [**Getting Started**](#getting-started) | [**Nodes**](#nodes) | [**Credits**](#credits)
 ---
@@ -106,7 +110,7 @@ For more information about XMP, see https://www.adobe.com/products/xmp.html.
         <img width="1128" alt="image" src="https://github.com/user-attachments/assets/8ce6fbf8-7d35-4041-9e22-2841fb1d1239" align="middle" />
     </div>
     <br />
-    
+
 Just like the built-in **Load Image** node except if XMP metadata is embedded in the image it will be parsed and made available on the node's outputs. The **xml_string** output carries the entire XML data structure including metadata which is not specifically supported by this package.
 
 </details>
@@ -156,7 +160,7 @@ Given a path string (absolute or relative), this node returns the "stem," meanin
     <br />
 
 This utility node takes common workflow inputs (prompt, model_name, seed, etc.) and allows you to construct a string that can subsequently be piped into a **Save Image With XMP Metadata** node input to embed metadata however you choose.
-    
+
 </details>
 
 # Credits
