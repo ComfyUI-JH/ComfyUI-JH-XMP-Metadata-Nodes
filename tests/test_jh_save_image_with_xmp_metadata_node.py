@@ -113,6 +113,7 @@ def test_xmp_with_xml_string(node):
         description=None,
         subject=None,
         instructions=None,
+        comment=None,
         xml_string=xml_string,
         batch_number=0,
     )
@@ -126,6 +127,7 @@ def test_xmp_with_metadata_fields(node):
         description="Test Description",
         subject="Test Subject",
         instructions="Test Instructions",
+        comment="Test Comment",
         xml_string=None,
         batch_number=0,
     )
@@ -134,6 +136,7 @@ def test_xmp_with_metadata_fields(node):
     assert "Test Description" in result
     assert "Test Subject" in result
     assert "Test Instructions" in result
+    assert "Test Comment" in result
 
 
 def test_xmp_with_list_metadata_fields(node):
@@ -143,6 +146,7 @@ def test_xmp_with_list_metadata_fields(node):
         description=["Description 1", "Description 2"],
         subject=["Subject 1", "Subject 2"],
         instructions=["Instructions 1", "Instructions 2"],
+        comment=["Comment 1", "Comment 2"],
         xml_string=None,
         batch_number=1,
     )
@@ -151,6 +155,7 @@ def test_xmp_with_list_metadata_fields(node):
     assert "Description 2" in result
     assert "Subject 2" in result
     assert "Instructions 2" in result
+    assert "Comment 2" in result
 
 
 def test_save_image_jpeg(node, mock_image, tmp_path):

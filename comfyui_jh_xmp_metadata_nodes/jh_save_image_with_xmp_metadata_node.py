@@ -121,6 +121,10 @@ class JHSaveImageWithXMPMetadataNode:
                     "STRING",
                     {"tooltip": ("photoshop:Instructions"), "forceInput": True},
                 ),
+                "comment": (
+                    "STRING",
+                    {"tooltip": ("exif:UserComment"), "forceInput": True},
+                ),
                 "xml_string": (
                     "STRING",
                     {
@@ -152,6 +156,7 @@ class JHSaveImageWithXMPMetadataNode:
         description: str | list | None = None,
         subject: str | list | None = None,
         instructions: str | list | None = None,
+        comment: str | list | None = None,
         xml_string: str | None = None,
         prompt: str | None = None,
         extra_pnginfo: dict | None = None,
@@ -178,6 +183,8 @@ class JHSaveImageWithXMPMetadataNode:
                 matching the batch size.
             instructions (str | list | None): Instructions metadata. Can be a string or
                 a list matching the batch size.
+            comment (str | list | None): Comment metadata. Can be a string or a list matching
+                the batch size.
             xml_string (str | None): Optional pre-generated XML metadata string. If provided,
                 this overrides the individual metadata fields.
             prompt (str | None): Prompt metadata to embed in the image (if applicable).
@@ -226,6 +233,7 @@ class JHSaveImageWithXMPMetadataNode:
                 description,
                 subject,
                 instructions,
+                comment,
                 xml_string,
                 batch_number,
             )
@@ -253,6 +261,7 @@ class JHSaveImageWithXMPMetadataNode:
         description,
         subject,
         instructions,
+        comment,
         xml_string,
         batch_number,
     ):
@@ -289,6 +298,9 @@ class JHSaveImageWithXMPMetadataNode:
                 instructions[batch_number]
                 if isinstance(instructions, list)
                 else instructions
+            )
+            xmpmetadata.comment = (
+                comment[batch_number] if isinstance(comment, list) else comment
             )
             xmp = xmpmetadata.to_wrapped_string()
         return xmp

@@ -1,13 +1,12 @@
 import hashlib
 import os
 
+import folder_paths
 import numpy as np
 import PIL.Image
 import PIL.ImageOps
 import PIL.ImageSequence
 import torch
-
-import folder_paths
 
 from .jh_xmp_metadata import JHXMPMetadata
 
@@ -38,6 +37,7 @@ class JHLoadImageWithXMPMetadataNode:
         "STRING",
         "STRING",
         "STRING",
+        "STRING",
     )
     RETURN_NAMES = (
         "IMAGE",
@@ -47,6 +47,7 @@ class JHLoadImageWithXMPMetadataNode:
         "description",
         "subject",
         "instructions",
+        "comment",
         "xml_string",
     )
     FUNCTION = "load_image"
@@ -86,7 +87,12 @@ class JHLoadImageWithXMPMetadataNode:
                 if isinstance(xmp_data, bytes):
                     xml_string = xmp_data.decode("utf-8")
                 if xml_string:  # Can't parse None or an empty string
-                    xmp_metadata = JHXMPMetadata.from_string(xml_string)
+                    try:
+                        xmp_metadata = JHXMPMetadata.from_string(xml_string)
+                    except ValueError:
+                        # If the XMP metadata is invalid, we'll just ignore it
+                        # and continue processing the image.
+                        pass
 
             # Skip frames with different sizes than the first frame
             # (This is pretty much the unlikeliest of all edge cases)
@@ -116,6 +122,7 @@ class JHLoadImageWithXMPMetadataNode:
             xmp_metadata.description,
             xmp_metadata.subject,
             xmp_metadata.instructions,
+            xmp_metadata.comment,
             xml_string,
         )
 

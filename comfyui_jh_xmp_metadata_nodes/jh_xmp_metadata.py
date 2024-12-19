@@ -50,8 +50,7 @@ print(xml_string)
 
 # Parse existing XMP metadata from XML
 parsed_metadata = JHXMPMetadata.from_string(xml_string)
-print(parsed_metadata.title)  # Outputs: A Beautiful Sunset
-"""
+print(parsed_metadata.title)  # Outputs: A Beautiful Sunset"""
 
 # pylint: disable=c-extension-no-member
 
@@ -78,6 +77,7 @@ class JHXMPMetadata:
         self._description: str | None = None
         self._subject: str | None = None
         self._instructions: str | None = None
+        self._comment: str | None = None
         # Set up the empty XMP metadata tree. We will add (and remove) elements as needed.
         self._xmpmetadata = etree.Element(
             "{adobe:ns:meta/}xmpmeta", nsmap=self.NAMESPACES
@@ -99,6 +99,7 @@ class JHXMPMetadata:
         self._dc_description_element = None
         self._dc_subject_element = None
         self._photoshop_instructions_element = None
+        self._exif_usercomment_element = None
 
     @property
     def creator(self) -> str | None:
@@ -226,6 +227,33 @@ class JHXMPMetadata:
             )
             self._photoshop_instructions_element.text = self._instructions
 
+    @property
+    def comment(self) -> str | None:
+        return self._comment
+
+    @comment.setter
+    def comment(self, value: str | None) -> None:
+        if value is None or value == "" or value.strip() == "":
+            self._comment = None
+            if self._exif_usercomment_element is not None:
+                self._rdf_description.remove(self._exif_usercomment_element)
+        else:
+            self._comment = value
+            self._exif_usercomment_element = etree.SubElement(
+                self._rdf_description,
+                "{http://ns.adobe.com/exif/1.0/}UserComment",
+            )
+            _alt = etree.SubElement(
+                self._exif_usercomment_element,
+                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Alt",
+            )
+            _li = etree.SubElement(
+                _alt,
+                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li",
+                attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"},
+            )
+            _li.text = self._comment
+
     def _string_to_list(self, string: str) -> list[str]:
         return re.split(r"[;,]\s*", string)
 
@@ -243,8 +271,9 @@ class JHXMPMetadata:
 
         try:
             root = etree.fromstring(xml_string)
-        except etree.XMLSyntaxError:
-            return instance
+        except etree.XMLSyntaxError as e:
+            raise ValueError("Invalid XML") from e
+            # return instance
 
         creator_list: list[str] = list()
         dc_creator_element = root.xpath(
@@ -277,4 +306,9 @@ class JHXMPMetadata:
         )
         if len(photoshop_instructions_element) > 0:
             instance.instructions = photoshop_instructions_element[0].text
+        dc_comment_element = root.xpath(
+            "//exif:UserComment/rdf:Alt/rdf:li", namespaces=cls.NAMESPACES
+        )
+        if len(dc_comment_element) > 0:
+            instance.comment = dc_comment_element[0].text
         return instance
