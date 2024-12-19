@@ -18,6 +18,7 @@ def example_metadata() -> dict[str, str]:
         "subject": "sunset, ocean, photography",
         "instructions": "Enhance colors slightly.",
         "comment": "This is a comment.",
+        "alt_text": "A beautiful sunset",
     }
 
 
@@ -30,6 +31,7 @@ def example_metadata_with_unicode() -> dict[str, str]:
         "subject": "🌅, ocean, photography",
         "instructions": "Enhance colors slightly 💯.",
         "comment": "This is a comment. 😎",
+        "alt_text": "A beautiful sunset 🌅",
     }
 
 
@@ -42,6 +44,7 @@ def populated_metadata(example_metadata: dict[str, str]) -> JHXMPMetadata:
     metadata.subject = example_metadata["subject"]
     metadata.instructions = example_metadata["instructions"]
     metadata.comment = example_metadata["comment"]
+    metadata.alt_text = example_metadata["alt_text"]
     return metadata
 
 
@@ -52,6 +55,7 @@ def test_initialization(metadata: JHXMPMetadata) -> None:
     assert metadata.subject is None
     assert metadata.instructions is None
     assert metadata.comment is None
+    assert metadata.alt_text is None
 
 
 def test_to_string_from_empty(metadata: JHXMPMetadata) -> None:
@@ -64,7 +68,15 @@ def test_to_string_from_empty(metadata: JHXMPMetadata) -> None:
 
 @pytest.mark.parametrize(
     "field_name",
-    ["creator", "title", "description", "subject", "instructions", "comment"],
+    [
+        "creator",
+        "title",
+        "description",
+        "subject",
+        "instructions",
+        "comment",
+        "alt_text",
+    ],
 )
 def test_field_setter_getter(
     metadata: JHXMPMetadata, example_metadata: dict[str, str], field_name: str
@@ -109,6 +121,10 @@ def validate_xml_against_metadata(xml: str, populated_metadata: JHXMPMetadata):
         "//exif:UserComment/rdf:Alt/rdf:li", populated_metadata.comment, "Comment"
     )
 
+    validate_field(
+        "//Iptc4xmpCore:AltTextAccessibility", populated_metadata.alt_text, "Alt Text"
+    )
+
 
 def test_to_string(populated_metadata: JHXMPMetadata):
     validate_xml_against_metadata(populated_metadata.to_string(), populated_metadata)
@@ -129,6 +145,7 @@ def test_from_string(populated_metadata: JHXMPMetadata):
     assert parsed_metadata.subject == populated_metadata.subject
     assert parsed_metadata.instructions == populated_metadata.instructions
     assert parsed_metadata.comment == populated_metadata.comment
+    assert parsed_metadata.alt_text == populated_metadata.alt_text
 
 
 def test_from_string_with_garbage_data():
@@ -170,6 +187,7 @@ def test_from_string_with_missing_fields():
     assert parsed_metadata.subject is None
     assert parsed_metadata.instructions is None
     assert parsed_metadata.comment is None
+    assert parsed_metadata.alt_text is None
 
 
 def test_large_metadata_values():
