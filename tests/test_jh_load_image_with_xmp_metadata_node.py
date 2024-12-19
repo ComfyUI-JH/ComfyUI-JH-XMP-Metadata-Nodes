@@ -164,7 +164,7 @@ def sample_32_bit_integer_image_file(tmp_path: Path) -> Path:
     return img_path
 
 
-def test_get_image_files():
+def test_get_image_files() -> None:
     with patch("folder_paths.get_input_directory", return_value="/mocked/path"):
         with patch("os.listdir", return_value=["img3.png", "img1.png", "img2.png"]):
             with patch("os.path.isfile", return_value=True):
@@ -172,7 +172,7 @@ def test_get_image_files():
                 assert files == ["img1.png", "img2.png", "img3.png"]
 
 
-def test_get_image_files_with_non_files():
+def test_get_image_files_with_non_files() -> None:
     with patch("folder_paths.get_input_directory", return_value="/mocked/path"):
         with patch("os.listdir", return_value=["img1.png", "directory", "img2.png"]):
             with patch(
@@ -182,7 +182,7 @@ def test_get_image_files_with_non_files():
                 assert files == ["img1.png", "img2.png"]
 
 
-def test_input_types():
+def test_input_types() -> None:
     with patch("folder_paths.get_input_directory", return_value="/mocked/path"):
         with patch("os.listdir", return_value=["img3.png", "img1.png", "img2.png"]):
             input_types = JHLoadImageWithXMPMetadataNode.INPUT_TYPES()
@@ -193,7 +193,9 @@ def test_input_types():
             assert input_types["required"]["image"][1] == {"image_upload": True}
 
 
-def test_validate_inputs_valid_file(sample_image_file_with_valid_xmp_metadata: Path):
+def test_validate_inputs_valid_file(
+    sample_image_file_with_valid_xmp_metadata: Path,
+) -> None:
     with patch("folder_paths.exists_annotated_filepath", return_value=True):
         assert (
             JHLoadImageWithXMPMetadataNode.VALIDATE_INPUTS(
@@ -203,13 +205,13 @@ def test_validate_inputs_valid_file(sample_image_file_with_valid_xmp_metadata: P
         )
 
 
-def test_validate_inputs_invalid_file():
+def test_validate_inputs_invalid_file() -> None:
     with patch("folder_paths.exists_annotated_filepath", return_value=False):
         result = JHLoadImageWithXMPMetadataNode.VALIDATE_INPUTS("nonexistent.png")
         assert result == "Invalid image file: nonexistent.png"
 
 
-def test_frame_to_tensors():
+def test_frame_to_tensors() -> None:
     node = JHLoadImageWithXMPMetadataNode()
     image = PIL.Image.new("RGBA", (64, 64), color=(255, 255, 255, 128))
     tensor_image, tensor_mask = node._frame_to_tensors(image)
@@ -223,7 +225,7 @@ def test_frame_to_tensors():
 
 def test_load_image_with_valid_metadata(
     sample_image_file_with_valid_xmp_metadata: Path, valid_xml_string: str
-):
+) -> None:
     with patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_image_file_with_valid_xmp_metadata),
@@ -247,7 +249,7 @@ def test_load_image_with_valid_metadata(
 
 def test_load_image_with_invalid_metadata(
     sample_image_file_with_invalid_xmp_metadata: Path, invalid_xml_string: str
-):
+) -> None:
     with patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_image_file_with_invalid_xmp_metadata),
@@ -269,7 +271,7 @@ def test_load_image_with_invalid_metadata(
 
 def test_load_image_with_garbage_metadata(
     sample_image_file_with_garbage_xmp_metadata: Path, garbage_xml_string: str
-):
+) -> None:
     with patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_image_file_with_garbage_xmp_metadata),
@@ -289,7 +291,9 @@ def test_load_image_with_garbage_metadata(
         assert output[8] == garbage_xml_string  # xml_string
 
 
-def test_load_image_with_multiframe_image_file(sample_multiframe_image_file: Path):
+def test_load_image_with_multiframe_image_file(
+    sample_multiframe_image_file: Path,
+) -> None:
     with patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_multiframe_image_file),
@@ -312,7 +316,7 @@ def test_load_image_with_multiframe_image_file(sample_multiframe_image_file: Pat
 
 def test_load_image_with_invalid_multiframe_image_file(
     sample_invalid_multiframe_image_file: Path,
-):
+) -> None:
     with patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_invalid_multiframe_image_file),
@@ -333,7 +337,7 @@ def test_load_image_with_invalid_multiframe_image_file(
         assert output[8] == ""  # xml_string
 
 
-def test_load_32_bit_integer_image(sample_32_bit_integer_image_file: Path):
+def test_load_32_bit_integer_image(sample_32_bit_integer_image_file: Path) -> None:
     with patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_32_bit_integer_image_file),
@@ -363,7 +367,7 @@ def test_load_32_bit_integer_image(sample_32_bit_integer_image_file: Path):
         assert torch.all(rgb_values >= 0) and torch.all(rgb_values <= 1)
 
 
-def test_load_grayscale_image(sample_grayscale_image_file: Path):
+def test_load_grayscale_image(sample_grayscale_image_file: Path) -> None:
     with patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_grayscale_image_file),
@@ -387,7 +391,7 @@ def test_load_grayscale_image(sample_grayscale_image_file: Path):
         assert output[0].shape[-1] == 3  # Last dimension should be 3 for RGB
 
 
-def test_is_changed(sample_image_file_with_valid_xmp_metadata: Path):
+def test_is_changed(sample_image_file_with_valid_xmp_metadata: Path) -> None:
     with patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_image_file_with_valid_xmp_metadata),
@@ -401,7 +405,7 @@ def test_is_changed(sample_image_file_with_valid_xmp_metadata: Path):
         assert result == expected_hash
 
 
-def test_is_changed_nonexistent_file():
+def test_is_changed_nonexistent_file() -> None:
     with patch("folder_paths.get_annotated_filepath", return_value="nonexistent.png"):
         with pytest.raises(FileNotFoundError):
             JHLoadImageWithXMPMetadataNode.IS_CHANGED("nonexistent.png")

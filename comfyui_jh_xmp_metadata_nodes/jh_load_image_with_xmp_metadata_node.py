@@ -1,5 +1,6 @@
 import hashlib
 import os
+from typing import Any
 
 import folder_paths
 import numpy as np
@@ -13,7 +14,7 @@ from .jh_xmp_metadata import JHXMPMetadata
 
 class JHLoadImageWithXMPMetadataNode:
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(cls) -> dict[str, Any]:
         return {
             "required": {"image": (cls.get_image_files(), {"image_upload": True})},
         }
@@ -54,7 +55,19 @@ class JHLoadImageWithXMPMetadataNode:
     CATEGORY = "XMP Metadata Nodes"
     OUTPUT_NODE = False
 
-    def load_image(self, image):
+    def load_image(
+        self, image: str
+    ) -> tuple[
+        torch.Tensor,
+        torch.Tensor,
+        str | None,
+        str | None,
+        str | None,
+        str | None,
+        str | None,
+        str | None,
+        str,
+    ]:
         # `image` here is a string, the name of the image file on disk;
         # just the filename, not the full path.
         image_path = folder_paths.get_annotated_filepath(image)
@@ -153,7 +166,7 @@ class JHLoadImageWithXMPMetadataNode:
         return image_tensor, mask_tensor
 
     @classmethod
-    def IS_CHANGED(cls, image):
+    def IS_CHANGED(cls, image: str) -> str:
         image_path = folder_paths.get_annotated_filepath(image)
         m = hashlib.sha256()
         with open(image_path, "rb") as f:
@@ -161,7 +174,7 @@ class JHLoadImageWithXMPMetadataNode:
         return m.digest().hex()
 
     @classmethod
-    def VALIDATE_INPUTS(cls, image):
+    def VALIDATE_INPUTS(cls, image: str) -> str | bool:
         if not folder_paths.exists_annotated_filepath(image):
             return f"Invalid image file: {image}"
         return True
