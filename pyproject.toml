@@ -39,3 +39,6 @@ fixable = ["ALL"]
 
 [tool.ruff.format]
 docstring-code-format = true
+
+[tool.pytest.ini_options]
+addopts = "-p mock_folder_paths"
