@@ -71,28 +71,18 @@ class JHGetWidgetValueNode:
                         "model": ["471", 0],
                     },
                     "class_type": "BasicScheduler",
-                    "_meta": {
-                        "title": "BasicScheduler"
-                    },
+                    "_meta": {"title": "BasicScheduler"},
                 },
                 "471": {
-                    "inputs": {
-                        "unet_name": "FLUX1\\flux1-schnell-Q4_K_S.gguf"
-                    },
+                    "inputs": {"unet_name": "FLUX1\\flux1-schnell-Q4_K_S.gguf"},
                     "class_type": "UnetLoaderGGUF",
-                    "_meta": {
-                        "title": "Unet Loader (GGUF)"
-                    },
+                    "_meta": {"title": "Unet Loader (GGUF)"},
                 },
                 "617": {
-                    "inputs": {
-                        "widget_name": "steps",
-                        "any_input": ["13", 0]
-                    },
+                    "inputs": {"widget_name": "steps", "any_input": ["13", 0]},
                     "class_type": "JHGetWidgetValueIntNode",
-                    "_meta": {
-                        "title": "Get Widget Value (Integer)"
-                    }, "is_changed": [True],
+                    "_meta": {"title": "Get Widget Value (Integer)"},
+                    "is_changed": [True],
                 },
             }
             ```
