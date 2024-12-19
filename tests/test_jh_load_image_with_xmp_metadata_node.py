@@ -177,12 +177,14 @@ def test_get_image_files_with_non_files():
 
 
 def test_input_types():
-    input_types = JHLoadImageWithXMPMetadataNode.INPUT_TYPES()
-    assert "required" in input_types
-    assert "image" in input_types["required"]
-    assert isinstance(input_types["required"]["image"], tuple)
-    assert isinstance(input_types["required"]["image"][0], list)
-    assert input_types["required"]["image"][1] == {"image_upload": True}
+    with patch("folder_paths.get_input_directory", return_value="/mocked/path"):
+        with patch("os.listdir", return_value=["img3.png", "img1.png", "img2.png"]):
+            input_types = JHLoadImageWithXMPMetadataNode.INPUT_TYPES()
+            assert "required" in input_types
+            assert "image" in input_types["required"]
+            assert isinstance(input_types["required"]["image"], tuple)
+            assert isinstance(input_types["required"]["image"][0], list)
+            assert input_types["required"]["image"][1] == {"image_upload": True}
 
 
 def test_validate_inputs_valid_file(sample_image_file_with_valid_xmp_metadata: Path):
