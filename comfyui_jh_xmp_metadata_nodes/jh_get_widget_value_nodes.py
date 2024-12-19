@@ -169,7 +169,7 @@ class JHGetWidgetValueStringNode(JHGetWidgetValueNode):
         any_input: tuple[str, int],
         widget_name: str,
         prompt: dict[str, Any],
-    ):
+    ) -> tuple[str]:
         widget_value = str(super().get_widget_value(any_input, widget_name, prompt)[0])
         return (widget_value,)
 
