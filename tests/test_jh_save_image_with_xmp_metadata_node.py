@@ -121,6 +121,7 @@ def test_xmp_with_xml_string(node: JHSaveImageWithXMPMetadataNode) -> None:
     xml_string = "<xmpmeta>Test XML</xmpmeta>"
     result = node.xmp(
         creator=None,
+        rights=None,
         title=None,
         description=None,
         subject=None,
@@ -137,6 +138,7 @@ def test_xmp_with_xml_string(node: JHSaveImageWithXMPMetadataNode) -> None:
 def test_xmp_with_metadata_fields(node: JHSaveImageWithXMPMetadataNode) -> None:
     result = node.xmp(
         creator="Test Creator",
+        rights="Test Rights",
         title="Test Title",
         description="Test Description",
         subject="Test Subject",
@@ -148,6 +150,7 @@ def test_xmp_with_metadata_fields(node: JHSaveImageWithXMPMetadataNode) -> None:
         batch_number=0,
     )
     assert "Test Creator" in result
+    assert "Test Rights" in result
     assert "Test Title" in result
     assert "Test Description" in result
     assert "Test Subject" in result
@@ -160,6 +163,7 @@ def test_xmp_with_metadata_fields(node: JHSaveImageWithXMPMetadataNode) -> None:
 def test_xmp_with_list_metadata_fields(node: JHSaveImageWithXMPMetadataNode) -> None:
     result = node.xmp(
         creator=["Creator 1", "Creator 2"],
+        rights=["Rights 1", "Rights 2"],
         title=["Title 1", "Title 2"],
         description=["Description 1", "Description 2"],
         subject=["Subject 1", "Subject 2"],
@@ -171,6 +175,7 @@ def test_xmp_with_list_metadata_fields(node: JHSaveImageWithXMPMetadataNode) -> 
         batch_number=1,
     )
     assert "Creator 2" in result
+    assert "Rights 2" in result
     assert "Title 2" in result
     assert "Description 2" in result
     assert "Subject 2" in result
@@ -277,6 +282,7 @@ def test_input_types(node: JHSaveImageWithXMPMetadataNode) -> None:
 
     # Check optional inputs
     assert "creator" in optional_inputs
+    assert "rights" in optional_inputs
     assert "title" in optional_inputs
     assert "description" in optional_inputs
     assert "subject" in optional_inputs
