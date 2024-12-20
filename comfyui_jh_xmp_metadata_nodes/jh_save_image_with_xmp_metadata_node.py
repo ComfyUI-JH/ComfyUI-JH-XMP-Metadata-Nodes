@@ -107,6 +107,10 @@ class JHSaveImageWithXMPMetadataNode:
                     "STRING",
                     {"tooltip": ("dc:creator"), "forceInput": True},
                 ),
+                "rights": (
+                    "STRING",
+                    {"tooltip": ("dc:rights"), "forceInput": True},
+                ),
                 "title": (
                     "STRING",
                     {"tooltip": ("dc:title"), "forceInput": True},
@@ -169,6 +173,7 @@ class JHSaveImageWithXMPMetadataNode:
         filename_prefix: str = "ComfyUI",
         image_type: JHSupportedImageTypes = JHSupportedImageTypes.PNG_WITH_WORKFLOW,
         creator: str | list | None = None,
+        rights: str | list | None = None,
         title: str | list | None = None,
         description: str | list | None = None,
         subject: str | list | None = None,
@@ -194,6 +199,8 @@ class JHSaveImageWithXMPMetadataNode:
             image_type (JHSupportedImageTypes): Format in which to save the images
                 (e.g., JPEG, PNG, WebP). Defaults to PNG with embedded workflow.
             creator (str | list | None): Creator metadata. Can be a string or a list
+                matching the batch size.
+            rights (str | list | None): Rights metadata. Can be a string or a list
                 matching the batch size.
             title (str | list | None): Title metadata. Can be a string or a list
                 matching the batch size.
@@ -255,6 +262,7 @@ class JHSaveImageWithXMPMetadataNode:
 
             xmp = self.xmp(
                 creator,
+                rights,
                 title,
                 description,
                 subject,
@@ -285,6 +293,7 @@ class JHSaveImageWithXMPMetadataNode:
     def xmp(
         self,
         creator: str | list | None,
+        rights: str | list | None,
         title: str | list | None,
         description: str | list | None,
         subject: str | list | None,
@@ -312,6 +321,9 @@ class JHSaveImageWithXMPMetadataNode:
             xmpmetadata = JHXMPMetadata()
             xmpmetadata.creator = (
                 creator[batch_number] if isinstance(creator, list) else creator
+            )
+            xmpmetadata.rights = (
+                rights[batch_number] if isinstance(rights, list) else rights
             )
             xmpmetadata.title = (
                 title[batch_number] if isinstance(title, list) else title

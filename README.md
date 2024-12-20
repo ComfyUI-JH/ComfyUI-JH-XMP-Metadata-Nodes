@@ -58,6 +58,14 @@ These are custom nodes for ComfyUI for the loading and saving of metadata in XMP
     <br />
 </details>
 
+<details>
+    <summary>Lightroom</summary>
+    <br />
+    <div align="center">
+        <img width="264" alt="image" src="https://github.com/user-attachments/assets/a2e15b24-2665-42a7-9697-56653ec5eebc" />
+    </div>
+    <br />
+</details>
 
 ## Supported Properties
 
@@ -66,6 +74,7 @@ The following metadata properties are currently supported:
 | Property | Description |
 | --- | --- |
 | dc:creator | A creator of list of creators of the image. Items can be separated by commas (`John Doe, Jane Doe`) or semicolons (`John Doe; Jane Doe`) |
+| dc:rights | Information about the rights and clearances associated with the image, if any. |
 | dc:title | A title for the image. |
 | dc:description | A description of the image. |
 | dc:subject | A subject or list of subjects. Items can be separated by commas (`wetsuit, sunset`) or semicolons (`wetsuit; sunset`) |

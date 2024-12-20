@@ -41,11 +41,13 @@ class JHLoadImageWithXMPMetadataNode:
         "STRING",
         "STRING",
         "STRING",
+        "STRING",
     )
     RETURN_NAMES = (
         "IMAGE",
         "MASK",
         "creator",
+        "rights",
         "title",
         "description",
         "subject",
@@ -64,6 +66,7 @@ class JHLoadImageWithXMPMetadataNode:
     ) -> tuple[
         torch.Tensor,
         torch.Tensor,
+        str | None,
         str | None,
         str | None,
         str | None,
@@ -132,6 +135,7 @@ class JHLoadImageWithXMPMetadataNode:
             output_image,
             output_mask,
             xmp_metadata.creator,
+            xmp_metadata.rights,
             xmp_metadata.title,
             xmp_metadata.description,
             xmp_metadata.subject,
