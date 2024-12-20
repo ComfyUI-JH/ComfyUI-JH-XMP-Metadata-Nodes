@@ -2,8 +2,8 @@ from typing import Any
 
 import pytest
 
-from ..comfyui_jh_xmp_metadata_nodes.any_type import AnyType
-from ..comfyui_jh_xmp_metadata_nodes.jh_get_widget_value_nodes import (
+from comfyui_jh_xmp_metadata_nodes.any_type import AnyType
+from comfyui_jh_xmp_metadata_nodes.jh_get_widget_value_nodes import (
     JHGetWidgetValueFloatNode,
     JHGetWidgetValueIntNode,
     JHGetWidgetValueNode,

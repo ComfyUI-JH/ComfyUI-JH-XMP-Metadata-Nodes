@@ -1,6 +1,6 @@
 import pytest
 
-from ..comfyui_jh_xmp_metadata_nodes.jh_path_to_stem_node import JHPathToStemNode
+from comfyui_jh_xmp_metadata_nodes.jh_path_to_stem_node import JHPathToStemNode
 
 
 @pytest.fixture

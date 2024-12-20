@@ -1,4 +1,4 @@
-from ..comfyui_jh_xmp_metadata_nodes.any_type import AnyType
+from comfyui_jh_xmp_metadata_nodes.any_type import AnyType
 
 
 def test_ne_method():

@@ -1,7 +1,7 @@
 import pytest
 from lxml import etree
 
-from ..comfyui_jh_xmp_metadata_nodes.jh_xmp_metadata import JHXMPMetadata
+from comfyui_jh_xmp_metadata_nodes.jh_xmp_metadata import JHXMPMetadata
 
 
 @pytest.fixture

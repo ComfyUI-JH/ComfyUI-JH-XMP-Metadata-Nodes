@@ -7,7 +7,7 @@ import torch
 from PIL import Image
 from pytest_mock import MockerFixture
 
-from ..comfyui_jh_xmp_metadata_nodes.jh_save_image_with_xmp_metadata_node import (
+from comfyui_jh_xmp_metadata_nodes.jh_save_image_with_xmp_metadata_node import (
     JHSaveImageWithXMPMetadataNode,
     JHSupportedImageTypes,
 )
