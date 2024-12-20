@@ -58,6 +58,14 @@ These are custom nodes for ComfyUI for the loading and saving of metadata in XMP
     <br />
 </details>
 
+<details>
+    <summary>Lightroom</summary>
+    <br />
+    <div align="center">
+        <img width="264" alt="image" src="https://github.com/user-attachments/assets/a2e15b24-2665-42a7-9697-56653ec5eebc" />
+    </div>
+    <br />
+</details>
 
 ## Supported Properties
 
