@@ -40,6 +40,7 @@ class JHLoadImageWithXMPMetadataNode:
         "STRING",
         "STRING",
         "STRING",
+        "STRING",
     )
     RETURN_NAMES = (
         "IMAGE",
@@ -51,6 +52,7 @@ class JHLoadImageWithXMPMetadataNode:
         "instructions",
         "comment",
         "alt_text",
+        "ext_description",
         "xml_string",
     )
     FUNCTION = "load_image"
@@ -62,6 +64,7 @@ class JHLoadImageWithXMPMetadataNode:
     ) -> tuple[
         torch.Tensor,
         torch.Tensor,
+        str | None,
         str | None,
         str | None,
         str | None,
@@ -135,6 +138,7 @@ class JHLoadImageWithXMPMetadataNode:
             xmp_metadata.instructions,
             xmp_metadata.comment,
             xmp_metadata.alt_text,
+            xmp_metadata.ext_description,
             xml_string,
         )
 

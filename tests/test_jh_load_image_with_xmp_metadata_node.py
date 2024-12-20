@@ -48,6 +48,7 @@ def valid_xml_string() -> str:
                     </rdf:Alt>
                 </exif:UserComment>
                 <Iptc4xmpCore:AltTextAccessibility>Test Alt Text</Iptc4xmpCore:AltTextAccessibility>
+                <Iptc4xmpCore:ExtDescrAccessibility>Test Ext Description</Iptc4xmpCore:ExtDescrAccessibility>
             </rdf:Description>
         </rdf:RDF>
     </x:xmpmeta>
@@ -247,7 +248,8 @@ def test_load_image_with_valid_metadata(
         assert output[6] == "Test Instructions"  # instructions
         assert output[7] == "Test Comment"  # xml_string
         assert output[8] == "Test Alt Text"  # alt_text
-        assert output[9] == valid_xml_string  # xml_string
+        assert output[9] == "Test Ext Description"  # ext_description
+        assert output[10] == valid_xml_string  # xml_string
 
 
 def test_load_image_with_invalid_metadata(
@@ -270,7 +272,8 @@ def test_load_image_with_invalid_metadata(
         assert output[6] is None  # instructions
         assert output[7] is None  # comment
         assert output[8] is None  # alt_text
-        assert output[-1] == invalid_xml_string  # xml_string
+        assert output[9] is None  # ext_description
+        assert output[10] == invalid_xml_string  # xml_string
 
 
 def test_load_image_with_garbage_metadata(
@@ -293,7 +296,8 @@ def test_load_image_with_garbage_metadata(
         assert output[6] is None  # instructions
         assert output[7] is None  # comment
         assert output[8] is None  # alt_text
-        assert output[-1] == garbage_xml_string  # xml_string
+        assert output[9] is None  # ext_description
+        assert output[10] == garbage_xml_string  # xml_string
 
 
 def test_load_image_with_multiframe_image_file(
@@ -317,7 +321,8 @@ def test_load_image_with_multiframe_image_file(
         assert output[6] is None  # instructions
         assert output[7] is None  # comment
         assert output[8] is None  # alt text
-        assert output[-1] == ""  # xml_string
+        assert output[9] is None  # ext_description
+        assert output[10] == ""  # xml_string
 
 
 def test_load_image_with_invalid_multiframe_image_file(
@@ -341,7 +346,8 @@ def test_load_image_with_invalid_multiframe_image_file(
         assert output[6] is None  # instructions
         assert output[7] is None  # comment
         assert output[8] is None  # alt text
-        assert output[-1] == ""  # xml_string
+        assert output[9] is None  # ext_description
+        assert output[10] == ""  # xml_string
 
 
 def test_load_32_bit_integer_image(sample_32_bit_integer_image_file: Path) -> None:
@@ -363,7 +369,8 @@ def test_load_32_bit_integer_image(sample_32_bit_integer_image_file: Path) -> No
         assert output[6] is None  # instructions
         assert output[7] is None  # comment
         assert output[8] is None  # alt text
-        assert output[-1] == ""  # xml_string
+        assert output[9] is None  # ext_description
+        assert output[10] == ""  # xml_string
 
         # Verify RGB channel consistency
         rgb_values = output[0][0, :, :, :]
@@ -394,7 +401,8 @@ def test_load_grayscale_image(sample_grayscale_image_file: Path) -> None:
         assert output[6] is None  # instructions
         assert output[7] is None  # comment
         assert output[8] is None  # alt text
-        assert output[-1] == ""  # xml_string
+        assert output[9] is None  # ext_description
+        assert output[10] == ""  # xml_string
 
         # Verify that the image tensor is in RGB format
         assert output[0].shape[-1] == 3  # Last dimension should be 3 for RGB
