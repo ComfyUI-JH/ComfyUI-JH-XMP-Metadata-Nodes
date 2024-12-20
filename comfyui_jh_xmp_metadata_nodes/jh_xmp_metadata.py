@@ -83,6 +83,7 @@ class JHXMPMetadata:
         self._instructions: str | None = None
         self._comment: str | None = None
         self._alt_text: str | None = None
+        self._ext_description: str | None = None
 
         # Set up the empty XMP metadata tree. We will add (and remove) elements
         # as needed.
@@ -108,6 +109,7 @@ class JHXMPMetadata:
         self._photoshop_instructions_element = None
         self._exif_usercomment_element = None
         self._Iptc4xmpCore_alt_text_element = None
+        self._Iptc4xmpCore_ext_description_element = None
 
     @property
     def creator(self) -> str | None:
@@ -280,6 +282,24 @@ class JHXMPMetadata:
             )
             self._Iptc4xmpCore_alt_text_element.text = self._alt_text
 
+    @property
+    def ext_description(self) -> str | None:
+        return self._ext_description
+
+    @ext_description.setter
+    def ext_description(self, value: str | None) -> None:
+        if value is None or value == "" or value.strip() == "":
+            self._ext_description = None
+            if self._Iptc4xmpCore_ext_description_element is not None:
+                self._rdf_description.remove(self._Iptc4xmpCore_ext_description_element)
+        else:
+            self._ext_description = value
+            self._Iptc4xmpCore_ext_description_element = etree.SubElement(
+                self._rdf_description,
+                "{http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/}ExtDescrAccessibility",
+            )
+            self._Iptc4xmpCore_ext_description_element.text = self._ext_description
+
     def _string_to_list(self, string: str) -> list[str]:
         return re.split(r"[;,]\s*", string)
 
@@ -349,5 +369,11 @@ class JHXMPMetadata:
         )
         if len(Iptc4xmpCore_alt_text_element) > 0:
             instance.alt_text = Iptc4xmpCore_alt_text_element[0].text
+
+        Iptc4xmpCore_ext_description_element = root.xpath(
+            "//Iptc4xmpCore:ExtDescrAccessibility", namespaces=cls.NAMESPACES
+        )
+        if len(Iptc4xmpCore_ext_description_element) > 0:
+            instance.ext_description = Iptc4xmpCore_ext_description_element[0].text
 
         return instance

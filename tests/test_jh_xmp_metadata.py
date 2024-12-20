@@ -19,6 +19,7 @@ def example_metadata() -> dict[str, str]:
         "instructions": "Enhance colors slightly.",
         "comment": "This is a comment.",
         "alt_text": "A beautiful sunset",
+        "ext_description": "This is an extended description.",
     }
 
 
@@ -32,6 +33,7 @@ def example_metadata_with_unicode() -> dict[str, str]:
         "instructions": "Enhance colors slightly 💯.",
         "comment": "This is a comment. 😎",
         "alt_text": "A beautiful sunset 🌅",
+        "ext_description": "This is an extended description. 📸",
     }
 
 
@@ -45,6 +47,7 @@ def populated_metadata(example_metadata: dict[str, str]) -> JHXMPMetadata:
     metadata.instructions = example_metadata["instructions"]
     metadata.comment = example_metadata["comment"]
     metadata.alt_text = example_metadata["alt_text"]
+    metadata.ext_description = example_metadata["ext_description"]
     return metadata
 
 
@@ -56,6 +59,7 @@ def test_initialization(metadata: JHXMPMetadata) -> None:
     assert metadata.instructions is None
     assert metadata.comment is None
     assert metadata.alt_text is None
+    assert metadata.ext_description is None
 
 
 def test_to_string_from_empty(metadata: JHXMPMetadata) -> None:
@@ -76,6 +80,7 @@ def test_to_string_from_empty(metadata: JHXMPMetadata) -> None:
         "instructions",
         "comment",
         "alt_text",
+        "ext_description",
     ],
 )
 def test_field_setter_getter(
@@ -125,6 +130,12 @@ def validate_xml_against_metadata(xml: str, populated_metadata: JHXMPMetadata) -
         "//Iptc4xmpCore:AltTextAccessibility", populated_metadata.alt_text, "Alt Text"
     )
 
+    validate_field(
+        "//Iptc4xmpCore:ExtDescrAccessibility",
+        populated_metadata.ext_description,
+        "Ext Description",
+    )
+
 
 def test_to_string(populated_metadata: JHXMPMetadata) -> None:
     validate_xml_against_metadata(populated_metadata.to_string(), populated_metadata)
@@ -146,6 +157,7 @@ def test_from_string(populated_metadata: JHXMPMetadata) -> None:
     assert parsed_metadata.instructions == populated_metadata.instructions
     assert parsed_metadata.comment == populated_metadata.comment
     assert parsed_metadata.alt_text == populated_metadata.alt_text
+    assert parsed_metadata.ext_description == populated_metadata.ext_description
 
 
 def test_from_string_with_garbage_data() -> None:
@@ -170,6 +182,7 @@ def test_from_string_with_garbage_data() -> None:
     assert parsed_metadata.instructions is None
     assert parsed_metadata.comment is None
     assert parsed_metadata.alt_text is None
+    assert parsed_metadata.ext_description is None
 
 
 def test_from_string_with_missing_fields() -> None:
@@ -194,6 +207,7 @@ def test_from_string_with_missing_fields() -> None:
     assert parsed_metadata.instructions is None
     assert parsed_metadata.comment is None
     assert parsed_metadata.alt_text is None
+    assert parsed_metadata.ext_description is None
 
 
 def test_large_metadata_values() -> None:
@@ -215,6 +229,7 @@ def test_empty_xml_string() -> None:
     assert parsed_metadata.instructions is None
     assert parsed_metadata.comment is None
     assert parsed_metadata.alt_text is None
+    assert parsed_metadata.ext_description is None
 
 
 def test_special_characters_in_xml(
