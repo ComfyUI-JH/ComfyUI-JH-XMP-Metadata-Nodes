@@ -126,6 +126,8 @@ def test_xmp_with_xml_string(node: JHSaveImageWithXMPMetadataNode) -> None:
         subject=None,
         instructions=None,
         comment=None,
+        alt_text=None,
+        ext_description=None,
         xml_string=xml_string,
         batch_number=0,
     )
@@ -140,6 +142,8 @@ def test_xmp_with_metadata_fields(node: JHSaveImageWithXMPMetadataNode) -> None:
         subject="Test Subject",
         instructions="Test Instructions",
         comment="Test Comment",
+        alt_text="Test Alt Text",
+        ext_description="Test Ext Description",
         xml_string=None,
         batch_number=0,
     )
@@ -149,6 +153,8 @@ def test_xmp_with_metadata_fields(node: JHSaveImageWithXMPMetadataNode) -> None:
     assert "Test Subject" in result
     assert "Test Instructions" in result
     assert "Test Comment" in result
+    assert "Test Alt Text" in result
+    assert "Test Ext Description" in result
 
 
 def test_xmp_with_list_metadata_fields(node: JHSaveImageWithXMPMetadataNode) -> None:
@@ -159,6 +165,8 @@ def test_xmp_with_list_metadata_fields(node: JHSaveImageWithXMPMetadataNode) -> 
         subject=["Subject 1", "Subject 2"],
         instructions=["Instructions 1", "Instructions 2"],
         comment=["Comment 1", "Comment 2"],
+        alt_text=["Alt Text 1", "Alt Text 2"],
+        ext_description=["Ext Description 1", "Ext Description 2"],
         xml_string=None,
         batch_number=1,
     )
@@ -168,6 +176,8 @@ def test_xmp_with_list_metadata_fields(node: JHSaveImageWithXMPMetadataNode) -> 
     assert "Subject 2" in result
     assert "Instructions 2" in result
     assert "Comment 2" in result
+    assert "Alt Text 2" in result
+    assert "Ext Description 2" in result
 
 
 def test_save_image_jpeg(
@@ -271,6 +281,8 @@ def test_input_types(node: JHSaveImageWithXMPMetadataNode) -> None:
     assert "description" in optional_inputs
     assert "subject" in optional_inputs
     assert "instructions" in optional_inputs
+    assert "comment" in optional_inputs
+    assert "alt_text" in optional_inputs
     assert "xml_string" in optional_inputs
 
     # Check hidden inputs

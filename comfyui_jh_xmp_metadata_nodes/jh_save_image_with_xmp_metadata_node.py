@@ -127,6 +127,20 @@ class JHSaveImageWithXMPMetadataNode:
                     "STRING",
                     {"tooltip": ("exif:UserComment"), "forceInput": True},
                 ),
+                "alt_text": (
+                    "STRING",
+                    {
+                        "tooltip": ("Iptc4xmpCore:AltTextAccessibility"),
+                        "forceInput": True,
+                    },
+                ),
+                "ext_description": (
+                    "STRING",
+                    {
+                        "tooltip": ("Iptc4xmpCore:ExtDescrAccessibility"),
+                        "forceInput": True,
+                    },
+                ),
                 "xml_string": (
                     "STRING",
                     {
@@ -160,6 +174,8 @@ class JHSaveImageWithXMPMetadataNode:
         subject: str | list | None = None,
         instructions: str | list | None = None,
         comment: str | list | None = None,
+        alt_text: str | list | None = None,
+        ext_description: str | list | None = None,
         xml_string: str | None = None,
         prompt: str | None = None,
         extra_pnginfo: dict | None = None,
@@ -189,6 +205,10 @@ class JHSaveImageWithXMPMetadataNode:
                 a list matching the batch size.
             comment (str | list | None): Comment metadata. Can be a string or a list
                 matching the batch size.
+            alt_text (str | list | None): Alt text metadata. Can be a string or a list
+                matching the batch size.
+            ext_description (str | list | None): Extended description metadata. Can be a
+                string or a list matching the batch size.
             xml_string (str | None): Optional pre-generated XML metadata string. If
                 provided, this overrides the individual metadata fields.
             prompt (str | None): Prompt metadata to embed in the image (if applicable).
@@ -240,6 +260,8 @@ class JHSaveImageWithXMPMetadataNode:
                 subject,
                 instructions,
                 comment,
+                alt_text,
+                ext_description,
                 xml_string,
                 batch_number,
             )
@@ -268,6 +290,8 @@ class JHSaveImageWithXMPMetadataNode:
         subject: str | list | None,
         instructions: str | list | None,
         comment: str | list | None,
+        alt_text: str | list | None,
+        ext_description: str | list | None,
         xml_string: str | None,
         batch_number: int,
     ) -> str:
@@ -307,6 +331,14 @@ class JHSaveImageWithXMPMetadataNode:
             )
             xmpmetadata.comment = (
                 comment[batch_number] if isinstance(comment, list) else comment
+            )
+            xmpmetadata.alt_text = (
+                alt_text[batch_number] if isinstance(alt_text, list) else alt_text
+            )
+            xmpmetadata.ext_description = (
+                ext_description[batch_number]
+                if isinstance(ext_description, list)
+                else ext_description
             )
             xmp = xmpmetadata.to_wrapped_string()
         return xmp

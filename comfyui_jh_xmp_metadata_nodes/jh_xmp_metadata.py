@@ -11,7 +11,7 @@ programmatically in an efficient and easy-to-use manner.
 
 Key Features:
 - Create and manage XMP metadata elements such as `creator`, `title`,
-  `description`, `subject`, and `instructions`.
+  `description`, `subject`, and `instructions`, etc.
 - Serialize XMP metadata to a formatted XML string or a complete XMP packet.
 - Parse existing XMP metadata from an XML string.
 - Uses the `lxml.etree` library for XML processing to ensure compliance with
@@ -24,6 +24,7 @@ The module defines standard namespaces used in XMP metadata, such as:
 - `xmp` (Adobe XMP Schema)
 - `photoshop` (Photoshop-specific fields)
 - `exif` (Exchangeable Image File Format)
+- `Iptc4xmpCore` (IPTC Core Schema)
 
 References:
 - Adobe XMP Specifications:
@@ -43,6 +44,8 @@ metadata.title = "A Beautiful Sunset"
 metadata.description = "A vivid depiction of a sunset over the ocean."
 metadata.subject = "sunset, ocean, photography"
 metadata.instructions = "Enhance colors slightly."
+metadata.comment = "This is a comment."
+metadata.alt_text = "A beautiful sunset"
 
 # Convert to XML string
 xml_string = metadata.to_string()
@@ -69,16 +72,21 @@ class JHXMPMetadata:
         "xmp": "http://ns.adobe.com/xap/1.0/",
         "photoshop": "http://ns.adobe.com/photoshop/1.0/",
         "exif": "http://ns.adobe.com/exif/1.0/",
+        "Iptc4xmpCore": "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/",
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._creator: str | None = None
         self._title: str | None = None
         self._description: str | None = None
         self._subject: str | None = None
         self._instructions: str | None = None
         self._comment: str | None = None
-        # Set up the empty XMP metadata tree. We will add (and remove) elements as needed.
+        self._alt_text: str | None = None
+        self._ext_description: str | None = None
+
+        # Set up the empty XMP metadata tree. We will add (and remove) elements
+        # as needed.
         self._xmpmetadata = etree.Element(
             "{adobe:ns:meta/}xmpmeta", nsmap=self.NAMESPACES
         )
@@ -100,6 +108,8 @@ class JHXMPMetadata:
         self._dc_subject_element = None
         self._photoshop_instructions_element = None
         self._exif_usercomment_element = None
+        self._Iptc4xmpCore_alt_text_element = None
+        self._Iptc4xmpCore_ext_description_element = None
 
     @property
     def creator(self) -> str | None:
@@ -254,6 +264,42 @@ class JHXMPMetadata:
             )
             _li.text = self._comment
 
+    @property
+    def alt_text(self) -> str | None:
+        return self._alt_text
+
+    @alt_text.setter
+    def alt_text(self, value: str | None) -> None:
+        if value is None or value == "" or value.strip() == "":
+            self._alt_text = None
+            if self._Iptc4xmpCore_alt_text_element is not None:
+                self._rdf_description.remove(self._Iptc4xmpCore_alt_text_element)
+        else:
+            self._alt_text = value
+            self._Iptc4xmpCore_alt_text_element = etree.SubElement(
+                self._rdf_description,
+                "{http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/}AltTextAccessibility",
+            )
+            self._Iptc4xmpCore_alt_text_element.text = self._alt_text
+
+    @property
+    def ext_description(self) -> str | None:
+        return self._ext_description
+
+    @ext_description.setter
+    def ext_description(self, value: str | None) -> None:
+        if value is None or value == "" or value.strip() == "":
+            self._ext_description = None
+            if self._Iptc4xmpCore_ext_description_element is not None:
+                self._rdf_description.remove(self._Iptc4xmpCore_ext_description_element)
+        else:
+            self._ext_description = value
+            self._Iptc4xmpCore_ext_description_element = etree.SubElement(
+                self._rdf_description,
+                "{http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/}ExtDescrAccessibility",
+            )
+            self._Iptc4xmpCore_ext_description_element.text = self._ext_description
+
     def _string_to_list(self, string: str) -> list[str]:
         return re.split(r"[;,]\s*", string)
 
@@ -263,7 +309,7 @@ class JHXMPMetadata:
         ).decode("utf-8")
 
     def to_wrapped_string(self) -> str:
-        return f"""<?xpacket begin="\ufeff" id="W5M0MpCehiHzreSzNTczkc9d"?>{self.to_string()}<?xpacket end="w"?>"""  # pylint: disable=line-too-long
+        return f"""<?xpacket begin="\ufeff" id="W5M0MpCehiHzreSzNTczkc9d"?>{self.to_string()}<?xpacket end="w"?>"""  # noqa: E501
 
     @classmethod
     def from_string(cls, xml_string: str) -> "JHXMPMetadata":
@@ -271,9 +317,10 @@ class JHXMPMetadata:
 
         try:
             root = etree.fromstring(xml_string)
-        except etree.XMLSyntaxError as e:
-            raise ValueError("Invalid XML") from e
-            # return instance
+        except etree.XMLSyntaxError:
+            # raise ValueError("Invalid XML") from e
+            # In case of invalid XML, return an empty instance
+            return instance
 
         creator_list: list[str] = list()
         dc_creator_element = root.xpath(
@@ -283,16 +330,19 @@ class JHXMPMetadata:
             for creator in dc_creator_element:
                 creator_list.append(creator.text)
             instance.creator = ", ".join(creator_list)
+
         dc_title_element = root.xpath(
             "//dc:title/rdf:Alt/rdf:li", namespaces=cls.NAMESPACES
         )
         if len(dc_title_element) > 0:
             instance.title = dc_title_element[0].text
+
         dc_description_element = root.xpath(
             "//dc:description/rdf:Alt/rdf:li", namespaces=cls.NAMESPACES
         )
         if len(dc_description_element) > 0:
             instance.description = dc_description_element[0].text
+
         dc_subject_element = root.xpath(
             "//dc:subject/rdf:Bag/rdf:li", namespaces=cls.NAMESPACES
         )
@@ -301,14 +351,29 @@ class JHXMPMetadata:
             for subject in dc_subject_element:
                 subject_list.append(subject.text)
             instance.subject = ", ".join(subject_list)
+
         photoshop_instructions_element = root.xpath(
             "//photoshop:Instructions", namespaces=cls.NAMESPACES
         )
         if len(photoshop_instructions_element) > 0:
             instance.instructions = photoshop_instructions_element[0].text
+
         dc_comment_element = root.xpath(
             "//exif:UserComment/rdf:Alt/rdf:li", namespaces=cls.NAMESPACES
         )
         if len(dc_comment_element) > 0:
             instance.comment = dc_comment_element[0].text
+
+        Iptc4xmpCore_alt_text_element = root.xpath(
+            "//Iptc4xmpCore:AltTextAccessibility", namespaces=cls.NAMESPACES
+        )
+        if len(Iptc4xmpCore_alt_text_element) > 0:
+            instance.alt_text = Iptc4xmpCore_alt_text_element[0].text
+
+        Iptc4xmpCore_ext_description_element = root.xpath(
+            "//Iptc4xmpCore:ExtDescrAccessibility", namespaces=cls.NAMESPACES
+        )
+        if len(Iptc4xmpCore_ext_description_element) > 0:
+            instance.ext_description = Iptc4xmpCore_ext_description_element[0].text
+
         return instance
