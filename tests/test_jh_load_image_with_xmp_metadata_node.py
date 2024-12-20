@@ -26,6 +26,11 @@ def valid_xml_string() -> str:
                         <rdf:li>Test Creator</rdf:li>
                     </rdf:Seq>
                 </dc:creator>
+                <dc:rights>
+                    <rdf:Alt>
+                        <rdf:li xml:lang="x-default">Test Rights</rdf:li>
+                    </rdf:Alt>
+                </dc:rights>
                 <dc:title>
                     <rdf:Alt>
                         <rdf:li xml:lang="x-default">Test Title</rdf:li>
@@ -242,14 +247,15 @@ def test_load_image_with_valid_metadata(
         assert output[0].shape == (1, 64, 64, 3)
         assert output[1].shape == (1, 64, 64)  # MASK
         assert output[2] == "Test Creator"  # creator
-        assert output[3] == "Test Title"  # title
-        assert output[4] == "Test Description"  # description
-        assert output[5] == "Test Subject"  # subject
-        assert output[6] == "Test Instructions"  # instructions
-        assert output[7] == "Test Comment"  # xml_string
-        assert output[8] == "Test Alt Text"  # alt_text
-        assert output[9] == "Test Ext Description"  # ext_description
-        assert output[10] == valid_xml_string  # xml_string
+        assert output[3] == "Test Rights"  # rights
+        assert output[4] == "Test Title"  # title
+        assert output[5] == "Test Description"  # description
+        assert output[6] == "Test Subject"  # subject
+        assert output[7] == "Test Instructions"  # instructions
+        assert output[8] == "Test Comment"  # xml_string
+        assert output[9] == "Test Alt Text"  # alt_text
+        assert output[10] == "Test Ext Description"  # ext_description
+        assert output[11] == valid_xml_string  # xml_string
 
 
 def test_load_image_with_invalid_metadata(
@@ -266,14 +272,15 @@ def test_load_image_with_invalid_metadata(
         assert output[0].shape == (1, 64, 64, 3)
         assert output[1].shape == (1, 64, 64)  # MASK
         assert output[2] is None  # creator
-        assert output[3] is None  # title
-        assert output[4] is None  # description
-        assert output[5] is None  # subject
-        assert output[6] is None  # instructions
-        assert output[7] is None  # comment
-        assert output[8] is None  # alt_text
-        assert output[9] is None  # ext_description
-        assert output[10] == invalid_xml_string  # xml_string
+        assert output[3] is None  # rights
+        assert output[4] is None  # title
+        assert output[5] is None  # description
+        assert output[6] is None  # subject
+        assert output[7] is None  # instructions
+        assert output[8] is None  # comment
+        assert output[9] is None  # alt_text
+        assert output[10] is None  # ext_description
+        assert output[11] == invalid_xml_string  # xml_string
 
 
 def test_load_image_with_garbage_metadata(
@@ -290,14 +297,15 @@ def test_load_image_with_garbage_metadata(
         assert output[0].shape == (1, 64, 64, 3)
         assert output[1].shape == (1, 64, 64)  # MASK
         assert output[2] is None  # creator
-        assert output[3] is None  # title
-        assert output[4] is None  # description
-        assert output[5] is None  # subject
-        assert output[6] is None  # instructions
-        assert output[7] is None  # comment
-        assert output[8] is None  # alt_text
-        assert output[9] is None  # ext_description
-        assert output[10] == garbage_xml_string  # xml_string
+        assert output[3] is None  # rights
+        assert output[4] is None  # title
+        assert output[5] is None  # description
+        assert output[6] is None  # subject
+        assert output[7] is None  # instructions
+        assert output[8] is None  # comment
+        assert output[9] is None  # alt_text
+        assert output[10] is None  # ext_description
+        assert output[11] == garbage_xml_string  # xml_string
 
 
 def test_load_image_with_multiframe_image_file(
@@ -315,14 +323,15 @@ def test_load_image_with_multiframe_image_file(
         assert output[0].shape == (3, 64, 64, 3)  # 3 frames, RGB
         assert output[1].shape == (3, 64, 64)  # 3 masks
         assert output[2] is None  # creator
-        assert output[3] is None  # title
-        assert output[4] is None  # description
-        assert output[5] is None  # subject
-        assert output[6] is None  # instructions
-        assert output[7] is None  # comment
-        assert output[8] is None  # alt text
-        assert output[9] is None  # ext_description
-        assert output[10] == ""  # xml_string
+        assert output[3] is None  # rights
+        assert output[4] is None  # title
+        assert output[5] is None  # description
+        assert output[6] is None  # subject
+        assert output[7] is None  # instructions
+        assert output[8] is None  # comment
+        assert output[9] is None  # alt text
+        assert output[10] is None  # ext_description
+        assert output[11] == ""  # xml_string
 
 
 def test_load_image_with_invalid_multiframe_image_file(
@@ -340,14 +349,15 @@ def test_load_image_with_invalid_multiframe_image_file(
         assert output[0].shape == (2, 64, 64, 3)  # 2 frames, RGB
         assert output[1].shape == (2, 64, 64)  # 2 masks
         assert output[2] is None  # creator
-        assert output[3] is None  # title
-        assert output[4] is None  # description
-        assert output[5] is None  # subject
-        assert output[6] is None  # instructions
-        assert output[7] is None  # comment
-        assert output[8] is None  # alt text
-        assert output[9] is None  # ext_description
-        assert output[10] == ""  # xml_string
+        assert output[3] is None  # rights
+        assert output[4] is None  # title
+        assert output[5] is None  # description
+        assert output[6] is None  # subject
+        assert output[7] is None  # instructions
+        assert output[8] is None  # comment
+        assert output[9] is None  # alt text
+        assert output[10] is None  # ext_description
+        assert output[11] == ""  # xml_string
 
 
 def test_load_32_bit_integer_image(sample_32_bit_integer_image_file: Path) -> None:
@@ -363,14 +373,15 @@ def test_load_32_bit_integer_image(sample_32_bit_integer_image_file: Path) -> No
         assert output[0].shape == (1, 64, 64, 3)  # 1 frame, RGB
         assert output[1].shape == (1, 64, 64)  # MASK
         assert output[2] is None  # creator
-        assert output[3] is None  # title
-        assert output[4] is None  # description
-        assert output[5] is None  # subject
-        assert output[6] is None  # instructions
-        assert output[7] is None  # comment
-        assert output[8] is None  # alt text
-        assert output[9] is None  # ext_description
-        assert output[10] == ""  # xml_string
+        assert output[3] is None  # rights
+        assert output[4] is None  # title
+        assert output[5] is None  # description
+        assert output[6] is None  # subject
+        assert output[7] is None  # instructions
+        assert output[8] is None  # comment
+        assert output[9] is None  # alt text
+        assert output[10] is None  # ext_description
+        assert output[11] == ""  # xml_string
 
         # Verify RGB channel consistency
         rgb_values = output[0][0, :, :, :]
@@ -395,14 +406,15 @@ def test_load_grayscale_image(sample_grayscale_image_file: Path) -> None:
         assert output[0].shape == (1, 64, 64, 3)  # Converted to RGB
         assert output[1].shape == (1, 64, 64)  # MASK
         assert output[2] is None  # creator
-        assert output[3] is None  # title
-        assert output[4] is None  # description
-        assert output[5] is None  # subject
-        assert output[6] is None  # instructions
-        assert output[7] is None  # comment
-        assert output[8] is None  # alt text
-        assert output[9] is None  # ext_description
-        assert output[10] == ""  # xml_string
+        assert output[3] is None  # rights
+        assert output[4] is None  # title
+        assert output[5] is None  # description
+        assert output[6] is None  # subject
+        assert output[7] is None  # instructions
+        assert output[8] is None  # comment
+        assert output[9] is None  # alt text
+        assert output[10] is None  # ext_description
+        assert output[11] == ""  # xml_string
 
         # Verify that the image tensor is in RGB format
         assert output[0].shape[-1] == 3  # Last dimension should be 3 for RGB
