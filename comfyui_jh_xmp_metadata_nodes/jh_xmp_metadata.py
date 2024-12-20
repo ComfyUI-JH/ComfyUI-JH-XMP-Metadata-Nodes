@@ -77,6 +77,7 @@ class JHXMPMetadata:
 
     def __init__(self) -> None:
         self._creator: str | None = None
+        self._rights: str | None = None
         self._title: str | None = None
         self._description: str | None = None
         self._subject: str | None = None
@@ -103,6 +104,7 @@ class JHXMPMetadata:
             attrib={"{http://www.w3.org/1999/02/22-rdf-syntax-ns#}about": ""},
         )
         self._dc_creator_element = None
+        self._dc_rights_element = None
         self._dc_title_element = None
         self._dc_description_element = None
         self._dc_subject_element = None
@@ -138,6 +140,32 @@ class JHXMPMetadata:
                     attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"},
                 )
                 _li.text = _creator
+
+    @property
+    def rights(self) -> str | None:
+        return self._rights
+
+    @rights.setter
+    def rights(self, value: str | None) -> None:
+        if value is None or value == "" or value.strip() == "":
+            self._rights = None
+            if self._dc_rights_element is not None:
+                self._rdf_description.remove(self._dc_rights_element)
+        else:
+            self._rights = value
+            self._dc_rights_element = etree.SubElement(
+                self._rdf_description, "{http://purl.org/dc/elements/1.1/}rights"
+            )
+            _alt = etree.SubElement(
+                self._dc_rights_element,
+                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Alt",
+            )
+            _li = etree.SubElement(
+                _alt,
+                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li",
+                attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"},
+            )
+            _li.text = self._rights
 
     @property
     def title(self) -> str | None:
@@ -330,6 +358,12 @@ class JHXMPMetadata:
             for creator in dc_creator_element:
                 creator_list.append(creator.text)
             instance.creator = ", ".join(creator_list)
+
+        dc_rights_element = root.xpath(
+            "//dc:rights/rdf:Alt/rdf:li", namespaces=cls.NAMESPACES
+        )
+        if len(dc_rights_element) > 0:
+            instance.rights = dc_rights_element[0].text
 
         dc_title_element = root.xpath(
             "//dc:title/rdf:Alt/rdf:li", namespaces=cls.NAMESPACES

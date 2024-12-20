@@ -13,6 +13,7 @@ def metadata() -> JHXMPMetadata:
 def example_metadata() -> dict[str, str]:
     return {
         "creator": "Jane Doe",
+        "rights": "© 2021 Jane Doe. All rights reserved.",
         "title": "A Beautiful Sunset",
         "description": "A vivid depiction of a sunset over the ocean.",
         "subject": "sunset, ocean, photography",
@@ -27,6 +28,7 @@ def example_metadata() -> dict[str, str]:
 def example_metadata_with_unicode() -> dict[str, str]:
     return {
         "creator": "Café à la mode 😊",
+        "rights": "© 2021 Café à la mode. All rights reserved. 😊",
         "title": "一個美麗的夕陽",
         "description": "A vivid depiction of a sunset 🌅 over the ocean.",
         "subject": "🌅, ocean, photography",
@@ -41,6 +43,7 @@ def example_metadata_with_unicode() -> dict[str, str]:
 def populated_metadata(example_metadata: dict[str, str]) -> JHXMPMetadata:
     metadata = JHXMPMetadata()
     metadata.creator = example_metadata["creator"]
+    metadata.rights = example_metadata["rights"]
     metadata.title = example_metadata["title"]
     metadata.description = example_metadata["description"]
     metadata.subject = example_metadata["subject"]
@@ -53,6 +56,7 @@ def populated_metadata(example_metadata: dict[str, str]) -> JHXMPMetadata:
 
 def test_initialization(metadata: JHXMPMetadata) -> None:
     assert metadata.creator is None
+    assert metadata.rights is None
     assert metadata.title is None
     assert metadata.description is None
     assert metadata.subject is None
@@ -74,6 +78,7 @@ def test_to_string_from_empty(metadata: JHXMPMetadata) -> None:
     "field_name",
     [
         "creator",
+        "rights",
         "title",
         "description",
         "subject",
@@ -106,6 +111,9 @@ def validate_xml_against_metadata(xml: str, populated_metadata: JHXMPMetadata) -
             assert elements[0].text == expected_value, f"{field_name} mismatch"
 
     validate_field("//dc:creator/rdf:Seq/rdf:li", populated_metadata.creator, "Creator")
+
+    validate_field("//dc:rights/rdf:Alt/rdf:li", populated_metadata.rights, "Rights")
+
     validate_field("//dc:title/rdf:Alt/rdf:li", populated_metadata.title, "Title")
     validate_field(
         "//dc:description/rdf:Alt/rdf:li", populated_metadata.description, "Description"
@@ -151,6 +159,7 @@ def test_from_string(populated_metadata: JHXMPMetadata) -> None:
     xml_string = populated_metadata.to_string()
     parsed_metadata = JHXMPMetadata.from_string(xml_string)
     assert parsed_metadata.creator == populated_metadata.creator
+    assert parsed_metadata.rights == populated_metadata.rights
     assert parsed_metadata.title == populated_metadata.title
     assert parsed_metadata.description == populated_metadata.description
     assert parsed_metadata.subject == populated_metadata.subject
@@ -177,6 +186,7 @@ def test_from_string_with_garbage_data() -> None:
     parsed_metadata = JHXMPMetadata.from_string(garbage_data)
     assert parsed_metadata.title is None
     assert parsed_metadata.creator is None
+    assert parsed_metadata.rights is None
     assert parsed_metadata.description is None
     assert parsed_metadata.subject is None
     assert parsed_metadata.instructions is None
@@ -202,6 +212,7 @@ def test_from_string_with_missing_fields() -> None:
     parsed_metadata = JHXMPMetadata.from_string(xml_string)
     assert parsed_metadata.title == "A Beautiful Sunset"
     assert parsed_metadata.creator is None
+    assert parsed_metadata.rights is None
     assert parsed_metadata.description is None
     assert parsed_metadata.subject is None
     assert parsed_metadata.instructions is None
@@ -224,6 +235,7 @@ def test_empty_xml_string() -> None:
     parsed_metadata = JHXMPMetadata.from_string(empty_xml)
     assert parsed_metadata.title is None
     assert parsed_metadata.creator is None
+    assert parsed_metadata.rights is None
     assert parsed_metadata.description is None
     assert parsed_metadata.subject is None
     assert parsed_metadata.instructions is None
