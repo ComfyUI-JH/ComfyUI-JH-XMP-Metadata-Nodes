@@ -71,6 +71,8 @@ The following metadata properties are currently supported:
 | dc:subject | A subject or list of subjects. Items can be separated by commas (`wetsuit, sunset`) or semicolons (`wetsuit; sunset`) |
 | photoshop:Instructions | Special instructions. |
 | exif:UserComment | Any user-provided comment about the image. |
+| Iptc4xmpCore:AltTextAccessibility | Alt. text that can (in principle) be used by assistive technologies. |
+| Iptc4xmpCore:ExtDescrAccessibility | A longer, more detailed elaboration of the Iptc4xmpCore:AltTextAccessibility property |
 
 For more information about XMP, see https://www.adobe.com/products/xmp.html.
 
