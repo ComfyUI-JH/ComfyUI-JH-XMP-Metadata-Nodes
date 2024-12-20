@@ -14,4 +14,5 @@
     },
     "python.analysis.languageServerMode": "full",
     "python.analysis.typeCheckingMode": "standard",
+    "python.analysis.typeEvaluation.deprecateTypingAliases": true,
 }
