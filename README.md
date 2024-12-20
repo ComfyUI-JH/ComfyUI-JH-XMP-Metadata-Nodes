@@ -31,9 +31,9 @@ These are custom nodes for ComfyUI for the loading and saving of metadata in XMP
     <summary>macOS</summary>
     <br />
     <div align="center">
-        <img width="300" alt="image" src="https://github.com/user-attachments/assets/7d7e5c93-fe33-409e-86fa-0a565bfdd6f1" align="middle" />
+        <img width="250" alt="image" src="https://github.com/user-attachments/assets/7d7e5c93-fe33-409e-86fa-0a565bfdd6f1" align="middle" />
         &emsp;
-        <img width="500" alt="image" src="https://github.com/user-attachments/assets/9effa555-1ddd-49c9-9459-53ceccdd9fef" align="middle"/>
+        <img width="450" alt="image" src="https://github.com/user-attachments/assets/9effa555-1ddd-49c9-9459-53ceccdd9fef" align="middle"/>
     </div>
     <br />
 </details>
@@ -42,7 +42,7 @@ These are custom nodes for ComfyUI for the loading and saving of metadata in XMP
     <summary>Windows</summary>
     <br />
     <div align="center">
-        <img width="300" alt="image" src="https://github.com/user-attachments/assets/46e429a8-4918-416a-98a7-cebf000b0756" align="middle" />
+        <img width="250" alt="image" src="https://github.com/user-attachments/assets/46e429a8-4918-416a-98a7-cebf000b0756" align="middle" />
         &emsp;
         <img width="400" src="https://github.com/user-attachments/assets/664917ff-b87e-4a0c-8685-4e65c9299dad" align="middle" />
     </div>
