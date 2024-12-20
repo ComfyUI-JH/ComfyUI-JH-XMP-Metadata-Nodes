@@ -73,7 +73,7 @@ The following metadata properties are currently supported:
 
 | Property | Description |
 | --- | --- |
-| dc:creator | A creator of list of creators of the image. Items can be separated by commas (`John Doe, Jane Doe`) or semicolons (`John Doe; Jane Doe`) |
+| dc:creator | A creator or list of creators of the image. Items can be separated by commas (`John Doe, Jane Doe`) or semicolons (`John Doe; Jane Doe`) |
 | dc:rights | Information about the rights and clearances associated with the image, if any. |
 | dc:title | A title for the image. |
 | dc:description | A description of the image. |
