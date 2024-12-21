@@ -1,7 +1,6 @@
 import hashlib
 import os
 from collections import namedtuple
-from typing import Any
 
 import folder_paths
 import numpy as np
@@ -9,6 +8,8 @@ import PIL.Image
 import PIL.ImageOps
 import PIL.ImageSequence
 import torch
+
+from comfyui_jh_xmp_metadata_nodes import jh_types
 
 from .jh_xmp_metadata import JHXMPMetadata
 
@@ -33,10 +34,19 @@ JHLoadImageWithXMPMetadataResultTuple = namedtuple(
 
 class JHLoadImageWithXMPMetadataNode:
     @classmethod
-    def INPUT_TYPES(cls) -> dict[str, Any]:
+    def INPUT_TYPES(cls) -> jh_types.JHInputTypesType:
+        # fmt: off
         return {
-            "required": {"image": (cls.get_image_files(), {"image_upload": True})},
+            "required": {
+                jh_types.JHNodeInputOutputTypeEnum.IMAGE: (
+                    cls.get_image_files(),
+                    {
+                        "image_upload": True
+                    }
+                )
+            },
         }
+        # fmt: on
 
     @classmethod
     def get_image_files(cls) -> list[str]:
@@ -49,18 +59,18 @@ class JHLoadImageWithXMPMetadataNode:
         return sorted(files)
 
     RETURN_TYPES = (
-        "IMAGE",
-        "MASK",
-        "STRING",
-        "STRING",
-        "STRING",
-        "STRING",
-        "STRING",
-        "STRING",
-        "STRING",
-        "STRING",
-        "STRING",
-        "STRING",
+        jh_types.JHNodeInputOutputTypeEnum.IMAGE,
+        jh_types.JHNodeInputOutputTypeEnum.MASK,
+        jh_types.JHNodeInputOutputTypeEnum.STRING,
+        jh_types.JHNodeInputOutputTypeEnum.STRING,
+        jh_types.JHNodeInputOutputTypeEnum.STRING,
+        jh_types.JHNodeInputOutputTypeEnum.STRING,
+        jh_types.JHNodeInputOutputTypeEnum.STRING,
+        jh_types.JHNodeInputOutputTypeEnum.STRING,
+        jh_types.JHNodeInputOutputTypeEnum.STRING,
+        jh_types.JHNodeInputOutputTypeEnum.STRING,
+        jh_types.JHNodeInputOutputTypeEnum.STRING,
+        jh_types.JHNodeInputOutputTypeEnum.STRING,
     )
     RETURN_NAMES = (
         "IMAGE",
