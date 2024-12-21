@@ -1,3 +1,15 @@
+"""
+This module was heavily inspired, let's say, by the ComfyUI `node_typing` module.
+
+https://github.com/comfyanonymous/ComfyUI/blob/master/comfy/comfy_types/node_typing.py
+
+Although no code was copied, the structure and the idea of the module was taken from
+ComfyUI. Used by permission under the terms of the GPL.
+
+Not that this module is not intended to be comprehensive. It only includes the data
+types used in this project. Refer to the link above for a more complete implementation.
+"""
+
 from enum import StrEnum
 from typing import NotRequired, Required, TypedDict
 
