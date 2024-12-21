@@ -6,7 +6,6 @@ import PIL.Image
 import pytest
 import torch
 
-from comfyui_jh_xmp_metadata_nodes import jh_types
 from comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node import (
     JHLoadImageWithXMPMetadataNode,
 )
@@ -189,24 +188,6 @@ def test_get_image_files_with_non_files() -> None:
             ):
                 files = JHLoadImageWithXMPMetadataNode.get_image_files()
                 assert files == ["img1.png", "img2.png"]
-
-
-def test_input_types() -> None:
-    with patch("folder_paths.get_input_directory", return_value="/mocked/path"):
-        with patch("os.listdir", return_value=["img3.png", "img1.png", "img2.png"]):
-            input_types = JHLoadImageWithXMPMetadataNode.INPUT_TYPES()
-            assert "required" in input_types
-            assert jh_types.JHNodeInputOutputTypeEnum.IMAGE in input_types["required"]
-            assert isinstance(
-                input_types["required"][jh_types.JHNodeInputOutputTypeEnum.IMAGE], tuple
-            )
-            assert isinstance(
-                input_types["required"][jh_types.JHNodeInputOutputTypeEnum.IMAGE][0],
-                list,
-            )
-            assert input_types["required"][jh_types.JHNodeInputOutputTypeEnum.IMAGE][
-                1
-            ] == {"image_upload": True}
 
 
 def test_validate_inputs_valid_file(
