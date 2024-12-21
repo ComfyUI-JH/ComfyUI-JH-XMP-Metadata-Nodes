@@ -38,7 +38,7 @@ class JHLoadImageWithXMPMetadataNode:
         # fmt: off
         return {
             "required": {
-                jh_types.JHNodeInputOutputTypeEnum.IMAGE: (
+                "image": (
                     cls.get_image_files(),
                     {
                         "image_upload": True
