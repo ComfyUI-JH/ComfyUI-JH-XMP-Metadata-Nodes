@@ -2,14 +2,21 @@ from enum import StrEnum
 from typing import NotRequired, Required, TypedDict
 
 
+class JHAnyType(str):
+    def __ne__(self, __value: object) -> bool:
+        return False
+
+
 class JHNodeInputOutputTypeEnum(StrEnum):
     STRING = "STRING"
     IMAGE = "IMAGE"
     PROMPT = "PROMPT"
     EXTRA_PNGINFO = "EXTRA_PNGINFO"
 
+    ANY = JHAnyType("*")
 
-JHTypesNodeInputOutputType = JHNodeInputOutputTypeEnum | list[str]
+
+JHTypesNodeInputOutputType = JHNodeInputOutputTypeEnum | JHAnyType | list[str]
 
 
 class JHNodeInputOutputTypeOptions(TypedDict, total=False):
