@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from comfyui_jh_xmp_metadata_nodes.any_type import AnyType
+from comfyui_jh_xmp_metadata_nodes import jh_types
 from comfyui_jh_xmp_metadata_nodes.jh_get_widget_value_nodes import (
     JHGetWidgetValueFloatNode,
     JHGetWidgetValueIntNode,
@@ -67,7 +67,7 @@ def graph_data_invalid() -> dict[str, Any]:
 def test_input_types() -> None:
     expected_input_types = {
         "required": {
-            "any_input": (AnyType("*"), {"rawLink": True}),
+            "any_input": (jh_types.JHNodeInputOutputTypeEnum.ANY, {"rawLink": True}),
             "widget_name": ("STRING", {"multiline": False}),
         },
         "hidden": {

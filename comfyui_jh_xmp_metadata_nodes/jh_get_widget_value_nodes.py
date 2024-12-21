@@ -1,8 +1,6 @@
 from typing import Any, Literal
 
-from .any_type import AnyType
-
-any_type = AnyType("*")
+from comfyui_jh_xmp_metadata_nodes import jh_types
 
 
 class JHGetWidgetValueNode:
@@ -15,18 +13,36 @@ class JHGetWidgetValueNode:
         return True
 
     @classmethod
-    def INPUT_TYPES(cls) -> dict[str, Any]:
+    def VALIDATE_INPUTS(
+        cls, any_input: list[str | int], widget_name: str
+    ) -> Literal[True]:
+        return True
+
+    @classmethod
+    def INPUT_TYPES(cls) -> jh_types.JHInputTypesType:
+        # fmt: off
         return {
             "required": {
-                "any_input": (any_type, {"rawLink": True}),
-                "widget_name": ("STRING", {"multiline": False}),
+                "any_input": (
+                    jh_types.JHAnyType("*"),
+                    {
+                        "rawLink": True
+                    }
+                ),
+                "widget_name": (
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
+                    {
+                        "multiline": False
+                    },
+                ),
             },
             "hidden": {
-                "prompt": "PROMPT",
+                "prompt": jh_types.JHNodeInputOutputTypeEnum.PROMPT,
             },
         }
+        # fmt: on
 
-    RETURN_TYPES = ("PRIMITIVE",)
+    RETURN_TYPES = (jh_types.JHNodeInputOutputTypeEnum.PRIMITIVE,)
     OUTPUT_NODE = False
     FUNCTION = "get_widget_value"
     CATEGORY = "XMP Metadata Nodes/Utilities"
@@ -152,7 +168,7 @@ class JHGetWidgetValueNode:
 
 
 class JHGetWidgetValueStringNode(JHGetWidgetValueNode):
-    RETURN_TYPES = ("STRING",)
+    RETURN_TYPES = (jh_types.JHNodeInputOutputTypeEnum.STRING,)
 
     def get_widget_value(
         self,
@@ -165,7 +181,7 @@ class JHGetWidgetValueStringNode(JHGetWidgetValueNode):
 
 
 class JHGetWidgetValueIntNode(JHGetWidgetValueNode):
-    RETURN_TYPES = ("INT",)
+    RETURN_TYPES = (jh_types.JHNodeInputOutputTypeEnum.INT,)
 
     def get_widget_value(
         self,
@@ -180,13 +196,13 @@ class JHGetWidgetValueIntNode(JHGetWidgetValueNode):
             )
         except ValueError as exc:
             raise ValueError(
-                f"""Widget "{widget_name}" has value "{widget_value}" which is not an integer"""
+                f"""Widget "{widget_name}" has value "{widget_value}" which is not an integer"""  # noqa: E501
             ) from exc
         return (widget_value,)
 
 
 class JHGetWidgetValueFloatNode(JHGetWidgetValueNode):
-    RETURN_TYPES = ("FLOAT",)
+    RETURN_TYPES = (jh_types.JHNodeInputOutputTypeEnum.FLOAT,)
 
     def get_widget_value(
         self,
@@ -201,6 +217,6 @@ class JHGetWidgetValueFloatNode(JHGetWidgetValueNode):
             )
         except ValueError as exc:
             raise ValueError(
-                f"""Widget "{widget_name}" has value "{widget_value}" which is not a float"""
+                f"""Widget "{widget_name}" has value "{widget_value}" which is not a float"""  # noqa: E501
             ) from exc
         return (widget_value,)

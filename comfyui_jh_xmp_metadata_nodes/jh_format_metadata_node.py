@@ -1,5 +1,7 @@
 import textwrap
-from typing import Any, Dict, Final, Tuple
+from typing import Any, Final
+
+from comfyui_jh_xmp_metadata_nodes import jh_types
 
 
 class JHFormatMetadataNode:
@@ -18,11 +20,12 @@ class JHFormatMetadataNode:
     ).strip()
 
     @classmethod
-    def INPUT_TYPES(cls) -> Dict[str, Any]:
+    def INPUT_TYPES(cls) -> jh_types.JHInputTypesType:
+        # fmt: off
         return {
             "required": {
                 "format_string": (
-                    "STRING",
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
                         "multiline": True,
                         "default": cls.DEFAULT_FORMAT_STRING,
@@ -32,28 +35,65 @@ class JHFormatMetadataNode:
                 ),
             },
             "optional": {
-                "prompt": (("STRING"), {"defaultInput": True, "default": None}),
-                "negative_prompt": (
-                    ("STRING"),
-                    {"defaultInput": True, "default": None},
+                "prompt": (
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
+                    {
+                        "defaultInput": True
+                    },
                 ),
-                "model_name": (("STRING"), {"defaultInput": True, "default": None}),
-                "seed": (("INT"), {"defaultInput": True, "default": None}),
+                "negative_prompt": (
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
+                    {
+                        "defaultInput": True
+                    },
+                ),
+                "model_name": (
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
+                    {
+                        "defaultInput": True
+                    }
+                ),
+                "seed": (
+                    jh_types.JHNodeInputOutputTypeEnum.INT,
+                    {
+                        "defaultInput": True
+                    }
+                ),
                 "sampler_name": (
-                    ("STRING"),
-                    {"defaultInput": True, "default": None},
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
+                    {
+                        "defaultInput": True
+                    },
                 ),
                 "scheduler_name": (
-                    ("STRING"),
-                    {"defaultInput": True, "default": None},
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
+                    {
+                        "defaultInput": True
+                },
                 ),
-                "steps": ("INT", {"defaultInput": True, "default": None}),
-                "cfg": (("FLOAT"), {"defaultInput": True, "default": None}),
-                "guidance": (("FLOAT"), {"defaultInput": True, "default": None}),
+                "steps": (
+                    jh_types.JHNodeInputOutputTypeEnum.INT,
+                    {
+                        "defaultInput": True
+                    }
+                ),
+                "cfg": (
+                    jh_types.JHNodeInputOutputTypeEnum.FLOAT,
+                    {
+                        "defaultInput": True
+                    }
+                ),
+                "guidance": (
+                    jh_types.JHNodeInputOutputTypeEnum.FLOAT,
+                    {
+                        "defaultInput": True
+                    }
+                ),
             },
         }
+        # fmt: on
 
-    RETURN_TYPES = ("STRING",)
+    RETURN_TYPES = (jh_types.JHNodeInputOutputTypeEnum.STRING,)
     FUNCTION = "format_metadata"
     CATEGORY = "XMP Metadata Nodes"
 
@@ -81,10 +121,7 @@ class JHFormatMetadataNode:
             )
         except KeyError as exc:
             raise ValueError(
-                f"Invalid placeholder '{exc.args[0]}' in format_string. "
-                "Ensure all placeholders match the available keys: "
-                "{prompt, negative_prompt, model_name, seed, sampler_name, "
-                "scheduler_name, steps, cfg, guidance}."
+                f"Invalid placeholder '{exc.args[0]}' in format_string."
             ) from exc
 
     def format_metadata(
@@ -99,7 +136,7 @@ class JHFormatMetadataNode:
         cfg: float | None = None,
         guidance: float | None = None,
         format_string: str = DEFAULT_FORMAT_STRING,
-    ) -> Tuple[str]:
+    ) -> tuple[str]:
         self.validate_format_string(format_string)
         formatted_string = format_string.format(
             prompt=prompt or "",
