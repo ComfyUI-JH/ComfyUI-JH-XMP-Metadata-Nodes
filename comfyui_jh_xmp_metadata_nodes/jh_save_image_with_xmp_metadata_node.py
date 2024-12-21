@@ -21,7 +21,10 @@ import torch
 from PIL.Image import Image
 from PIL.PngImagePlugin import PngInfo
 
-from comfyui_jh_xmp_metadata_nodes.jh_types import JHNodeInputOutputTypeEnum
+from comfyui_jh_xmp_metadata_nodes.jh_types import (
+    JHInputTypesType,
+    JHNodeInputOutputTypeEnum,
+)
 
 from .jh_xmp_metadata import JHXMPMetadata
 
@@ -76,7 +79,7 @@ class JHSaveImageWithXMPMetadataNode:
         self.compress_level: int = 0
 
     @classmethod
-    def INPUT_TYPES(cls) -> dict[str, Any]:  # pylint: disable=invalid-name
+    def INPUT_TYPES(cls) -> JHInputTypesType:
         """
         Define the input types and their configuration for the node.
 
