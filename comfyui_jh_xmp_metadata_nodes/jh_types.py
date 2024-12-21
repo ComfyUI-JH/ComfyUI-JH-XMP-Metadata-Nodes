@@ -9,7 +9,7 @@ class JHNodeInputOutputTypeEnum(StrEnum):
     EXTRA_PNGINFO = "EXTRA_PNGINFO"
 
 
-JHNodeInputOutputType = JHNodeInputOutputTypeEnum | list[str]
+JHTypesNodeInputOutputType = JHNodeInputOutputTypeEnum | list[str]
 
 
 class JHNodeInputOutputTypeOptions(TypedDict, total=False):
@@ -20,9 +20,9 @@ class JHNodeInputOutputTypeOptions(TypedDict, total=False):
 
 class JHInputTypesType(TypedDict, total=False):
     required: Required[
-        dict[str, tuple[JHNodeInputOutputType, JHNodeInputOutputTypeOptions]]
+        dict[str, tuple[JHTypesNodeInputOutputType, JHNodeInputOutputTypeOptions]]
     ]
     optional: NotRequired[
-        dict[str, tuple[JHNodeInputOutputType, JHNodeInputOutputTypeOptions]]
+        dict[str, tuple[JHTypesNodeInputOutputType, JHNodeInputOutputTypeOptions]]
     ]
-    hidden: NotRequired[dict[str, JHNodeInputOutputType]]
+    hidden: NotRequired[dict[str, JHTypesNodeInputOutputType]]

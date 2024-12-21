@@ -21,10 +21,7 @@ import torch
 from PIL.Image import Image
 from PIL.PngImagePlugin import PngInfo
 
-from comfyui_jh_xmp_metadata_nodes.jh_types import (
-    JHInputTypesType,
-    JHNodeInputOutputTypeEnum,
-)
+from comfyui_jh_xmp_metadata_nodes import jh_types
 
 from .jh_xmp_metadata import JHXMPMetadata
 
@@ -79,7 +76,7 @@ class JHSaveImageWithXMPMetadataNode:
         self.compress_level: int = 0
 
     @classmethod
-    def INPUT_TYPES(cls) -> JHInputTypesType:
+    def INPUT_TYPES(cls) -> jh_types.JHInputTypesType:
         """
         Define the input types and their configuration for the node.
 
@@ -90,12 +87,12 @@ class JHSaveImageWithXMPMetadataNode:
         return {
             "required": {
                 "images": (
-                    JHNodeInputOutputTypeEnum.IMAGE, {
+                    jh_types.JHNodeInputOutputTypeEnum.IMAGE, {
                         "tooltip": "The images to save."
                     }
                 ),
                 "filename_prefix": (
-                    JHNodeInputOutputTypeEnum.STRING,
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
                         "default": "ComfyUI",
                         "tooltip": "The prefix for the file to save. This may include formatting information such as %date:yyyy-MM-dd% or %Empty Latent Image.width% to include values from nodes.",  # noqa: E501
@@ -110,70 +107,70 @@ class JHSaveImageWithXMPMetadataNode:
             },
             "optional": {
                 "creator": (
-                    JHNodeInputOutputTypeEnum.STRING,
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
                         "tooltip": "dc:creator",
                         "forceInput": True
                     },
                 ),
                 "rights": (
-                    JHNodeInputOutputTypeEnum.STRING,
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
                         "tooltip": "dc:rights",
                         "forceInput": True
                     },
                 ),
                 "title": (
-                    JHNodeInputOutputTypeEnum.STRING,
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
                         "tooltip": "dc:title",
                         "forceInput": True
                     },
                 ),
                 "description": (
-                    JHNodeInputOutputTypeEnum.STRING,
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
                         "tooltip": "dc:description",
                         "forceInput": True
                     },
                 ),
                 "subject": (
-                    JHNodeInputOutputTypeEnum.STRING,
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
                         "tooltip": "dc:subject",
                         "forceInput": True
                 },
                 ),
                 "instructions": (
-                    JHNodeInputOutputTypeEnum.STRING,
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
                         "tooltip": "photoshop:Instructions",
                         "forceInput": True
                     },
                 ),
                 "comment": (
-                    JHNodeInputOutputTypeEnum.STRING,
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
                         "tooltip": "exif:UserComment",
                         "forceInput": True
                     },
                 ),
                 "alt_text": (
-                    JHNodeInputOutputTypeEnum.STRING,
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
                         "tooltip": "Iptc4xmpCore:AltTextAccessibility",
                         "forceInput": True,
                     },
                 ),
                 "ext_description": (
-                    JHNodeInputOutputTypeEnum.STRING,
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
                         "tooltip": "Iptc4xmpCore:ExtDescrAccessibility",
                         "forceInput": True,
                     },
                 ),
                 "xml_string": (
-                    JHNodeInputOutputTypeEnum.STRING,
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
                         "tooltip": "XMP metadata as an XML string. This will override all other fields.",  # noqa: E501
                         "forceInput": True,
@@ -181,13 +178,13 @@ class JHSaveImageWithXMPMetadataNode:
                 ),
             },
             "hidden": {
-                "prompt": JHNodeInputOutputTypeEnum.PROMPT,
-                "extra_pnginfo": JHNodeInputOutputTypeEnum.EXTRA_PNGINFO,
+                "prompt": jh_types.JHNodeInputOutputTypeEnum.PROMPT,
+                "extra_pnginfo": jh_types.JHNodeInputOutputTypeEnum.EXTRA_PNGINFO,
             },
         }
         # fmt: on
 
-    RETURN_TYPES = (JHNodeInputOutputTypeEnum.IMAGE,)
+    RETURN_TYPES = (jh_types.JHNodeInputOutputTypeEnum.IMAGE,)
     FUNCTION = "save_images"
     CATEGORY = "XMP Metadata Nodes"
     OUTPUT_NODE = True
