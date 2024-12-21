@@ -96,11 +96,11 @@ class JHXMPMetadata:
             "Adobe XMP Core 6.0-c002 79.164861, 2016/09/14-01:09:01",
         )
         self._rdf = etree.SubElement(
-            self._xmpmetadata, "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}RDF"
+            self._xmpmetadata, etree.QName(self.NAMESPACES["rdf"], "RDF")
         )
         self._rdf_description = etree.SubElement(
             self._rdf,
-            "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Description",
+            etree.QName(self.NAMESPACES["rdf"], "Description"),
             attrib={"{http://www.w3.org/1999/02/22-rdf-syntax-ns#}about": ""},
         )
         self._dc_creator_element = None
@@ -127,17 +127,18 @@ class JHXMPMetadata:
             self._creator = value
             _creators = self._string_to_list(self._creator)
             self._dc_creator_element = etree.SubElement(
-                self._rdf_description, "{http://purl.org/dc/elements/1.1/}creator"
+                self._rdf_description,
+                etree.QName(self.NAMESPACES["dc"], "creator"),
             )
             _seq = etree.SubElement(
                 self._dc_creator_element,
-                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Seq",
+                etree.QName(self.NAMESPACES["rdf"], "Seq"),
             )
             for _creator in _creators:
                 _li = etree.SubElement(
                     _seq,
-                    "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li",
-                    attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"},
+                    etree.QName(self.NAMESPACES["rdf"], "li"),
+                    attrib={etree.QName(self.NAMESPACES["xml"], "lang"): "x-default"},
                 )
                 _li.text = _creator
 
@@ -154,16 +155,16 @@ class JHXMPMetadata:
         else:
             self._rights = value
             self._dc_rights_element = etree.SubElement(
-                self._rdf_description, "{http://purl.org/dc/elements/1.1/}rights"
+                self._rdf_description, etree.QName(self.NAMESPACES["dc"], "rights")
             )
             _alt = etree.SubElement(
                 self._dc_rights_element,
-                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Alt",
+                etree.QName(self.NAMESPACES["rdf"], "Alt"),
             )
             _li = etree.SubElement(
                 _alt,
-                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li",
-                attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"},
+                etree.QName(self.NAMESPACES["rdf"], "li"),
+                attrib={etree.QName(self.NAMESPACES["xml"], "lang"): "x-default"},
             )
             _li.text = self._rights
 
@@ -180,16 +181,16 @@ class JHXMPMetadata:
         else:
             self._title = value
             self._dc_title_element = etree.SubElement(
-                self._rdf_description, "{http://purl.org/dc/elements/1.1/}title"
+                self._rdf_description, etree.QName(self.NAMESPACES["dc"], "title")
             )
             _alt = etree.SubElement(
                 self._dc_title_element,
-                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Alt",
+                etree.QName(self.NAMESPACES["rdf"], "Alt"),
             )
             _li = etree.SubElement(
                 _alt,
-                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li",
-                attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"},
+                etree.QName(self.NAMESPACES["rdf"], "li"),
+                attrib={etree.QName(self.NAMESPACES["xml"], "lang"): "x-default"},
             )
             _li.text = self._title
 
@@ -206,16 +207,15 @@ class JHXMPMetadata:
         else:
             self._description = value
             self._dc_description_element = etree.SubElement(
-                self._rdf_description, "{http://purl.org/dc/elements/1.1/}description"
+                self._rdf_description, etree.QName(self.NAMESPACES["dc"], "description")
             )
             _alt = etree.SubElement(
-                self._dc_description_element,
-                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Alt",
+                self._dc_description_element, etree.QName(self.NAMESPACES["rdf"], "Alt")
             )
             _li = etree.SubElement(
                 _alt,
-                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li",
-                attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"},
+                etree.QName(self.NAMESPACES["rdf"], "li"),
+                attrib={etree.QName(self.NAMESPACES["xml"], "lang"): "x-default"},
             )
             _li.text = self._description
 
@@ -233,17 +233,16 @@ class JHXMPMetadata:
             self._subject = value
             _subjects = self._string_to_list(self._subject)
             self._dc_subject_element = etree.SubElement(
-                self._rdf_description, "{http://purl.org/dc/elements/1.1/}subject"
+                self._rdf_description, etree.QName(self.NAMESPACES["dc"], "subject")
             )
             _bag = etree.SubElement(
-                self._dc_subject_element,
-                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Bag",
+                self._dc_subject_element, etree.QName(self.NAMESPACES["rdf"], "Bag")
             )
             for _subject in _subjects:
                 _li = etree.SubElement(
                     _bag,
-                    "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li",
-                    attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"},
+                    etree.QName(self.NAMESPACES["rdf"], "li"),
+                    attrib={etree.QName(self.NAMESPACES["xml"], "lang"): "x-default"},
                 )
                 _li.text = _subject
 
@@ -261,7 +260,7 @@ class JHXMPMetadata:
             self._instructions = value
             self._photoshop_instructions_element = etree.SubElement(
                 self._rdf_description,
-                "{http://ns.adobe.com/photoshop/1.0/}Instructions",
+                etree.QName(self.NAMESPACES["photoshop"], "Instructions"),
             )
             self._photoshop_instructions_element.text = self._instructions
 
@@ -279,16 +278,16 @@ class JHXMPMetadata:
             self._comment = value
             self._exif_usercomment_element = etree.SubElement(
                 self._rdf_description,
-                "{http://ns.adobe.com/exif/1.0/}UserComment",
+                etree.QName(self.NAMESPACES["exif"], "UserComment"),
             )
             _alt = etree.SubElement(
                 self._exif_usercomment_element,
-                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Alt",
+                etree.QName(self.NAMESPACES["rdf"], "Alt"),
             )
             _li = etree.SubElement(
                 _alt,
-                "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}li",
-                attrib={"{http://www.w3.org/XML/1998/namespace}lang": "x-default"},
+                etree.QName(self.NAMESPACES["rdf"], "li"),
+                attrib={etree.QName(self.NAMESPACES["xml"], "lang"): "x-default"},
             )
             _li.text = self._comment
 
@@ -306,7 +305,7 @@ class JHXMPMetadata:
             self._alt_text = value
             self._Iptc4xmpCore_alt_text_element = etree.SubElement(
                 self._rdf_description,
-                "{http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/}AltTextAccessibility",
+                etree.QName(self.NAMESPACES["Iptc4xmpCore"], "AltTextAccessibility"),
             )
             self._Iptc4xmpCore_alt_text_element.text = self._alt_text
 
@@ -324,7 +323,7 @@ class JHXMPMetadata:
             self._ext_description = value
             self._Iptc4xmpCore_ext_description_element = etree.SubElement(
                 self._rdf_description,
-                "{http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/}ExtDescrAccessibility",
+                etree.QName(self.NAMESPACES["Iptc4xmpCore"], "ExtDescrAccessibility"),
             )
             self._Iptc4xmpCore_ext_description_element.text = self._ext_description
 
