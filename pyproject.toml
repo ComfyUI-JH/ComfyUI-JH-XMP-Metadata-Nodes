@@ -20,6 +20,10 @@ pillow = "^11.0.0"
 types-lxml = "^2024.12.13"
 pytest-mock = "^3.14.0"
 
+
+[tool.poetry.group.interactive.dependencies]
+ipykernel = "^6.29.5"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
