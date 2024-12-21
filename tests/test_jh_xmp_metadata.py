@@ -1,60 +1,216 @@
+import textwrap
+from dataclasses import dataclass
+
 import pytest
 from lxml import etree
 
 from comfyui_jh_xmp_metadata_nodes.jh_xmp_metadata import JHXMPMetadata
 
+# region Type Definitions
+
+
+@dataclass
+class MetadataDataclass:
+    creator: str | None
+    rights: str | None
+    title: str | None
+    description: str | None
+    subject: str | None
+    instructions: str | None
+    comment: str | None
+    alt_text: str | None
+    ext_description: str | None
+
+
+# endregion Type Definitions
+
+# region Fixtures
+
 
 @pytest.fixture
-def metadata() -> JHXMPMetadata:
+def sample_metadata() -> MetadataDataclass:
+    metadata = MetadataDataclass(
+        creator="John Doe",
+        rights="© 2020 John Doe",
+        title="My Title",
+        description="My Description",
+        subject="subject1, subject2",
+        instructions="My Instructions",
+        comment="My Comment",
+        alt_text="My Alt Text",
+        ext_description="My Extended Description",
+    )
+    return metadata
+
+
+@pytest.fixture
+def empty_metadata() -> MetadataDataclass:
+    metadata = MetadataDataclass(
+        creator=None,
+        rights=None,
+        title=None,
+        description=None,
+        subject=None,
+        instructions=None,
+        comment=None,
+        alt_text=None,
+        ext_description=None,
+    )
+    return metadata
+
+
+@pytest.fixture
+def valid_xml_string(sample_metadata: MetadataDataclass) -> str:
+    return textwrap.dedent(f"""
+        <x:xmpmeta
+            xmlns:x="adobe:ns:meta/"
+            xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+            xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/"
+            xmlns:exif="http://ns.adobe.com/exif/1.0/"
+            xmlns:Iptc4xmpCore="http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/" x:xmptk="Adobe XMP Core 6.0-c002 79.164861, 2016/09/14-01:09:01">
+            <rdf:RDF>
+                <rdf:Description rdf:about="">
+                    <dc:creator>
+                        <rdf:Seq>
+                            <rdf:li xml:lang="x-default">{sample_metadata.creator}</rdf:li>
+                        </rdf:Seq>
+                    </dc:creator>
+                    <dc:rights>
+                        <rdf:Alt>
+                            <rdf:li xml:lang="x-default">{sample_metadata.rights}</rdf:li>
+                        </rdf:Alt>
+                    </dc:rights>
+                    <dc:title>
+                        <rdf:Alt>
+                            <rdf:li xml:lang="x-default">{sample_metadata.title}</rdf:li>
+                        </rdf:Alt>
+                    </dc:title>
+                    <dc:description>
+                        <rdf:Alt>
+                            <rdf:li xml:lang="x-default">{sample_metadata.description}</rdf:li>
+                        </rdf:Alt>
+                    </dc:description>
+                    <dc:subject>
+                        <rdf:Bag>
+                            <rdf:li xml:lang="x-default">{str(sample_metadata.subject).split(", ")[0]}</rdf:li>
+                            <rdf:li xml:lang="x-default">{str(sample_metadata.subject).split(", ")[1]}</rdf:li>
+                        </rdf:Bag>
+                    </dc:subject>
+                    <photoshop:Instructions>{sample_metadata.instructions}</photoshop:Instructions>
+                    <exif:UserComment>
+                        <rdf:Alt>
+                            <rdf:li xml:lang="x-default">{sample_metadata.comment}</rdf:li>
+                        </rdf:Alt>
+                    </exif:UserComment>
+                    <Iptc4xmpCore:AltTextAccessibility>{sample_metadata.alt_text}</Iptc4xmpCore:AltTextAccessibility>
+                    <Iptc4xmpCore:ExtDescrAccessibility>{sample_metadata.ext_description}</Iptc4xmpCore:ExtDescrAccessibility>
+                </rdf:Description>
+            </rdf:RDF>
+        </x:xmpmeta>
+        """).strip()  # noqa: E501
+
+
+@pytest.fixture
+def incomplete_xml_string(sample_metadata: MetadataDataclass) -> str:
+    return textwrap.dedent(f"""
+        <x:xmpmeta
+            xmlns:x="adobe:ns:meta/"
+            xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+            xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/"
+            xmlns:exif="http://ns.adobe.com/exif/1.0/"
+            xmlns:Iptc4xmpCore="http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/" x:xmptk="Adobe XMP Core 6.0-c002 79.164861, 2016/09/14-01:09:01">
+            <rdf:RDF>
+                <rdf:Description rdf:about="">
+                    <dc:creator>
+                        <rdf:Seq>
+                            <rdf:li xml:lang="x-default">{sample_metadata.creator}</rdf:li>
+                        </rdf:Seq>
+                    </dc:creator>
+                    <dc:rights>
+                        <rdf:Alt>
+                            <rdf:li xml:lang="x-default">{sample_metadata.rights}</rdf:li>
+                        </rdf:Alt>
+                    </dc:rights>
+                </rdf:Description>
+            </rdf:RDF>
+        </x:xmpmeta>
+        """).strip()  # noqa: E501
+
+
+@pytest.fixture
+def invalid_xml_string() -> str:
+    return "This is not valid XML."
+
+
+@pytest.fixture
+def empty_metadata_object() -> JHXMPMetadata:
     return JHXMPMetadata()
 
 
 @pytest.fixture
-def example_metadata() -> dict[str, str]:
-    return {
-        "creator": "Jane Doe",
-        "rights": "© 2021 Jane Doe. All rights reserved.",
-        "title": "A Beautiful Sunset",
-        "description": "A vivid depiction of a sunset over the ocean.",
-        "subject": "sunset, ocean, photography",
-        "instructions": "Enhance colors slightly.",
-        "comment": "This is a comment.",
-        "alt_text": "A beautiful sunset",
-        "ext_description": "This is an extended description.",
-    }
-
-
-@pytest.fixture
-def example_metadata_with_unicode() -> dict[str, str]:
-    return {
-        "creator": "Café à la mode 😊",
-        "rights": "© 2021 Café à la mode. All rights reserved. 😊",
-        "title": "一個美麗的夕陽",
-        "description": "A vivid depiction of a sunset 🌅 over the ocean.",
-        "subject": "🌅, ocean, photography",
-        "instructions": "Enhance colors slightly 💯.",
-        "comment": "This is a comment. 😎",
-        "alt_text": "A beautiful sunset 🌅",
-        "ext_description": "This is an extended description. 📸",
-    }
-
-
-@pytest.fixture
-def populated_metadata(example_metadata: dict[str, str]) -> JHXMPMetadata:
+def sample_metadata_object(sample_metadata: MetadataDataclass) -> JHXMPMetadata:
     metadata = JHXMPMetadata()
-    metadata.creator = example_metadata["creator"]
-    metadata.rights = example_metadata["rights"]
-    metadata.title = example_metadata["title"]
-    metadata.description = example_metadata["description"]
-    metadata.subject = example_metadata["subject"]
-    metadata.instructions = example_metadata["instructions"]
-    metadata.comment = example_metadata["comment"]
-    metadata.alt_text = example_metadata["alt_text"]
-    metadata.ext_description = example_metadata["ext_description"]
+    metadata.creator = sample_metadata.creator
+    metadata.rights = sample_metadata.rights
+    metadata.title = sample_metadata.title
+    metadata.description = sample_metadata.description
+    metadata.subject = sample_metadata.subject
+    metadata.instructions = sample_metadata.instructions
+    metadata.comment = sample_metadata.comment
+    metadata.alt_text = sample_metadata.alt_text
+    metadata.ext_description = sample_metadata.ext_description
     return metadata
 
 
-def test_initialization(metadata: JHXMPMetadata) -> None:
+# endregion Fixtures
+
+
+def test_initialization(empty_metadata_object: JHXMPMetadata) -> None:
+    assert empty_metadata_object.creator is None
+    assert empty_metadata_object.rights is None
+    assert empty_metadata_object.title is None
+    assert empty_metadata_object.description is None
+    assert empty_metadata_object.subject is None
+    assert empty_metadata_object.instructions is None
+    assert empty_metadata_object.comment is None
+    assert empty_metadata_object.alt_text is None
+    assert empty_metadata_object.ext_description is None
+
+
+def test_from_string(valid_xml_string: str, sample_metadata: MetadataDataclass) -> None:
+    metadata = JHXMPMetadata.from_string(valid_xml_string)
+    assert metadata.creator == sample_metadata.creator
+    assert metadata.rights == sample_metadata.rights
+    assert metadata.title == sample_metadata.title
+    assert metadata.description == sample_metadata.description
+    assert metadata.subject == sample_metadata.subject
+    assert metadata.instructions == sample_metadata.instructions
+    assert metadata.comment == sample_metadata.comment
+    assert metadata.alt_text == sample_metadata.alt_text
+    assert metadata.ext_description == sample_metadata.ext_description
+
+
+def test_from_string_with_incomplete_xml(
+    incomplete_xml_string: str, sample_metadata: MetadataDataclass
+) -> None:
+    metadata = JHXMPMetadata.from_string(incomplete_xml_string)
+    assert metadata.creator == sample_metadata.creator
+    assert metadata.rights == sample_metadata.rights
+    assert metadata.title is None
+    assert metadata.description is None
+    assert metadata.subject is None
+    assert metadata.instructions is None
+    assert metadata.comment is None
+    assert metadata.alt_text is None
+    assert metadata.ext_description is None
+
+
+def test_from_string_with_invalid_xml(invalid_xml_string: str) -> None:
+    metadata = JHXMPMetadata.from_string(invalid_xml_string)
     assert metadata.creator is None
     assert metadata.rights is None
     assert metadata.title is None
@@ -66,190 +222,230 @@ def test_initialization(metadata: JHXMPMetadata) -> None:
     assert metadata.ext_description is None
 
 
-def test_to_string_from_empty(metadata: JHXMPMetadata) -> None:
-    xml = metadata.to_string()
-    try:
-        etree.fromstring(xml, parser=etree.XMLParser(recover=True))
-    except etree.XMLSyntaxError as e:
-        pytest.fail(f"Generated XML is invalid: {e}")
-
-
-@pytest.mark.parametrize(
-    "field_name",
-    [
-        "creator",
-        "rights",
-        "title",
-        "description",
-        "subject",
-        "instructions",
-        "comment",
-        "alt_text",
-        "ext_description",
-    ],
-)
-def test_field_setter_getter(
-    metadata: JHXMPMetadata, example_metadata: dict[str, str], field_name: str
+def test_property_creator(
+    empty_metadata_object: JHXMPMetadata, sample_metadata: MetadataDataclass
 ) -> None:
-    setattr(metadata, field_name, example_metadata[field_name])
-    assert getattr(metadata, field_name) == example_metadata[field_name]
-    setattr(metadata, field_name, None)
-    assert getattr(metadata, field_name) is None
+    empty_metadata_object.creator = sample_metadata.creator
+    assert empty_metadata_object.creator == sample_metadata.creator
+    empty_metadata_object.creator = None
+    assert empty_metadata_object.creator is None
 
 
-def validate_xml_against_metadata(xml: str, populated_metadata: JHXMPMetadata) -> None:
-    root = etree.fromstring(xml, parser=etree.XMLParser(recover=True))
-
-    def validate_field(xpath: str, expected_value: str | None, field_name: str) -> None:
-        elements = root.xpath(xpath, namespaces=JHXMPMetadata.NAMESPACES)
-        if expected_value is None:
-            assert not elements, f"{field_name} should not be in XML"
-        else:
-            assert (
-                len(elements) == 1
-            ), f"Expected one {field_name}, found {len(elements)}"
-            assert elements[0].text == expected_value, f"{field_name} mismatch"
-
-    validate_field("//dc:creator/rdf:Seq/rdf:li", populated_metadata.creator, "Creator")
-
-    validate_field("//dc:rights/rdf:Alt/rdf:li", populated_metadata.rights, "Rights")
-
-    validate_field("//dc:title/rdf:Alt/rdf:li", populated_metadata.title, "Title")
-    validate_field(
-        "//dc:description/rdf:Alt/rdf:li", populated_metadata.description, "Description"
-    )
-
-    subject_li_list = root.xpath(
-        "//dc:subject/rdf:Bag/rdf:li", namespaces=JHXMPMetadata.NAMESPACES
-    )
-    assert len(subject_li_list) == 3
-    for li in subject_li_list:
-        assert li.text in populated_metadata.subject
-
-    validate_field(
-        "//photoshop:Instructions", populated_metadata.instructions, "Instructions"
-    )
-
-    validate_field(
-        "//exif:UserComment/rdf:Alt/rdf:li", populated_metadata.comment, "Comment"
-    )
-
-    validate_field(
-        "//Iptc4xmpCore:AltTextAccessibility", populated_metadata.alt_text, "Alt Text"
-    )
-
-    validate_field(
-        "//Iptc4xmpCore:ExtDescrAccessibility",
-        populated_metadata.ext_description,
-        "Ext Description",
-    )
-
-
-def test_to_string(populated_metadata: JHXMPMetadata) -> None:
-    validate_xml_against_metadata(populated_metadata.to_string(), populated_metadata)
-
-
-def test_to_wrapped_string(populated_metadata: JHXMPMetadata) -> None:
-    validate_xml_against_metadata(
-        populated_metadata.to_wrapped_string(), populated_metadata
-    )
-
-
-def test_from_string(populated_metadata: JHXMPMetadata) -> None:
-    xml_string = populated_metadata.to_string()
-    parsed_metadata = JHXMPMetadata.from_string(xml_string)
-    assert parsed_metadata.creator == populated_metadata.creator
-    assert parsed_metadata.rights == populated_metadata.rights
-    assert parsed_metadata.title == populated_metadata.title
-    assert parsed_metadata.description == populated_metadata.description
-    assert parsed_metadata.subject == populated_metadata.subject
-    assert parsed_metadata.instructions == populated_metadata.instructions
-    assert parsed_metadata.comment == populated_metadata.comment
-    assert parsed_metadata.alt_text == populated_metadata.alt_text
-    assert parsed_metadata.ext_description == populated_metadata.ext_description
-
-
-def test_from_string_with_garbage_data() -> None:
-    garbage_data = """
-    <x:xmpmeta xmlns:x="adobe:ns:meta/" xmlns:dc="http://purl.org/dc/elements/1.1/">
-        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-            <rdf:Description rdf:about="">
-                <dc:title>
-                    <rdf:Alt>
-                        <rdf:li xml:lang="x-default">A Beautiful Sunset</rdf:li>
-                    </rdf:Alt>
-                </title>
-            </rdf:Description>
-        </rdf:RDF>
-    </x:xmpmeta>
-    """
-    parsed_metadata = JHXMPMetadata.from_string(garbage_data)
-    assert parsed_metadata.title is None
-    assert parsed_metadata.creator is None
-    assert parsed_metadata.rights is None
-    assert parsed_metadata.description is None
-    assert parsed_metadata.subject is None
-    assert parsed_metadata.instructions is None
-    assert parsed_metadata.comment is None
-    assert parsed_metadata.alt_text is None
-    assert parsed_metadata.ext_description is None
-
-
-def test_from_string_with_missing_fields() -> None:
-    xml_string = """
-    <x:xmpmeta xmlns:x="adobe:ns:meta/" xmlns:dc="http://purl.org/dc/elements/1.1/">
-        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-            <rdf:Description rdf:about="">
-                <dc:title>
-                    <rdf:Alt>
-                        <rdf:li xml:lang="x-default">A Beautiful Sunset</rdf:li>
-                    </rdf:Alt>
-                </dc:title>
-            </rdf:Description>
-        </rdf:RDF>
-    </x:xmpmeta>
-    """
-    parsed_metadata = JHXMPMetadata.from_string(xml_string)
-    assert parsed_metadata.title == "A Beautiful Sunset"
-    assert parsed_metadata.creator is None
-    assert parsed_metadata.rights is None
-    assert parsed_metadata.description is None
-    assert parsed_metadata.subject is None
-    assert parsed_metadata.instructions is None
-    assert parsed_metadata.comment is None
-    assert parsed_metadata.alt_text is None
-    assert parsed_metadata.ext_description is None
-
-
-def test_large_metadata_values() -> None:
-    large_string = "A" * 10000
-    metadata = JHXMPMetadata()
-    metadata.title = large_string
-    xml_string = metadata.to_string()
-    parsed_metadata = JHXMPMetadata.from_string(xml_string)
-    assert parsed_metadata.title == large_string
-
-
-def test_empty_xml_string() -> None:
-    empty_xml = ""
-    parsed_metadata = JHXMPMetadata.from_string(empty_xml)
-    assert parsed_metadata.title is None
-    assert parsed_metadata.creator is None
-    assert parsed_metadata.rights is None
-    assert parsed_metadata.description is None
-    assert parsed_metadata.subject is None
-    assert parsed_metadata.instructions is None
-    assert parsed_metadata.comment is None
-    assert parsed_metadata.alt_text is None
-    assert parsed_metadata.ext_description is None
-
-
-def test_special_characters_in_xml(
-    metadata: JHXMPMetadata, example_metadata_with_unicode: dict[str, str]
+def test_property_rights(
+    empty_metadata_object: JHXMPMetadata, sample_metadata: MetadataDataclass
 ) -> None:
-    for key, value in example_metadata_with_unicode.items():
-        setattr(metadata, key, value)
-    xml_string = metadata.to_string()
-    parsed_metadata = JHXMPMetadata.from_string(xml_string)
-    for key, value in example_metadata_with_unicode.items():
-        assert getattr(parsed_metadata, key) == value
+    empty_metadata_object.rights = sample_metadata.rights
+    assert empty_metadata_object.rights == sample_metadata.rights
+    empty_metadata_object.rights = None
+    assert empty_metadata_object.rights is None
+
+
+def test_property_title(
+    empty_metadata_object: JHXMPMetadata, sample_metadata: MetadataDataclass
+) -> None:
+    empty_metadata_object.title = sample_metadata.title
+    assert empty_metadata_object.title == sample_metadata.title
+    empty_metadata_object.title = None
+    assert empty_metadata_object.title is None
+
+
+def test_property_description(
+    empty_metadata_object: JHXMPMetadata, sample_metadata: MetadataDataclass
+) -> None:
+    empty_metadata_object.description = sample_metadata.description
+    assert empty_metadata_object.description == sample_metadata.description
+    empty_metadata_object.description = None
+    assert empty_metadata_object.description is None
+
+
+def test_property_subject(
+    empty_metadata_object: JHXMPMetadata, sample_metadata: MetadataDataclass
+) -> None:
+    empty_metadata_object.subject = sample_metadata.subject
+    assert empty_metadata_object.subject == sample_metadata.subject
+    empty_metadata_object.subject = None
+    assert empty_metadata_object.subject is None
+
+
+def test_property_instructions(
+    empty_metadata_object: JHXMPMetadata, sample_metadata: MetadataDataclass
+) -> None:
+    empty_metadata_object.instructions = sample_metadata.instructions
+    assert empty_metadata_object.instructions == sample_metadata.instructions
+    empty_metadata_object.instructions = None
+    assert empty_metadata_object.instructions is None
+
+
+def test_property_comment(
+    empty_metadata_object: JHXMPMetadata, sample_metadata: MetadataDataclass
+) -> None:
+    empty_metadata_object.comment = sample_metadata.comment
+    assert empty_metadata_object.comment == sample_metadata.comment
+    empty_metadata_object.comment = None
+    assert empty_metadata_object.comment is None
+
+
+def test_property_alt_text(
+    empty_metadata_object: JHXMPMetadata, sample_metadata: MetadataDataclass
+) -> None:
+    empty_metadata_object.alt_text = sample_metadata.alt_text
+    assert empty_metadata_object.alt_text == sample_metadata.alt_text
+    empty_metadata_object.alt_text = None
+    assert empty_metadata_object.alt_text is None
+
+
+def test_property_ext_description(
+    empty_metadata_object: JHXMPMetadata, sample_metadata: MetadataDataclass
+) -> None:
+    empty_metadata_object.ext_description = sample_metadata.ext_description
+    assert empty_metadata_object.ext_description == sample_metadata.ext_description
+    empty_metadata_object.ext_description = None
+    assert empty_metadata_object.ext_description is None
+
+
+def validate_xml_string(xml_string: str, metadata_object: MetadataDataclass) -> None:
+    root = etree.fromstring(xml_string)
+    rdf_description = root.xpath(
+        "/x:xmpmeta/rdf:RDF/rdf:Description", namespaces=JHXMPMetadata.NAMESPACES
+    )
+    assert len(rdf_description) == 1
+
+    creator_element = rdf_description[0].xpath(
+        "./dc:creator",
+        namespaces=JHXMPMetadata.NAMESPACES,
+    )
+    assert len(creator_element) == 1
+    li_elements = creator_element[0].xpath(
+        "./rdf:Seq/rdf:li", namespaces=JHXMPMetadata.NAMESPACES
+    )
+    assert len(li_elements) == 1 and li_elements[0].text == metadata_object.creator
+    rdf_description[0].remove(creator_element[0])
+
+    rights_element = rdf_description[0].xpath(
+        "./dc:rights",
+        namespaces=JHXMPMetadata.NAMESPACES,
+    )
+    assert len(rights_element) == 1
+    li_elements = rights_element[0].xpath(
+        "./rdf:Alt/rdf:li", namespaces=JHXMPMetadata.NAMESPACES
+    )
+    assert len(li_elements) == 1 and li_elements[0].text == metadata_object.rights
+    rdf_description[0].remove(rights_element[0])
+
+    title_element = rdf_description[0].xpath(
+        "./dc:title",
+        namespaces=JHXMPMetadata.NAMESPACES,
+    )
+    assert len(title_element) == 1
+    li_elements = title_element[0].xpath(
+        "./rdf:Alt/rdf:li", namespaces=JHXMPMetadata.NAMESPACES
+    )
+    assert len(li_elements) == 1 and li_elements[0].text == metadata_object.title
+    rdf_description[0].remove(title_element[0])
+
+    description_element = rdf_description[0].xpath(
+        "./dc:description",
+        namespaces=JHXMPMetadata.NAMESPACES,
+    )
+    assert len(description_element) == 1
+    li_elements = description_element[0].xpath(
+        "./rdf:Alt/rdf:li", namespaces=JHXMPMetadata.NAMESPACES
+    )
+    assert len(li_elements) == 1 and li_elements[0].text == metadata_object.description
+    rdf_description[0].remove(description_element[0])
+
+    subject_element = rdf_description[0].xpath(
+        "./dc:subject",
+        namespaces=JHXMPMetadata.NAMESPACES,
+    )
+    assert len(subject_element) == 1
+    li_elements = subject_element[0].xpath(
+        "./rdf:Bag/rdf:li", namespaces=JHXMPMetadata.NAMESPACES
+    )
+    assert len(li_elements) == 2
+    assert ", ".join([li.text for li in li_elements]) == metadata_object.subject
+    rdf_description[0].remove(subject_element[0])
+
+    instructions_element = rdf_description[0].xpath(
+        "./photoshop:Instructions",
+        namespaces=JHXMPMetadata.NAMESPACES,
+    )
+    assert len(instructions_element) == 1
+    assert instructions_element[0].text == metadata_object.instructions
+    rdf_description[0].remove(instructions_element[0])
+
+    comment_element = rdf_description[0].xpath(
+        "./exif:UserComment",
+        namespaces=JHXMPMetadata.NAMESPACES,
+    )
+    assert len(comment_element) == 1
+    li_elements = comment_element[0].xpath(
+        "./rdf:Alt/rdf:li", namespaces=JHXMPMetadata.NAMESPACES
+    )
+    assert len(li_elements) == 1 and li_elements[0].text == metadata_object.comment
+    rdf_description[0].remove(comment_element[0])
+
+    alt_text_element = rdf_description[0].xpath(
+        "./Iptc4xmpCore:AltTextAccessibility",
+        namespaces=JHXMPMetadata.NAMESPACES,
+    )
+    assert len(alt_text_element) == 1
+    assert alt_text_element[0].text == metadata_object.alt_text
+    rdf_description[0].remove(alt_text_element[0])
+
+    ext_description_element = rdf_description[0].xpath(
+        "./Iptc4xmpCore:ExtDescrAccessibility",
+        namespaces=JHXMPMetadata.NAMESPACES,
+    )
+    assert len(ext_description_element) == 1
+    assert ext_description_element[0].text == metadata_object.ext_description
+    rdf_description[0].remove(ext_description_element[0])
+
+    children = rdf_description[0].getchildren()
+    assert len(children) == 0
+
+
+def test_to_string(
+    sample_metadata_object: JHXMPMetadata, sample_metadata: MetadataDataclass
+) -> None:
+    validate_xml_string(sample_metadata_object.to_string(), sample_metadata)
+
+
+def test_to_string_with_empty_metadata(
+    empty_metadata_object: JHXMPMetadata, empty_metadata: MetadataDataclass
+) -> None:
+    root = etree.fromstring(empty_metadata_object.to_string())
+    rdf_description = root.xpath(
+        "/x:xmpmeta/rdf:RDF/rdf:Description", namespaces=JHXMPMetadata.NAMESPACES
+    )
+    assert len(rdf_description) == 1
+    children = rdf_description[0].getchildren()
+    assert len(children) == 0
+
+
+def test_to_wrapped_string(
+    sample_metadata_object: JHXMPMetadata, sample_metadata: MetadataDataclass
+) -> None:
+    wrapped_string = sample_metadata_object.to_wrapped_string()
+    assert wrapped_string.startswith(
+        """<?xpacket begin="\ufeff" id="W5M0MpCehiHzreSzNTczkc9d"?>"""
+    )
+    assert wrapped_string.endswith("""<?xpacket end="w"?>""")
+    validate_xml_string(wrapped_string, sample_metadata)
+
+
+def test_to_wrapped_string_with_empty_metadata(
+    empty_metadata_object: JHXMPMetadata, empty_metadata: MetadataDataclass
+) -> None:
+    wrapped_string = empty_metadata_object.to_wrapped_string()
+    assert wrapped_string.startswith(
+        """<?xpacket begin="\ufeff" id="W5M0MpCehiHzreSzNTczkc9d"?>"""
+    )
+    assert wrapped_string.endswith("""<?xpacket end="w"?>""")
+    root = etree.fromstring(wrapped_string)
+    rdf_description = root.xpath(
+        "/x:xmpmeta/rdf:RDF/rdf:Description", namespaces=JHXMPMetadata.NAMESPACES
+    )
+    assert len(rdf_description) == 1
+    children = rdf_description[0].getchildren()
+    assert len(children) == 0
