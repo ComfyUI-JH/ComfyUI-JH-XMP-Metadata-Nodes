@@ -1,5 +1,6 @@
 import hashlib
 import os
+from collections import namedtuple
 from typing import Any
 
 import folder_paths
@@ -10,6 +11,24 @@ import PIL.ImageSequence
 import torch
 
 from .jh_xmp_metadata import JHXMPMetadata
+
+JHLoadImageWithXMPMetadataResultTuple = namedtuple(
+    "ResultTuple",
+    [
+        "IMAGE",
+        "MASK",
+        "creator",
+        "rights",
+        "title",
+        "description",
+        "subject",
+        "instructions",
+        "comment",
+        "alt_text",
+        "ext_description",
+        "xml_string",
+    ],
+)
 
 
 class JHLoadImageWithXMPMetadataNode:
@@ -61,22 +80,7 @@ class JHLoadImageWithXMPMetadataNode:
     CATEGORY = "XMP Metadata Nodes"
     OUTPUT_NODE = False
 
-    def load_image(
-        self, image: str
-    ) -> tuple[
-        torch.Tensor,
-        torch.Tensor,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        str,
-    ]:
+    def load_image(self, image: str) -> JHLoadImageWithXMPMetadataResultTuple:
         # `image` here is a string, the name of the image file on disk;
         # just the filename, not the full path.
         image_path = folder_paths.get_annotated_filepath(image)
@@ -131,7 +135,7 @@ class JHLoadImageWithXMPMetadataNode:
             output_image = output_images[0]
             output_mask = output_masks[0]
 
-        return (
+        return JHLoadImageWithXMPMetadataResultTuple(
             output_image,
             output_mask,
             xmp_metadata.creator,
