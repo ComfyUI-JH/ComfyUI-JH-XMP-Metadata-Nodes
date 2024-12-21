@@ -243,19 +243,19 @@ def test_load_image_with_valid_metadata(
         output = node.load_image(sample_image_file_with_valid_xmp_metadata.name)
 
         # Verify outputs
-        assert isinstance(output[0], torch.Tensor)  # IMAGE
-        assert output[0].shape == (1, 64, 64, 3)
-        assert output[1].shape == (1, 64, 64)  # MASK
-        assert output[2] == "Test Creator"  # creator
-        assert output[3] == "Test Rights"  # rights
-        assert output[4] == "Test Title"  # title
-        assert output[5] == "Test Description"  # description
-        assert output[6] == "Test Subject"  # subject
-        assert output[7] == "Test Instructions"  # instructions
-        assert output[8] == "Test Comment"  # xml_string
-        assert output[9] == "Test Alt Text"  # alt_text
-        assert output[10] == "Test Ext Description"  # ext_description
-        assert output[11] == valid_xml_string  # xml_string
+        assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+        assert output.IMAGE.shape == (1, 64, 64, 3)
+        assert output.MASK.shape == (1, 64, 64)  # MASK
+        assert output.creator == "Test Creator"  # creator
+        assert output.rights == "Test Rights"  # rights
+        assert output.title == "Test Title"  # title
+        assert output.description == "Test Description"  # description
+        assert output.subject == "Test Subject"  # subject
+        assert output.instructions == "Test Instructions"  # instructions
+        assert output.comment == "Test Comment"  # xml_string
+        assert output.alt_text == "Test Alt Text"  # alt_text
+        assert output.ext_description == "Test Ext Description"  # ext_description
+        assert output.xml_string == valid_xml_string  # xml_string
 
 
 def test_load_image_with_invalid_metadata(
@@ -268,19 +268,19 @@ def test_load_image_with_invalid_metadata(
         node = JHLoadImageWithXMPMetadataNode()
         output = node.load_image(sample_image_file_with_invalid_xmp_metadata.name)
 
-        assert isinstance(output[0], torch.Tensor)  # IMAGE
-        assert output[0].shape == (1, 64, 64, 3)
-        assert output[1].shape == (1, 64, 64)  # MASK
-        assert output[2] is None  # creator
-        assert output[3] is None  # rights
-        assert output[4] is None  # title
-        assert output[5] is None  # description
-        assert output[6] is None  # subject
-        assert output[7] is None  # instructions
-        assert output[8] is None  # comment
-        assert output[9] is None  # alt_text
-        assert output[10] is None  # ext_description
-        assert output[11] == invalid_xml_string  # xml_string
+        assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+        assert output.IMAGE.shape == (1, 64, 64, 3)
+        assert output.MASK.shape == (1, 64, 64)  # MASK
+        assert output.creator is None  # creator
+        assert output.rights is None  # rights
+        assert output.title is None  # title
+        assert output.description is None  # description
+        assert output.subject is None  # subject
+        assert output.instructions is None  # instructions
+        assert output.comment is None  # comment
+        assert output.alt_text is None  # alt_text
+        assert output.ext_description is None  # ext_description
+        assert output.xml_string == invalid_xml_string  # xml_string
 
 
 def test_load_image_with_garbage_metadata(
@@ -293,19 +293,19 @@ def test_load_image_with_garbage_metadata(
         node = JHLoadImageWithXMPMetadataNode()
         output = node.load_image(sample_image_file_with_garbage_xmp_metadata.name)
 
-        assert isinstance(output[0], torch.Tensor)  # IMAGE
-        assert output[0].shape == (1, 64, 64, 3)
-        assert output[1].shape == (1, 64, 64)  # MASK
-        assert output[2] is None  # creator
-        assert output[3] is None  # rights
-        assert output[4] is None  # title
-        assert output[5] is None  # description
-        assert output[6] is None  # subject
-        assert output[7] is None  # instructions
-        assert output[8] is None  # comment
-        assert output[9] is None  # alt_text
-        assert output[10] is None  # ext_description
-        assert output[11] == garbage_xml_string  # xml_string
+        assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+        assert output.IMAGE.shape == (1, 64, 64, 3)
+        assert output.MASK.shape == (1, 64, 64)  # MASK
+        assert output.creator is None  # creator
+        assert output.rights is None  # rights
+        assert output.title is None  # title
+        assert output.description is None  # description
+        assert output.subject is None  # subject
+        assert output.instructions is None  # instructions
+        assert output.comment is None  # comment
+        assert output.alt_text is None  # alt_text
+        assert output.ext_description is None  # ext_description
+        assert output.xml_string == garbage_xml_string  # xml_string
 
 
 def test_load_image_with_multiframe_image_file(
@@ -319,19 +319,19 @@ def test_load_image_with_multiframe_image_file(
         output = node.load_image(sample_multiframe_image_file.name)
 
         # Verify outputs
-        assert isinstance(output[0], torch.Tensor)  # IMAGE
-        assert output[0].shape == (3, 64, 64, 3)  # 3 frames, RGB
-        assert output[1].shape == (3, 64, 64)  # 3 masks
-        assert output[2] is None  # creator
-        assert output[3] is None  # rights
-        assert output[4] is None  # title
-        assert output[5] is None  # description
-        assert output[6] is None  # subject
-        assert output[7] is None  # instructions
-        assert output[8] is None  # comment
-        assert output[9] is None  # alt text
-        assert output[10] is None  # ext_description
-        assert output[11] == ""  # xml_string
+        assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+        assert output.IMAGE.shape == (3, 64, 64, 3)  # 3 frames, RGB
+        assert output.MASK.shape == (3, 64, 64)  # 3 masks
+        assert output.creator is None  # creator
+        assert output.rights is None  # rights
+        assert output.title is None  # title
+        assert output.description is None  # description
+        assert output.subject is None  # subject
+        assert output.instructions is None  # instructions
+        assert output.comment is None  # comment
+        assert output.alt_text is None  # alt_text
+        assert output.ext_description is None  # ext_description
+        assert output.xml_string == ""  # xml_string
 
 
 def test_load_image_with_invalid_multiframe_image_file(
@@ -345,19 +345,19 @@ def test_load_image_with_invalid_multiframe_image_file(
         output = node.load_image(sample_invalid_multiframe_image_file.name)
 
         # Verify outputs
-        assert isinstance(output[0], torch.Tensor)  # IMAGE
-        assert output[0].shape == (2, 64, 64, 3)  # 2 frames, RGB
-        assert output[1].shape == (2, 64, 64)  # 2 masks
-        assert output[2] is None  # creator
-        assert output[3] is None  # rights
-        assert output[4] is None  # title
-        assert output[5] is None  # description
-        assert output[6] is None  # subject
-        assert output[7] is None  # instructions
-        assert output[8] is None  # comment
-        assert output[9] is None  # alt text
-        assert output[10] is None  # ext_description
-        assert output[11] == ""  # xml_string
+        assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+        assert output.IMAGE.shape == (2, 64, 64, 3)  # 2 frames, RGB
+        assert output.MASK.shape == (2, 64, 64)  # 2 masks
+        assert output.creator is None  # creator
+        assert output.rights is None  # rights
+        assert output.title is None  # title
+        assert output.description is None  # description
+        assert output.subject is None  # subject
+        assert output.instructions is None  # instructions
+        assert output.comment is None  # comment
+        assert output.alt_text is None  # alt_text
+        assert output.ext_description is None  # ext_description
+        assert output.xml_string == ""  # xml_string
 
 
 def test_load_32_bit_integer_image(sample_32_bit_integer_image_file: Path) -> None:
@@ -369,22 +369,22 @@ def test_load_32_bit_integer_image(sample_32_bit_integer_image_file: Path) -> No
         output = node.load_image(sample_32_bit_integer_image_file.name)
 
         # Verify outputs
-        assert isinstance(output[0], torch.Tensor)  # IMAGE
-        assert output[0].shape == (1, 64, 64, 3)  # 1 frame, RGB
-        assert output[1].shape == (1, 64, 64)  # MASK
-        assert output[2] is None  # creator
-        assert output[3] is None  # rights
-        assert output[4] is None  # title
-        assert output[5] is None  # description
-        assert output[6] is None  # subject
-        assert output[7] is None  # instructions
-        assert output[8] is None  # comment
-        assert output[9] is None  # alt text
-        assert output[10] is None  # ext_description
-        assert output[11] == ""  # xml_string
+        assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+        assert output.IMAGE.shape == (1, 64, 64, 3)  # 1 frame, RGB
+        assert output.MASK.shape == (1, 64, 64)  # MASK
+        assert output.creator is None  # creator
+        assert output.rights is None  # rights
+        assert output.title is None  # title
+        assert output.description is None  # description
+        assert output.subject is None  # subject
+        assert output.instructions is None  # instructions
+        assert output.comment is None  # comment
+        assert output.alt_text is None  # alt_text
+        assert output.ext_description is None  # ext_description
+        assert output.xml_string == ""  # xml_string
 
         # Verify RGB channel consistency
-        rgb_values = output[0][0, :, :, :]
+        rgb_values = output.IMAGE[0, :, :, :]
         assert torch.allclose(rgb_values[:, :, 0], rgb_values[:, :, 1])  # R == G
         assert torch.allclose(rgb_values[:, :, 1], rgb_values[:, :, 2])  # G == B
         assert torch.allclose(rgb_values[:, :, 0], rgb_values[:, :, 2])  # R == B
@@ -402,22 +402,22 @@ def test_load_grayscale_image(sample_grayscale_image_file: Path) -> None:
         output = node.load_image(sample_grayscale_image_file.name)
 
         # Verify outputs
-        assert isinstance(output[0], torch.Tensor)  # IMAGE
-        assert output[0].shape == (1, 64, 64, 3)  # Converted to RGB
-        assert output[1].shape == (1, 64, 64)  # MASK
-        assert output[2] is None  # creator
-        assert output[3] is None  # rights
-        assert output[4] is None  # title
-        assert output[5] is None  # description
-        assert output[6] is None  # subject
-        assert output[7] is None  # instructions
-        assert output[8] is None  # comment
-        assert output[9] is None  # alt text
-        assert output[10] is None  # ext_description
-        assert output[11] == ""  # xml_string
+        assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+        assert output.IMAGE.shape == (1, 64, 64, 3)  # Converted to RGB
+        assert output.MASK.shape == (1, 64, 64)  # MASK
+        assert output.creator is None  # creator
+        assert output.rights is None  # rights
+        assert output.title is None  # title
+        assert output.description is None  # description
+        assert output.subject is None  # subject
+        assert output.instructions is None  # instructions
+        assert output.comment is None  # comment
+        assert output.alt_text is None  # alt_text
+        assert output.ext_description is None  # ext_description
+        assert output.xml_string == ""  # xml_string
 
         # Verify that the image tensor is in RGB format
-        assert output[0].shape[-1] == 3  # Last dimension should be 3 for RGB
+        assert output.IMAGE.shape[-1] == 3  # Last dimension should be 3 for RGB
 
 
 def test_is_changed(sample_image_file_with_valid_xmp_metadata: Path) -> None:
