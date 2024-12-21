@@ -9,7 +9,14 @@ class JHAnyType(str):
 
 class JHNodeInputOutputTypeEnum(StrEnum):
     STRING = "STRING"
+    INT = "INT"
+    FLOAT = "FLOAT"
+
+    PRIMITIVE = "STRING,FLOAT,INT,BOOLEAN"
+
     IMAGE = "IMAGE"
+    MASK = "MASK"
+
     PROMPT = "PROMPT"
     EXTRA_PNGINFO = "EXTRA_PNGINFO"
 
