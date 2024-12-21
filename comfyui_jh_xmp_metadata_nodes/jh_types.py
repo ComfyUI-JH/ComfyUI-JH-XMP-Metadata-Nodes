@@ -22,7 +22,23 @@ JHTypesNodeInputOutputType = JHNodeInputOutputTypeEnum | JHAnyType | list[str]
 class JHNodeInputOutputTypeOptions(TypedDict, total=False):
     tooltip: str
     default: str
+    placeholder: str
+    multiline: bool
+    dynamicPrompts: bool
+
+    min: int | float
+    max: int | float
+    step: int | float
+
+    defaultInput: bool
     forceInput: bool
+    lazy: bool
+
+    label_on: str
+    label_off: str
+
+    rawLink: bool
+    image_upload: bool
 
 
 class JHInputTypesType(TypedDict, total=False):
