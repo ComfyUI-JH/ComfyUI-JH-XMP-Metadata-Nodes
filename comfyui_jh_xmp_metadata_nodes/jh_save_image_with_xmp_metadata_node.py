@@ -81,18 +81,19 @@ class JHSaveImageWithXMPMetadataNode:
         Returns:
             dict: A dictionary of required, optional, and hidden input types.
         """
+        # fmt: off
         return {
             "required": {
-                "images": ("IMAGE", {"tooltip": "The images to save."}),
+                "images": (
+                    "IMAGE", {
+                        "tooltip": "The images to save."
+                    }
+                ),
                 "filename_prefix": (
                     "STRING",
                     {
                         "default": "ComfyUI",
-                        "tooltip": (
-                            "The prefix for the file to save. This may include "
-                            "formatting information such as %date:yyyy-MM-dd% or "
-                            "%Empty Latent Image.width% to include values from nodes."
-                        ),
+                        "tooltip": "The prefix for the file to save. This may include formatting information such as %date:yyyy-MM-dd% or %Empty Latent Image.width% to include values from nodes.",  # noqa: E501
                     },
                 ),
                 "image_type": (
@@ -105,53 +106,71 @@ class JHSaveImageWithXMPMetadataNode:
             "optional": {
                 "creator": (
                     "STRING",
-                    {"tooltip": ("dc:creator"), "forceInput": True},
+                    {
+                        "tooltip": "dc:creator",
+                        "forceInput": True
+                    },
                 ),
                 "rights": (
                     "STRING",
-                    {"tooltip": ("dc:rights"), "forceInput": True},
+                    {
+                        "tooltip": "dc:rights",
+                        "forceInput": True
+                    },
                 ),
                 "title": (
                     "STRING",
-                    {"tooltip": ("dc:title"), "forceInput": True},
+                    {
+                        "tooltip": "dc:title",
+                        "forceInput": True
+                    },
                 ),
                 "description": (
                     "STRING",
-                    {"tooltip": ("dc:description"), "forceInput": True},
+                    {
+                        "tooltip": "dc:description",
+                        "forceInput": True
+                    },
                 ),
                 "subject": (
                     "STRING",
-                    {"tooltip": ("dc:subject"), "forceInput": True},
+                    {
+                        "tooltip": "dc:subject",
+                        "forceInput": True
+                },
                 ),
                 "instructions": (
                     "STRING",
-                    {"tooltip": ("photoshop:Instructions"), "forceInput": True},
+                    {
+                        "tooltip": "photoshop:Instructions",
+                        "forceInput": True
+                    },
                 ),
                 "comment": (
                     "STRING",
-                    {"tooltip": ("exif:UserComment"), "forceInput": True},
+                    {
+                        "tooltip": "exif:UserComment",
+                        "forceInput": True
+                    },
                 ),
                 "alt_text": (
                     "STRING",
                     {
-                        "tooltip": ("Iptc4xmpCore:AltTextAccessibility"),
+                        "tooltip": "Iptc4xmpCore:AltTextAccessibility",
                         "forceInput": True,
                     },
                 ),
                 "ext_description": (
                     "STRING",
                     {
-                        "tooltip": ("Iptc4xmpCore:ExtDescrAccessibility"),
+                        "tooltip": "Iptc4xmpCore:ExtDescrAccessibility",
                         "forceInput": True,
                     },
                 ),
                 "xml_string": (
                     "STRING",
                     {
-                        "tooltip": (
-                            "XMP metadata as an XML string. This will override all "
-                            "other fields."
-                        ),
+                        "tooltip": "XMP metadata as an XML string. This will override all other fields.",  # noqa: E501
                         "forceInput": True,
                     },
                 ),
@@ -161,6 +180,7 @@ class JHSaveImageWithXMPMetadataNode:
                 "extra_pnginfo": "EXTRA_PNGINFO",
             },
         }
+        # fmt: on
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "save_images"
