@@ -282,7 +282,7 @@ class JHSaveImageWithXMPMetadataNode:
             )
             file: str = f"{filename_with_batch_num}_{counter:05}_.{filename_extension}"
 
-            xmp = self.xmp(
+            xmp = self.inputs_to_xml(
                 creator,
                 rights,
                 title,
@@ -312,7 +312,7 @@ class JHSaveImageWithXMPMetadataNode:
 
         return {"result": (images,), "ui": {"images": results}}
 
-    def xmp(
+    def inputs_to_xml(
         self,
         creator: str | list | None,
         rights: str | list | None,
@@ -393,7 +393,7 @@ class JHSaveImageWithXMPMetadataNode:
         filename_extension: str
         match image_type:
             case JHSupportedImageTypes.JPEG:
-                filename_extension: str = "jpg"
+                filename_extension: str = "jpeg"
             case JHSupportedImageTypes.PNG_WITH_WORKFLOW:
                 filename_extension: str = "png"
             case JHSupportedImageTypes.PNG:
