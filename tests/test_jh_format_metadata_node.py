@@ -11,8 +11,10 @@ def node() -> JHFormatMetadataNode:
 def test_input_types(node: JHFormatMetadataNode) -> None:
     input_types = node.INPUT_TYPES()
     assert input_types.keys() == {"required", "optional"}
-    assert input_types["required"].keys() == {"format_string"}
-    assert input_types["optional"].keys() == {
+    assert "required" in input_types and input_types["required"].keys() == {
+        "format_string"
+    }
+    assert "optional" in input_types and input_types["optional"].keys() == {
         "prompt",
         "negative_prompt",
         "model_name",
@@ -25,12 +27,7 @@ def test_input_types(node: JHFormatMetadataNode) -> None:
     }
 
 
-def test_IS_CHANGED(node: JHFormatMetadataNode) -> None:
-    # The IS_CHANGED method should always return True
-    assert node.IS_CHANGED()
-
-
-def test_default_format_string(node: JHFormatMetadataNode) -> None:
+def test_format_metadata_default_format_string(node: JHFormatMetadataNode) -> None:
     result = node.format_metadata()
     expected = (
         "Prompt: \n"
@@ -46,22 +43,22 @@ def test_default_format_string(node: JHFormatMetadataNode) -> None:
     assert result == (expected,)
 
 
-def test_custom_format_string(node: JHFormatMetadataNode) -> None:
+def test_format_metadata_custom_format_string(node: JHFormatMetadataNode) -> None:
     custom_format = "Custom Prompt: {prompt}"
     result = node.format_metadata(prompt="Test Prompt", format_string=custom_format)
     expected = "Custom Prompt: Test Prompt"
     assert result == (expected,)
 
 
-def test_missing_placeholder_in_format_string(node: JHFormatMetadataNode):
-    invalid_format = "Invalid {missing_placeholder}"
+def test_format_metadata_invalid_format_string(node: JHFormatMetadataNode) -> None:
+    invalid_format = "Invalid {placeholder}"
     with pytest.raises(
-        ValueError, match="Invalid placeholder 'missing_placeholder' in format_string"
+        ValueError, match="Invalid placeholder 'placeholder' in format_string"
     ):
         node.format_metadata(format_string=invalid_format)
 
 
-def test_all_fields_provided(node: JHFormatMetadataNode) -> None:
+def test_format_metadata_all_fields_provided(node: JHFormatMetadataNode) -> None:
     result = node.format_metadata(
         prompt="Test Prompt",
         negative_prompt="Test Negative",
@@ -87,7 +84,7 @@ def test_all_fields_provided(node: JHFormatMetadataNode) -> None:
     assert result == (expected,)
 
 
-def test_partial_fields_provided(node: JHFormatMetadataNode) -> None:
+def test_format_metadata_partial_fields_provided(node: JHFormatMetadataNode) -> None:
     result = node.format_metadata(
         prompt="Test Prompt",
         model_name="Test Model",
@@ -105,3 +102,8 @@ def test_partial_fields_provided(node: JHFormatMetadataNode) -> None:
         "Guidance: "
     )
     assert result == (expected,)
+
+
+def test_IS_CHANGED(node: JHFormatMetadataNode) -> None:
+    # The IS_CHANGED method should always return True
+    assert node.IS_CHANGED()
