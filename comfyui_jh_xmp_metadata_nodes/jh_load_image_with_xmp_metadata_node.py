@@ -2,7 +2,7 @@ import hashlib
 import os
 from typing import NamedTuple
 
-import folder_paths
+import folder_paths  # pyright: ignore[reportMissingImports]
 import numpy as np
 import PIL.Image
 import PIL.ImageOps
