@@ -304,7 +304,7 @@ def test_property_ext_description(
 
 
 def validate_xml_string(xml_string: str, metadata_object: MetadataDataclass) -> None:
-    root = etree.fromstring(xml_string)
+    root = etree.fromstring(xml_string, parser=etree.XMLParser())
     rdf_description = root.xpath(
         "/x:xmpmeta/rdf:RDF/rdf:Description", namespaces=JHXMPMetadata.NAMESPACES
     )
@@ -414,7 +414,7 @@ def test_to_string(
 def test_to_string_with_empty_metadata(
     empty_metadata_object: JHXMPMetadata, empty_metadata: MetadataDataclass
 ) -> None:
-    root = etree.fromstring(empty_metadata_object.to_string())
+    root = etree.fromstring(empty_metadata_object.to_string(), parser=etree.XMLParser())
     rdf_description = root.xpath(
         "/x:xmpmeta/rdf:RDF/rdf:Description", namespaces=JHXMPMetadata.NAMESPACES
     )
@@ -442,7 +442,7 @@ def test_to_wrapped_string_with_empty_metadata(
         """<?xpacket begin="\ufeff" id="W5M0MpCehiHzreSzNTczkc9d"?>"""
     )
     assert wrapped_string.endswith("""<?xpacket end="w"?>""")
-    root = etree.fromstring(wrapped_string)
+    root = etree.fromstring(wrapped_string, parser=etree.XMLParser())
     rdf_description = root.xpath(
         "/x:xmpmeta/rdf:RDF/rdf:Description", namespaces=JHXMPMetadata.NAMESPACES
     )
