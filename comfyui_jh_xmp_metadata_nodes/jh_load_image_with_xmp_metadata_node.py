@@ -1,6 +1,6 @@
 import hashlib
 import os
-from collections import namedtuple
+from typing import NamedTuple
 
 import folder_paths
 import numpy as np
@@ -13,23 +13,20 @@ from comfyui_jh_xmp_metadata_nodes import jh_types
 
 from .jh_xmp_metadata import JHXMPMetadata
 
-JHLoadImageWithXMPMetadataResultTuple = namedtuple(
-    "ResultTuple",
-    [
-        "IMAGE",
-        "MASK",
-        "creator",
-        "rights",
-        "title",
-        "description",
-        "subject",
-        "instructions",
-        "comment",
-        "alt_text",
-        "ext_description",
-        "xml_string",
-    ],
-)
+
+class JHLoadImageWithXMPMetadataResultTuple(NamedTuple):
+    IMAGE: torch.Tensor
+    MASK: torch.Tensor
+    creator: str | None
+    rights: str | None
+    title: str | None
+    description: str | None
+    subject: str | None
+    instructions: str | None
+    comment: str | None
+    alt_text: str | None
+    ext_description: str | None
+    xml_string: str
 
 
 class JHLoadImageWithXMPMetadataNode:
