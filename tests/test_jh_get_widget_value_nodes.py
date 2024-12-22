@@ -125,9 +125,8 @@ def test_get_widget_value_empty_widget_name(
         node.get_widget_value(("13", 0), "", graph_data)
 
 
-def test_get_widget_value_empty_graph_data(
-    node: JHGetWidgetValueNode, graph_data: dict[str, Any] = {}
-) -> None:
+def test_get_widget_value_empty_graph_data(node: JHGetWidgetValueNode) -> None:
+    graph_data = {}
     with pytest.raises(KeyError):
         node.get_widget_value(("13", 0), "steps", graph_data)
 
