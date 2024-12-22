@@ -167,7 +167,10 @@ class JHLoadImageWithXMPMetadataNode:
         # Convert 32-bit integer images to RGB
         if raw_frame.mode.startswith("I"):
             raw_frame = raw_frame.point(lambda i: i * (1 / 255))
-        rgb_frame = raw_frame.convert("RGB")
+        if raw_frame.mode == "RGB":
+            rgb_frame = raw_frame
+        else:
+            rgb_frame = raw_frame.convert("RGB")
 
         # Normalize the image to a tensor with values in [0, 1]
         np_array = np.array(rgb_frame).astype(np.float32) / 255.0

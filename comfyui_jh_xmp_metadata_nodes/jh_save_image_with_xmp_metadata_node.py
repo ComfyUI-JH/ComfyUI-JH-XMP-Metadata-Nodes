@@ -312,17 +312,25 @@ class JHSaveImageWithXMPMetadataNode:
 
         return {"result": (images,), "ui": {"images": results}}
 
+    def get_batch_value(
+        self, prop: str | list[str] | None, batch_number: int
+    ) -> str | None:
+        if isinstance(prop, list):
+            return prop[batch_number]
+        else:
+            return prop
+
     def inputs_to_xml(
         self,
-        creator: str | list | None,
-        rights: str | list | None,
-        title: str | list | None,
-        description: str | list | None,
-        subject: str | list | None,
-        instructions: str | list | None,
-        comment: str | list | None,
-        alt_text: str | list | None,
-        ext_description: str | list | None,
+        creator: str | list[str] | None,
+        rights: str | list[str] | None,
+        title: str | list[str] | None,
+        description: str | list[str] | None,
+        subject: str | list[str] | None,
+        instructions: str | list[str] | None,
+        comment: str | list[str] | None,
+        alt_text: str | list[str] | None,
+        ext_description: str | list[str] | None,
         xml_string: str | None,
         batch_number: int,
     ) -> str:
@@ -338,44 +346,22 @@ class JHSaveImageWithXMPMetadataNode:
         """
 
         if xml_string is not None:
-            xmp: str = xml_string
+            xml: str = xml_string
         else:
             xmpmetadata = JHXMPMetadata()
-            xmpmetadata.creator = (
-                creator[batch_number] if isinstance(creator, list) else creator
+            xmpmetadata.creator = self.get_batch_value(creator, batch_number)
+            xmpmetadata.rights = self.get_batch_value(rights, batch_number)
+            xmpmetadata.title = self.get_batch_value(title, batch_number)
+            xmpmetadata.description = self.get_batch_value(description, batch_number)
+            xmpmetadata.subject = self.get_batch_value(subject, batch_number)
+            xmpmetadata.instructions = self.get_batch_value(instructions, batch_number)
+            xmpmetadata.comment = self.get_batch_value(comment, batch_number)
+            xmpmetadata.alt_text = self.get_batch_value(alt_text, batch_number)
+            xmpmetadata.ext_description = self.get_batch_value(
+                ext_description, batch_number
             )
-            xmpmetadata.rights = (
-                rights[batch_number] if isinstance(rights, list) else rights
-            )
-            xmpmetadata.title = (
-                title[batch_number] if isinstance(title, list) else title
-            )
-            xmpmetadata.description = (
-                description[batch_number]
-                if isinstance(description, list)
-                else description
-            )
-            xmpmetadata.subject = (
-                subject[batch_number] if isinstance(subject, list) else subject
-            )
-            xmpmetadata.instructions = (
-                instructions[batch_number]
-                if isinstance(instructions, list)
-                else instructions
-            )
-            xmpmetadata.comment = (
-                comment[batch_number] if isinstance(comment, list) else comment
-            )
-            xmpmetadata.alt_text = (
-                alt_text[batch_number] if isinstance(alt_text, list) else alt_text
-            )
-            xmpmetadata.ext_description = (
-                ext_description[batch_number]
-                if isinstance(ext_description, list)
-                else ext_description
-            )
-            xmp = xmpmetadata.to_wrapped_string()
-        return xmp
+            xml = xmpmetadata.to_wrapped_string()
+        return xml
 
     def extension_for_type(self, image_type: JHSupportedImageTypes) -> str:
         """
@@ -402,8 +388,6 @@ class JHSaveImageWithXMPMetadataNode:
                 filename_extension: str = "webp"
             case JHSupportedImageTypes.WEBP:
                 filename_extension: str = "webp"
-            case _:
-                raise ValueError(f"Unsupported image type: {image_type}")
         return filename_extension
 
     def save_image(
@@ -471,6 +455,3 @@ class JHSaveImageWithXMPMetadataNode:
 
             case JHSupportedImageTypes.WEBP:
                 image.save(to_path, xmp=xmp)
-
-            case _:
-                raise ValueError(f"Unsupported image type: {image_type}")

@@ -169,6 +169,14 @@ def sample_32_bit_integer_image_file(tmp_path: Path) -> Path:
     return img_path
 
 
+@pytest.fixture
+def sample_corrupted_image_file(tmp_path: Path) -> Path:
+    corrupted_file = tmp_path / "corrupted_image.png"
+    with open(corrupted_file, "wb") as f:
+        f.write(b"This is not a valid image file.")
+    return corrupted_file
+
+
 # endregion Fixtures
 
 
@@ -409,6 +417,19 @@ def test_load_grayscale_image(
 
     # Verify that the image tensor is in RGB format
     assert output.IMAGE.shape[-1] == 3  # Last dimension should be 3 for RGB
+
+
+def test_load_corrupted_image(
+    mocker: MockerFixture, sample_corrupted_image_file: Path
+) -> None:
+    mocker.patch(
+        "folder_paths.get_annotated_filepath",
+        return_value=str(sample_corrupted_image_file),
+    )
+
+    node = JHLoadImageWithXMPMetadataNode()
+    with pytest.raises(PIL.UnidentifiedImageError, match="cannot identify image file"):
+        node.load_image(sample_corrupted_image_file.name)
 
 
 def test_is_changed(
