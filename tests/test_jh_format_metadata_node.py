@@ -104,6 +104,64 @@ def test_format_metadata_partial_fields_provided(node: JHFormatMetadataNode) -> 
     assert result == (expected,)
 
 
+def test_format_metadata_with_zero_values(node: JHFormatMetadataNode) -> None:
+    result = node.format_metadata(
+        prompt="Test Prompt",
+        model_name="Test Model",
+        seed=0,
+        steps=0,
+        cfg=0.0,
+        guidance=0.0,
+    )
+    expected = (
+        "Prompt: Test Prompt\n"
+        "Negative Prompt: \n"
+        "Model: Test Model\n"
+        "Seed: 0\n"
+        "Sampler: \n"
+        "Scheduler: \n"
+        "Steps: 0\n"
+        "CFG: 0.0\n"
+        "Guidance: 0.0"
+    )
+    assert result == (expected,)
+
+
+def test_format_metadata_with_nested_placeholders(node: JHFormatMetadataNode) -> None:
+    result = node.format_metadata(
+        prompt="Test Prompt",
+        format_string="Prompt: {{prompt}}",
+    )
+    expected = "Prompt: {prompt}"
+    assert result == (expected,)
+
+
+def test_format_metadata_with_unicode_format_string(node: JHFormatMetadataNode) -> None:
+    result = node.format_metadata(
+        prompt="Test Prompt",
+        format_string="❤️: {prompt}",
+    )
+    expected = "❤️: Test Prompt"
+    assert result == (expected,)
+
+
+def test_format_metdata_with_empty_format_string(node: JHFormatMetadataNode) -> None:
+    result = node.format_metadata(
+        prompt="Test Prompt",
+        negative_prompt="Test Negative",
+        model_name="Test Model",
+        seed=123,
+        sampler_name="Test Sampler",
+        scheduler_name="Test Scheduler",
+        steps=50,
+        cfg=7.5,
+        guidance=1.0,
+        format_string="",
+    )
+    expected = ""
+    assert result == (expected,)
+
+
 def test_IS_CHANGED(node: JHFormatMetadataNode) -> None:
     # The IS_CHANGED method should always return True
     assert node.IS_CHANGED()
