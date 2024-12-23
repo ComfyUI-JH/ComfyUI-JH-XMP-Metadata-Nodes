@@ -5,7 +5,7 @@
 <div align="center">
     <img src="https://img.shields.io/github/license/ComfyUI-JH/ComfyUI_JH_XMP_Metadata_Nodes">
     &emsp;
-    <img src="https://img.shields.io/github/actions/workflow/status/ComfyUI-JH/ComfyUI_JH_XMP_Metadata_Nodes/ci.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/ComfyUI-JH/ComfyUI-JH-XMP-Metadata-Nodes/ci.yml?label=ci">
     &emsp;
     <img src="https://img.shields.io/github/last-commit/ComfyUI-JH/ComfyUI_JH_XMP_Metadata_Nodes/main">
     &emsp;
