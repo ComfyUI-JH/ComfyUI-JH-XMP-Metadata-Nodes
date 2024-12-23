@@ -93,6 +93,11 @@ def test_input_types() -> None:
     assert "hidden" in input_types and input_types["hidden"].keys() == {"prompt"}
 
 
+def test_validate_inputs() -> None:
+    node = JHGetWidgetValueNode()
+    assert node.VALIDATE_INPUTS(["13", 0], "steps") is True
+
+
 def test_is_changed() -> None:
     assert JHGetWidgetValueNode.IS_CHANGED() is True
 
@@ -146,16 +151,16 @@ def test_get_widget_value_invalid_node_id_type(
 
 
 def test_get_widget_value_string_node(
-    node: JHGetWidgetValueNode, graph_data: dict[str, Any]
+    node_string: JHGetWidgetValueStringNode, graph_data: dict[str, Any]
 ) -> None:
-    result = node.get_widget_value(("13", 0), "scheduler", graph_data)
+    result = node_string.get_widget_value(("13", 0), "scheduler", graph_data)
     assert result == ("beta",)
 
 
 def test_get_widget_value_int_node(
-    node: JHGetWidgetValueNode, graph_data: dict[str, Any]
+    node_int: JHGetWidgetValueIntNode, graph_data: dict[str, Any]
 ) -> None:
-    result = node.get_widget_value(("13", 0), "steps", graph_data)
+    result = node_int.get_widget_value(("13", 0), "steps", graph_data)
     assert result == (5,)
 
 
