@@ -9,9 +9,6 @@ license = "GPL-3.0-only"
 [tool.poetry.dependencies]
 python = "^3.12"
 lxml = "^5.3.0"
-numpy = "<2.0.0"
-pillow = "^11.0.0"
-torch = "^2.5.1"
 
 [tool.poetry.group.dev]
 optional = true
@@ -20,6 +17,9 @@ optional = true
 pytest = "8.3.4"
 pytest-cov = "6.0.0"
 pytest-mock = "3.14.0"
+numpy = "<2.0.0"
+pillow = "^11.0.0"
+torch = "^2.5.1"
 
 [tool.poetry.group.interactive]
 optional = true
