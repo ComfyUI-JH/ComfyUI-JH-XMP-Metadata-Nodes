@@ -6,7 +6,7 @@ https://github.com/comfyanonymous/ComfyUI/blob/master/comfy/comfy_types/node_typ
 Although no code was copied, the structure and the idea of the module was taken from
 ComfyUI. Used by permission under the terms of the GPL.
 
-Not that this module is not intended to be comprehensive. It only includes the data
+Note that this module is not intended to be comprehensive. It only includes the data
 types used in this project. Refer to the link above for a more complete implementation.
 """
 
