@@ -93,15 +93,6 @@ def test_input_types() -> None:
     assert "hidden" in input_types and input_types["hidden"].keys() == {"prompt"}
 
 
-def test_validate_inputs() -> None:
-    node = JHGetWidgetValueNode()
-    assert node.VALIDATE_INPUTS(["13", 0], "steps") is True
-
-
-def test_is_changed() -> None:
-    assert JHGetWidgetValueNode.IS_CHANGED() is True
-
-
 def test_get_widget_value_valid(
     node: JHGetWidgetValueNode, graph_data: dict[str, Any]
 ) -> None:

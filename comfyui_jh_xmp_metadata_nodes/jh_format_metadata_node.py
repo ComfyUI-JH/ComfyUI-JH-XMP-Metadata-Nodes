@@ -1,5 +1,5 @@
 import textwrap
-from typing import Any, Final
+from typing import Final
 
 from comfyui_jh_xmp_metadata_nodes import jh_types
 
@@ -96,14 +96,6 @@ class JHFormatMetadataNode:
     RETURN_TYPES = (jh_types.JHNodeInputOutputTypeEnum.STRING,)
     FUNCTION = "format_metadata"
     CATEGORY = "XMP Metadata Nodes"
-
-    @classmethod
-    def IS_CHANGED(
-        cls,  # pylint: disable=unused-argument
-        *args: tuple[Any],
-        **kwargs: dict[str, Any],
-    ) -> bool:
-        return True
 
     @staticmethod
     def validate_format_string(format_string: str) -> None:

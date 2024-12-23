@@ -160,8 +160,3 @@ def test_format_metdata_with_empty_format_string(node: JHFormatMetadataNode) -> 
     )
     expected = ""
     assert result == (expected,)
-
-
-def test_IS_CHANGED(node: JHFormatMetadataNode) -> None:
-    # The IS_CHANGED method should always return True
-    assert node.IS_CHANGED()
