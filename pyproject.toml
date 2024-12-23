@@ -1,6 +1,22 @@
+[project]
+name = "comfyui-jh-xmp-metadata-nodes"
+description = "Custom nodes for ComfyUI for reading and writing XMP metadata"
+version = "1.0.0"
+license = {file = "LICENSE"}
+dependencies = ["lxml==5.3.0 ; python_version >= \"3.12\" and python_version < \"4.0\""]
+
+[project.urls]
+Repository = "https://github.com/ComfyUI-JH/ComfyUI-JH-XMP-Metadata-Nodes"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "jefferyharrell"
+DisplayName = "JH XMP Metadata Nodes"
+Icon = ""
+
 [tool.poetry]
 name = "comfyui-jh-xmp-metadata-nodes"
-version = "0.1.0"
+version = "1.0.0"
 description = "Custom nodes for ComfyUI for reading and writing XMP metadata"
 authors = ["Jeffery Harrell <jefferyharrell@gmail.com>"]
 readme = "README.md"
