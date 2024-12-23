@@ -1,8 +1,8 @@
 import hashlib
 import os
-from collections import namedtuple
+from typing import NamedTuple
 
-import folder_paths
+import folder_paths  # pyright: ignore[reportMissingImports]
 import numpy as np
 import PIL.Image
 import PIL.ImageOps
@@ -13,23 +13,20 @@ from comfyui_jh_xmp_metadata_nodes import jh_types
 
 from .jh_xmp_metadata import JHXMPMetadata
 
-JHLoadImageWithXMPMetadataResultTuple = namedtuple(
-    "ResultTuple",
-    [
-        "IMAGE",
-        "MASK",
-        "creator",
-        "rights",
-        "title",
-        "description",
-        "subject",
-        "instructions",
-        "comment",
-        "alt_text",
-        "ext_description",
-        "xml_string",
-    ],
-)
+
+class JHLoadImageWithXMPMetadataResultTuple(NamedTuple):
+    IMAGE: torch.Tensor
+    MASK: torch.Tensor
+    creator: str | None
+    rights: str | None
+    title: str | None
+    description: str | None
+    subject: str | None
+    instructions: str | None
+    comment: str | None
+    alt_text: str | None
+    ext_description: str | None
+    xml_string: str
 
 
 class JHLoadImageWithXMPMetadataNode:
@@ -167,10 +164,23 @@ class JHLoadImageWithXMPMetadataNode:
         # place to avoid creating a new image object for each frame.
         PIL.ImageOps.exif_transpose(raw_frame, in_place=True)
 
-        # Convert 32-bit integer images to RGB
+        # If the image is a 32-bit integer image, we need to convert it
+        # to a floating point image. The point() method applies a
+        # transformation to each pixel value, and we use a lambda
+        # function to divide each pixel value by 255. This is equivalent
+        # to dividing the whole image by 255, but it's done on a pixel-by-pixel
+        # basis. This is necessary because the image is stored as an
+        # unsigned 32-bit integer, and we want to treat it as a float
+        # in the range [0, 1].
+
         if raw_frame.mode.startswith("I"):
             raw_frame = raw_frame.point(lambda i: i * (1 / 255))
-        rgb_frame = raw_frame.convert("RGB")
+
+        # Convert the image to RGB
+        if raw_frame.mode != "RGB":
+            rgb_frame = raw_frame.convert("RGB")
+        else:
+            rgb_frame = raw_frame
 
         # Normalize the image to a tensor with values in [0, 1]
         np_array = np.array(rgb_frame).astype(np.float32) / 255.0

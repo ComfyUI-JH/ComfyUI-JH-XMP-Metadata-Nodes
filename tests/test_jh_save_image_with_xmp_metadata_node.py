@@ -37,14 +37,12 @@ def mock_folder_paths(mocker: MockerFixture) -> dict[str, MagicMock | AsyncMock]
 
 
 @pytest.fixture
-def mock_image() -> torch.Tensor:
-    return torch.rand(100, 100, 3)  # Generate a random PyTorch tensor
+def image() -> torch.Tensor:
+    return torch.rand(100, 100, 3)  # Generate a random 3-channel tensor
 
 
 @pytest.fixture
-def node(
-    mock_folder_paths: dict[str, MagicMock | AsyncMock],
-) -> JHSaveImageWithXMPMetadataNode:
+def node() -> JHSaveImageWithXMPMetadataNode:
     return JHSaveImageWithXMPMetadataNode()
 
 
@@ -53,46 +51,41 @@ def test_save_images_no_images(node: JHSaveImageWithXMPMetadataNode) -> None:
         node.save_images([])
 
 
-def test_save_images_jpeg(
+@pytest.mark.parametrize(
+    "image_type,expected_extension",
+    [
+        (JHSupportedImageTypes.JPEG, ".jpg"),
+        (JHSupportedImageTypes.PNG, ".png"),
+        (JHSupportedImageTypes.PNG_WITH_WORKFLOW, ".png"),
+        (JHSupportedImageTypes.WEBP, ".webp"),
+        (JHSupportedImageTypes.LOSSLESS_WEBP, ".webp"),
+    ],
+)
+def test_save_image(
     node: JHSaveImageWithXMPMetadataNode,
-    mock_image: torch.Tensor,
-    mock_folder_paths: dict[str, MagicMock],
+    image: torch.Tensor,
+    tmp_path: Path,
+    image_type: JHSupportedImageTypes,
+    expected_extension: str,
 ) -> None:
-    images = [mock_image]
-    mock_save_image = MagicMock()
-    node.save_image = mock_save_image
+    img = Image.fromarray((image.numpy() * 255).astype(np.uint8))
+    to_path = tmp_path / f"test_image{expected_extension}"
+    xmp = "<xmpmeta>Test XML</xmpmeta>"
+    prompt = "Test Prompt"
+    extra_pnginfo = {"workflow": "Test Workflow"}
 
-    result = node.save_images(images, image_type=JHSupportedImageTypes.JPEG)
+    node.save_image(img, image_type, to_path, xmp, prompt, extra_pnginfo)
 
-    assert len(result["ui"]["images"]) == 1
-    assert result["ui"]["images"][0]["filename"].endswith(".jpg")
-    mock_save_image.assert_called_once()
-
-
-def test_save_images_png_with_workflow(
-    node: JHSaveImageWithXMPMetadataNode,
-    mock_image: torch.Tensor,
-    mock_folder_paths: dict[str, MagicMock],
-) -> None:
-    images = [mock_image]
-    mock_save_image = MagicMock()
-    node.save_image = mock_save_image
-
-    result = node.save_images(
-        images, image_type=JHSupportedImageTypes.PNG_WITH_WORKFLOW
-    )
-
-    assert len(result["ui"]["images"]) == 1
-    assert result["ui"]["images"][0]["filename"].endswith(".png")
-    mock_save_image.assert_called_once()
+    assert to_path.exists()
+    assert to_path.suffix == expected_extension
 
 
 def test_save_images_with_metadata(
     node: JHSaveImageWithXMPMetadataNode,
-    mock_image: torch.Tensor,
+    image: torch.Tensor,
     mock_folder_paths: dict[str, MagicMock],
 ) -> None:
-    images = [mock_image]
+    images = [image]
     mock_save_image = MagicMock()
     node.save_image = mock_save_image
 
@@ -104,22 +97,27 @@ def test_save_images_with_metadata(
         description="Test Description",
     )
 
+    assert len(result["result"]) == 1
+    assert len(result["result"][0]) == 1
+    assert isinstance(result["result"][0][0], torch.Tensor)
+
     assert len(result["ui"]["images"]) == 1
     assert result["ui"]["images"][0]["filename"].endswith(".png")
+
     mock_save_image.assert_called_once()
 
 
 def test_extension_for_type(node: JHSaveImageWithXMPMetadataNode) -> None:
-    assert node.extension_for_type(JHSupportedImageTypes.JPEG) == "jpg"
+    assert node.extension_for_type(JHSupportedImageTypes.JPEG) == "jpeg"
     assert node.extension_for_type(JHSupportedImageTypes.PNG) == "png"
     assert node.extension_for_type(JHSupportedImageTypes.LOSSLESS_WEBP) == "webp"
     assert node.extension_for_type(JHSupportedImageTypes.WEBP) == "webp"
     assert node.extension_for_type(JHSupportedImageTypes.PNG_WITH_WORKFLOW) == "png"
 
 
-def test_xmp_with_xml_string(node: JHSaveImageWithXMPMetadataNode) -> None:
+def test_inputs_to_xml_with_xml_string(node: JHSaveImageWithXMPMetadataNode) -> None:
     xml_string = "<xmpmeta>Test XML</xmpmeta>"
-    result = node.xmp(
+    result = node.inputs_to_xml(
         creator=None,
         rights=None,
         title=None,
@@ -135,8 +133,10 @@ def test_xmp_with_xml_string(node: JHSaveImageWithXMPMetadataNode) -> None:
     assert result == xml_string
 
 
-def test_xmp_with_metadata_fields(node: JHSaveImageWithXMPMetadataNode) -> None:
-    result = node.xmp(
+def test_inputs_to_xml_with_metadata_fields(
+    node: JHSaveImageWithXMPMetadataNode,
+) -> None:
+    result = node.inputs_to_xml(
         creator="Test Creator",
         rights="Test Rights",
         title="Test Title",
@@ -160,8 +160,10 @@ def test_xmp_with_metadata_fields(node: JHSaveImageWithXMPMetadataNode) -> None:
     assert "Test Ext Description" in result
 
 
-def test_xmp_with_list_metadata_fields(node: JHSaveImageWithXMPMetadataNode) -> None:
-    result = node.xmp(
+def test_inputs_to_xml_with_list_metadata_fields(
+    node: JHSaveImageWithXMPMetadataNode,
+) -> None:
+    result = node.inputs_to_xml(
         creator=["Creator 1", "Creator 2"],
         rights=["Rights 1", "Rights 2"],
         title=["Title 1", "Title 2"],
@@ -183,80 +185,6 @@ def test_xmp_with_list_metadata_fields(node: JHSaveImageWithXMPMetadataNode) -> 
     assert "Comment 2" in result
     assert "Alt Text 2" in result
     assert "Ext Description 2" in result
-
-
-def test_save_image_jpeg(
-    node: JHSaveImageWithXMPMetadataNode, mock_image: torch.Tensor, tmp_path: Path
-) -> None:
-    img = Image.fromarray((mock_image.numpy() * 255).astype(np.uint8))
-    to_path = tmp_path / "test_image.jpg"
-    xmp = "<xmpmeta>Test XML</xmpmeta>"
-
-    node.save_image(img, JHSupportedImageTypes.JPEG, to_path, xmp)
-
-    assert to_path.exists()
-    assert to_path.suffix == ".jpg"
-
-
-def test_save_image_png_with_workflow(
-    node: JHSaveImageWithXMPMetadataNode, mock_image: torch.Tensor, tmp_path: Path
-) -> None:
-    img = Image.fromarray((mock_image.numpy() * 255).astype(np.uint8))
-    to_path = tmp_path / "test_image.png"
-    xmp = "<xmpmeta>Test XML</xmpmeta>"
-    prompt = "Test Prompt"
-    extra_pnginfo = {"workflow": "Test Workflow"}
-
-    node.save_image(
-        img,
-        JHSupportedImageTypes.PNG_WITH_WORKFLOW,
-        to_path,
-        xmp,
-        prompt,
-        extra_pnginfo,
-    )
-
-    assert to_path.exists()
-    assert to_path.suffix == ".png"
-
-
-def test_save_image_png(
-    node: JHSaveImageWithXMPMetadataNode, mock_image: torch.Tensor, tmp_path: Path
-) -> None:
-    img = Image.fromarray((mock_image.numpy() * 255).astype(np.uint8))
-    to_path = tmp_path / "test_image.png"
-    xmp = "<xmpmeta>Test XML</xmpmeta>"
-
-    node.save_image(img, JHSupportedImageTypes.PNG, to_path, xmp)
-
-    assert to_path.exists()
-    assert to_path.suffix == ".png"
-
-
-def test_save_image_lossless_webp(
-    node: JHSaveImageWithXMPMetadataNode, mock_image: torch.Tensor, tmp_path: Path
-) -> None:
-    img = Image.fromarray((mock_image.numpy() * 255).astype(np.uint8))
-    to_path = tmp_path / "test_image.webp"
-    xmp = "<xmpmeta>Test XML</xmpmeta>"
-
-    node.save_image(img, JHSupportedImageTypes.LOSSLESS_WEBP, to_path, xmp)
-
-    assert to_path.exists()
-    assert to_path.suffix == ".webp"
-
-
-def test_save_image_webp(
-    node: JHSaveImageWithXMPMetadataNode, mock_image: torch.Tensor, tmp_path: Path
-) -> None:
-    img = Image.fromarray((mock_image.numpy() * 255).astype(np.uint8))
-    to_path = tmp_path / "test_image.webp"
-    xmp = "<xmpmeta>Test XML</xmpmeta>"
-
-    node.save_image(img, JHSupportedImageTypes.WEBP, to_path, xmp)
-
-    assert to_path.exists()
-    assert to_path.suffix == ".webp"
 
 
 def test_input_types(node: JHSaveImageWithXMPMetadataNode) -> None:

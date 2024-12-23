@@ -89,18 +89,22 @@ class JHXMPMetadata:
         # Set up the empty XMP metadata tree. We will add (and remove) elements
         # as needed.
         self._xmpmetadata = etree.Element(
-            "{adobe:ns:meta/}xmpmeta", nsmap=self.NAMESPACES
+            "{adobe:ns:meta/}xmpmeta", nsmap=self.NAMESPACES, attrib={}
         )
         self._xmpmetadata.set(
             "{adobe:ns:meta/}xmptk",
             "Adobe XMP Core 6.0-c002 79.164861, 2016/09/14-01:09:01",
         )
         self._rdf = etree.SubElement(
-            self._xmpmetadata, etree.QName(self.NAMESPACES["rdf"], "RDF")
+            self._xmpmetadata,
+            etree.QName(self.NAMESPACES["rdf"], "RDF"),
+            nsmap=self.NAMESPACES,
+            attrib={},
         )
         self._rdf_description = etree.SubElement(
             self._rdf,
             etree.QName(self.NAMESPACES["rdf"], "Description"),
+            nsmap=self.NAMESPACES,
             attrib={"{http://www.w3.org/1999/02/22-rdf-syntax-ns#}about": ""},
         )
         self._dc_creator_element = None
@@ -129,15 +133,20 @@ class JHXMPMetadata:
             self._dc_creator_element = etree.SubElement(
                 self._rdf_description,
                 etree.QName(self.NAMESPACES["dc"], "creator"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             _seq = etree.SubElement(
                 self._dc_creator_element,
                 etree.QName(self.NAMESPACES["rdf"], "Seq"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             for _creator in _creators:
                 _li = etree.SubElement(
                     _seq,
                     etree.QName(self.NAMESPACES["rdf"], "li"),
+                    nsmap=self.NAMESPACES,
                     attrib={etree.QName(self.NAMESPACES["xml"], "lang"): "x-default"},
                 )
                 _li.text = _creator
@@ -155,15 +164,21 @@ class JHXMPMetadata:
         else:
             self._rights = value
             self._dc_rights_element = etree.SubElement(
-                self._rdf_description, etree.QName(self.NAMESPACES["dc"], "rights")
+                self._rdf_description,
+                etree.QName(self.NAMESPACES["dc"], "rights"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             _alt = etree.SubElement(
                 self._dc_rights_element,
                 etree.QName(self.NAMESPACES["rdf"], "Alt"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             _li = etree.SubElement(
                 _alt,
                 etree.QName(self.NAMESPACES["rdf"], "li"),
+                nsmap=self.NAMESPACES,
                 attrib={etree.QName(self.NAMESPACES["xml"], "lang"): "x-default"},
             )
             _li.text = self._rights
@@ -181,15 +196,21 @@ class JHXMPMetadata:
         else:
             self._title = value
             self._dc_title_element = etree.SubElement(
-                self._rdf_description, etree.QName(self.NAMESPACES["dc"], "title")
+                self._rdf_description,
+                etree.QName(self.NAMESPACES["dc"], "title"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             _alt = etree.SubElement(
                 self._dc_title_element,
                 etree.QName(self.NAMESPACES["rdf"], "Alt"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             _li = etree.SubElement(
                 _alt,
                 etree.QName(self.NAMESPACES["rdf"], "li"),
+                nsmap=self.NAMESPACES,
                 attrib={etree.QName(self.NAMESPACES["xml"], "lang"): "x-default"},
             )
             _li.text = self._title
@@ -207,14 +228,21 @@ class JHXMPMetadata:
         else:
             self._description = value
             self._dc_description_element = etree.SubElement(
-                self._rdf_description, etree.QName(self.NAMESPACES["dc"], "description")
+                self._rdf_description,
+                etree.QName(self.NAMESPACES["dc"], "description"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             _alt = etree.SubElement(
-                self._dc_description_element, etree.QName(self.NAMESPACES["rdf"], "Alt")
+                self._dc_description_element,
+                etree.QName(self.NAMESPACES["rdf"], "Alt"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             _li = etree.SubElement(
                 _alt,
                 etree.QName(self.NAMESPACES["rdf"], "li"),
+                nsmap=self.NAMESPACES,
                 attrib={etree.QName(self.NAMESPACES["xml"], "lang"): "x-default"},
             )
             _li.text = self._description
@@ -233,15 +261,22 @@ class JHXMPMetadata:
             self._subject = value
             _subjects = self._string_to_list(self._subject)
             self._dc_subject_element = etree.SubElement(
-                self._rdf_description, etree.QName(self.NAMESPACES["dc"], "subject")
+                self._rdf_description,
+                etree.QName(self.NAMESPACES["dc"], "subject"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             _bag = etree.SubElement(
-                self._dc_subject_element, etree.QName(self.NAMESPACES["rdf"], "Bag")
+                self._dc_subject_element,
+                etree.QName(self.NAMESPACES["rdf"], "Bag"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             for _subject in _subjects:
                 _li = etree.SubElement(
                     _bag,
                     etree.QName(self.NAMESPACES["rdf"], "li"),
+                    nsmap=self.NAMESPACES,
                     attrib={etree.QName(self.NAMESPACES["xml"], "lang"): "x-default"},
                 )
                 _li.text = _subject
@@ -261,6 +296,8 @@ class JHXMPMetadata:
             self._photoshop_instructions_element = etree.SubElement(
                 self._rdf_description,
                 etree.QName(self.NAMESPACES["photoshop"], "Instructions"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             self._photoshop_instructions_element.text = self._instructions
 
@@ -279,14 +316,19 @@ class JHXMPMetadata:
             self._exif_usercomment_element = etree.SubElement(
                 self._rdf_description,
                 etree.QName(self.NAMESPACES["exif"], "UserComment"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             _alt = etree.SubElement(
                 self._exif_usercomment_element,
                 etree.QName(self.NAMESPACES["rdf"], "Alt"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             _li = etree.SubElement(
                 _alt,
                 etree.QName(self.NAMESPACES["rdf"], "li"),
+                nsmap=self.NAMESPACES,
                 attrib={etree.QName(self.NAMESPACES["xml"], "lang"): "x-default"},
             )
             _li.text = self._comment
@@ -306,6 +348,8 @@ class JHXMPMetadata:
             self._Iptc4xmpCore_alt_text_element = etree.SubElement(
                 self._rdf_description,
                 etree.QName(self.NAMESPACES["Iptc4xmpCore"], "AltTextAccessibility"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             self._Iptc4xmpCore_alt_text_element.text = self._alt_text
 
@@ -324,16 +368,16 @@ class JHXMPMetadata:
             self._Iptc4xmpCore_ext_description_element = etree.SubElement(
                 self._rdf_description,
                 etree.QName(self.NAMESPACES["Iptc4xmpCore"], "ExtDescrAccessibility"),
+                nsmap=self.NAMESPACES,
+                attrib={},
             )
             self._Iptc4xmpCore_ext_description_element.text = self._ext_description
 
     def _string_to_list(self, string: str) -> list[str]:
         return re.split(r"[;,]\s*", string)
 
-    def to_string(self, pretty_print: bool = True) -> str:
-        return etree.tostring(
-            self._xmpmetadata, pretty_print=pretty_print, encoding="UTF-8"
-        ).decode("utf-8")
+    def to_string(self) -> str:
+        return etree.tostring(self._xmpmetadata).decode("utf-8")
 
     def to_wrapped_string(self) -> str:
         return f"""<?xpacket begin="\ufeff" id="W5M0MpCehiHzreSzNTczkc9d"?>{self.to_string()}<?xpacket end="w"?>"""  # noqa: E501
@@ -343,7 +387,7 @@ class JHXMPMetadata:
         instance = cls()
 
         try:
-            root = etree.fromstring(xml_string)
+            root = etree.fromstring(xml_string, parser=etree.XMLParser())
         except etree.XMLSyntaxError:
             # raise ValueError("Invalid XML") from e
             # In case of invalid XML, return an empty instance

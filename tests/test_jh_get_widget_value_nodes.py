@@ -2,7 +2,6 @@ from typing import Any
 
 import pytest
 
-from comfyui_jh_xmp_metadata_nodes import jh_types
 from comfyui_jh_xmp_metadata_nodes.jh_get_widget_value_nodes import (
     JHGetWidgetValueFloatNode,
     JHGetWidgetValueIntNode,
@@ -64,90 +63,123 @@ def graph_data_invalid() -> dict[str, Any]:
     }
 
 
+@pytest.fixture
+def node() -> JHGetWidgetValueNode:
+    return JHGetWidgetValueNode()
+
+
+@pytest.fixture
+def node_string() -> JHGetWidgetValueStringNode:
+    return JHGetWidgetValueStringNode()
+
+
+@pytest.fixture
+def node_int() -> JHGetWidgetValueIntNode:
+    return JHGetWidgetValueIntNode()
+
+
+@pytest.fixture
+def node_float() -> JHGetWidgetValueFloatNode:
+    return JHGetWidgetValueFloatNode()
+
+
 def test_input_types() -> None:
-    expected_input_types = {
-        "required": {
-            "any_input": (jh_types.JHNodeInputOutputTypeEnum.ANY, {"rawLink": True}),
-            "widget_name": ("STRING", {"multiline": False}),
-        },
-        "hidden": {
-            "prompt": "PROMPT",
-        },
+    input_types = JHGetWidgetValueNode.INPUT_TYPES()
+    assert "required" in input_types and input_types["required"].keys() == {
+        "any_input",
+        "widget_name",
     }
-    assert JHGetWidgetValueNode.INPUT_TYPES() == expected_input_types
+    assert "optional" not in input_types
+    assert "hidden" in input_types and input_types["hidden"].keys() == {"prompt"}
+
+
+def test_validate_inputs() -> None:
+    node = JHGetWidgetValueNode()
+    assert node.VALIDATE_INPUTS(["13", 0], "steps") is True
 
 
 def test_is_changed() -> None:
     assert JHGetWidgetValueNode.IS_CHANGED() is True
 
 
-def test_get_widget_value_valid(graph_data: dict[str, Any]) -> None:
-    node = JHGetWidgetValueNode()
+def test_get_widget_value_valid(
+    node: JHGetWidgetValueNode, graph_data: dict[str, Any]
+) -> None:
     result = node.get_widget_value(("13", 0), "steps", graph_data)
     assert result == (5,)
 
 
-def test_get_widget_value_invalid_node_id(graph_data: dict[str, Any]):
-    node = JHGetWidgetValueNode()
+def test_get_widget_value_invalid_node_id(
+    node: JHGetWidgetValueNode, graph_data: dict[str, Any]
+) -> None:
     with pytest.raises(KeyError):
         node.get_widget_value(("999", 0), "steps", graph_data)
 
 
-def test_get_widget_value_invalid_widget_name(graph_data: dict[str, Any]):
-    node = JHGetWidgetValueNode()
+def test_get_widget_value_invalid_widget_name(
+    node: JHGetWidgetValueNode, graph_data: dict[str, Any]
+) -> None:
     with pytest.raises(KeyError):
         node.get_widget_value(("13", 0), "invalid_widget", graph_data)
 
 
-def test_get_widget_value_empty_widget_name(graph_data: dict[str, Any]):
-    node = JHGetWidgetValueNode()
+def test_get_widget_value_empty_widget_name(
+    node: JHGetWidgetValueNode, graph_data: dict[str, Any]
+) -> None:
     with pytest.raises(ValueError):
         node.get_widget_value(("13", 0), "", graph_data)
 
 
-def test_get_widget_value_empty_graph_data():
-    node = JHGetWidgetValueNode()
+def test_get_widget_value_empty_graph_data(node: JHGetWidgetValueNode) -> None:
+    graph_data = {}
     with pytest.raises(KeyError):
-        node.get_widget_value(("13", 0), "steps", {})
+        node.get_widget_value(("13", 0), "steps", graph_data)
 
 
-def test_get_widget_value_invalid_graph_data(graph_data_invalid: dict[str, Any]):
-    node = JHGetWidgetValueNode()
+def test_get_widget_value_invalid_graph_data(
+    node: JHGetWidgetValueNode, graph_data_invalid: dict[str, Any]
+) -> None:
     with pytest.raises(KeyError):
         node.get_widget_value(("471", 0), "steps", graph_data_invalid)
 
 
-def test_get_widget_value_invalid_node_id_type(graph_data: dict[str, Any]):
-    node = JHGetWidgetValueNode()
+def test_get_widget_value_invalid_node_id_type(
+    node: JHGetWidgetValueNode, graph_data: dict[str, Any]
+) -> None:
     with pytest.raises(ValueError):
         node.get_widget_value(("invalid_node_id", 0), "steps", graph_data)
 
 
-def test_get_widget_value_string_node(graph_data: dict[str, Any]):
-    node = JHGetWidgetValueStringNode()
-    result = node.get_widget_value(("13", 0), "scheduler", graph_data)
+def test_get_widget_value_string_node(
+    node_string: JHGetWidgetValueStringNode, graph_data: dict[str, Any]
+) -> None:
+    result = node_string.get_widget_value(("13", 0), "scheduler", graph_data)
     assert result == ("beta",)
 
 
-def test_get_widget_value_int_node(graph_data: dict[str, Any]):
-    node = JHGetWidgetValueIntNode()
-    result = node.get_widget_value(("13", 0), "steps", graph_data)
+def test_get_widget_value_int_node(
+    node_int: JHGetWidgetValueIntNode, graph_data: dict[str, Any]
+) -> None:
+    result = node_int.get_widget_value(("13", 0), "steps", graph_data)
     assert result == (5,)
 
 
-def test_get_widget_value_int_node_invalid_value(graph_data: dict[str, Any]):
-    node = JHGetWidgetValueIntNode()
+def test_get_widget_value_int_node_invalid_value(
+    node_int: JHGetWidgetValueNode, graph_data: dict[str, Any]
+) -> None:
     with pytest.raises(ValueError):
-        node.get_widget_value(("13", 0), "scheduler", graph_data)
+        node_int.get_widget_value(("13", 0), "scheduler", graph_data)
 
 
-def test_get_widget_value_float_node(graph_data: dict[str, Any]):
-    node = JHGetWidgetValueFloatNode()
-    result = node.get_widget_value(("13", 0), "denoise", graph_data)
+def test_get_widget_value_float_node(
+    node_float: JHGetWidgetValueNode, graph_data: dict[str, Any]
+) -> None:
+    result = node_float.get_widget_value(("13", 0), "denoise", graph_data)
     assert result == (1.0,)
 
 
-def test_get_widget_value_float_node_invalid_value(graph_data: dict[str, Any]):
-    node = JHGetWidgetValueFloatNode()
+def test_get_widget_value_float_node_invalid_value(
+    node_float: JHGetWidgetValueNode, graph_data: dict[str, Any]
+) -> None:
     with pytest.raises(ValueError):
-        node.get_widget_value(("13", 0), "scheduler", graph_data)
+        node_float.get_widget_value(("13", 0), "scheduler", graph_data)

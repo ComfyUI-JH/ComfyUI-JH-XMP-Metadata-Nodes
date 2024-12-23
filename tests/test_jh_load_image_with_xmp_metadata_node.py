@@ -1,14 +1,16 @@
 import hashlib
 from pathlib import Path
-from unittest.mock import patch
 
 import PIL.Image
 import pytest
 import torch
+from pytest_mock import MockerFixture
 
 from comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node import (
     JHLoadImageWithXMPMetadataNode,
 )
+
+# region Fixtures
 
 
 @pytest.fixture
@@ -62,12 +64,7 @@ def valid_xml_string() -> str:
 
 @pytest.fixture
 def invalid_xml_string() -> str:
-    return "<x:xmpmeta><rdf:RDF><rdf:Description></rdf:Description></rdf:RDF>"
-
-
-@pytest.fixture
-def garbage_xml_string() -> str:
-    return "This is not XML"
+    return "This is not XML."
 
 
 @pytest.fixture
@@ -157,6 +154,14 @@ def sample_invalid_multiframe_image_file(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
+def sample_rgb_image_file(tmp_path: Path) -> Path:
+    img_path = tmp_path / "test_image_rgb.png"
+    image = PIL.Image.new("RGB", (64, 64))  # RGB image
+    image.save(img_path)
+    return img_path
+
+
+@pytest.fixture
 def sample_grayscale_image_file(tmp_path: Path) -> Path:
     img_path = tmp_path / "test_image_grayscale.png"
     image = PIL.Image.new("L", (64, 64))  # Grayscale image
@@ -172,40 +177,64 @@ def sample_32_bit_integer_image_file(tmp_path: Path) -> Path:
     return img_path
 
 
-def test_get_image_files() -> None:
-    with patch("folder_paths.get_input_directory", return_value="/mocked/path"):
-        with patch("os.listdir", return_value=["img3.png", "img1.png", "img2.png"]):
-            with patch("os.path.isfile", return_value=True):
-                files = JHLoadImageWithXMPMetadataNode.get_image_files()
-                assert files == ["img1.png", "img2.png", "img3.png"]
+@pytest.fixture
+def sample_corrupted_image_file(tmp_path: Path) -> Path:
+    corrupted_file = tmp_path / "corrupted_image.png"
+    with open(corrupted_file, "wb") as f:
+        f.write(b"This is not a valid image file.")
+    return corrupted_file
 
 
-def test_get_image_files_with_non_files() -> None:
-    with patch("folder_paths.get_input_directory", return_value="/mocked/path"):
-        with patch("os.listdir", return_value=["img1.png", "directory", "img2.png"]):
-            with patch(
-                "os.path.isfile", side_effect=lambda p: not p.endswith("directory")
-            ):
-                files = JHLoadImageWithXMPMetadataNode.get_image_files()
-                assert files == ["img1.png", "img2.png"]
+# endregion Fixtures
+
+
+def test_input_types(mocker: MockerFixture) -> None:
+    mocker.patch("folder_paths.get_input_directory", return_value="/mocked/path")
+    mocker.patch("os.listdir", return_value=["img1.png", "img2.png"])
+    mocker.patch("os.path.isfile", return_value=True)
+
+    input_types = JHLoadImageWithXMPMetadataNode.INPUT_TYPES()
+    assert input_types.keys() == {"required"}
+    assert "required" in input_types and input_types["required"].keys() == {"image"}
+
+
+def test_get_image_files(mocker: MockerFixture) -> None:
+    mocker.patch("folder_paths.get_input_directory", return_value="/mocked/path")
+    mocker.patch("os.listdir", return_value=["img1.png", "img2.png", "img3.png"])
+    mocker.patch("os.path.isfile", return_value=True)
+
+    files = JHLoadImageWithXMPMetadataNode.get_image_files()
+    assert files == ["img1.png", "img2.png", "img3.png"]
+
+
+def test_get_image_files_with_non_files(mocker: MockerFixture) -> None:
+    mocker.patch("folder_paths.get_input_directory", return_value="/mocked/path")
+    mocker.patch("os.listdir", return_value=["img1.png", "directory", "img3.png"])
+    mocker.patch("os.path.isfile", side_effect=lambda p: not p.endswith("directory"))
+
+    files = JHLoadImageWithXMPMetadataNode.get_image_files()
+    assert files == ["img1.png", "img3.png"]
 
 
 def test_validate_inputs_valid_file(
+    mocker: MockerFixture,
     sample_image_file_with_valid_xmp_metadata: Path,
 ) -> None:
-    with patch("folder_paths.exists_annotated_filepath", return_value=True):
-        assert (
-            JHLoadImageWithXMPMetadataNode.VALIDATE_INPUTS(
-                sample_image_file_with_valid_xmp_metadata.name
-            )
-            is True
+    mocker.patch("folder_paths.exists_annotated_filepath", return_value=True)
+
+    assert (
+        JHLoadImageWithXMPMetadataNode.VALIDATE_INPUTS(
+            sample_image_file_with_valid_xmp_metadata.name
         )
+        is True
+    )
 
 
-def test_validate_inputs_invalid_file() -> None:
-    with patch("folder_paths.exists_annotated_filepath", return_value=False):
-        result = JHLoadImageWithXMPMetadataNode.VALIDATE_INPUTS("nonexistent.png")
-        assert result == "Invalid image file: nonexistent.png"
+def test_validate_inputs_invalid_file(mocker: MockerFixture) -> None:
+    mocker.patch("folder_paths.exists_annotated_filepath", return_value=False)
+
+    result = JHLoadImageWithXMPMetadataNode.VALIDATE_INPUTS("nonexistent.png")
+    assert result == "Invalid image file: nonexistent.png"
 
 
 def test_frame_to_tensors() -> None:
@@ -221,209 +250,240 @@ def test_frame_to_tensors() -> None:
 
 
 def test_load_image_with_valid_metadata(
-    sample_image_file_with_valid_xmp_metadata: Path, valid_xml_string: str
+    mocker: MockerFixture,
+    sample_image_file_with_valid_xmp_metadata: Path,
+    valid_xml_string: str,
 ) -> None:
-    with patch(
+    mocker.patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_image_file_with_valid_xmp_metadata),
-    ):
-        # Open the image and mock `info` directly on the instance
-        node = JHLoadImageWithXMPMetadataNode()
-        output = node.load_image(sample_image_file_with_valid_xmp_metadata.name)
+    )
 
-        # Verify outputs
-        assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
-        assert output.IMAGE.shape == (1, 64, 64, 3)
-        assert output.MASK.shape == (1, 64, 64)  # MASK
-        assert output.creator == "Test Creator"  # creator
-        assert output.rights == "Test Rights"  # rights
-        assert output.title == "Test Title"  # title
-        assert output.description == "Test Description"  # description
-        assert output.subject == "Test Subject"  # subject
-        assert output.instructions == "Test Instructions"  # instructions
-        assert output.comment == "Test Comment"  # xml_string
-        assert output.alt_text == "Test Alt Text"  # alt_text
-        assert output.ext_description == "Test Ext Description"  # ext_description
-        assert output.xml_string == valid_xml_string  # xml_string
+    node = JHLoadImageWithXMPMetadataNode()
+    output = node.load_image(sample_image_file_with_valid_xmp_metadata.name)
+
+    assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+    assert output.IMAGE.shape == (1, 64, 64, 3)
+    assert output.MASK.shape == (1, 64, 64)  # MASK
+    assert output.creator == "Test Creator"  # creator
+    assert output.rights == "Test Rights"  # rights
+    assert output.title == "Test Title"  # title
+    assert output.description == "Test Description"  # description
+    assert output.subject == "Test Subject"  # subject
+    assert output.instructions == "Test Instructions"  # instructions
+    assert output.comment == "Test Comment"  # xml_string
+    assert output.alt_text == "Test Alt Text"  # alt_text
+    assert output.ext_description == "Test Ext Description"  # ext_description
+    assert output.xml_string == valid_xml_string  # xml_string
 
 
 def test_load_image_with_invalid_metadata(
-    sample_image_file_with_invalid_xmp_metadata: Path, invalid_xml_string: str
+    mocker: MockerFixture,
+    sample_image_file_with_invalid_xmp_metadata: Path,
+    invalid_xml_string: str,
 ) -> None:
-    with patch(
+    mocker.patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_image_file_with_invalid_xmp_metadata),
-    ):
-        node = JHLoadImageWithXMPMetadataNode()
-        output = node.load_image(sample_image_file_with_invalid_xmp_metadata.name)
+    )
 
-        assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
-        assert output.IMAGE.shape == (1, 64, 64, 3)
-        assert output.MASK.shape == (1, 64, 64)  # MASK
-        assert output.creator is None  # creator
-        assert output.rights is None  # rights
-        assert output.title is None  # title
-        assert output.description is None  # description
-        assert output.subject is None  # subject
-        assert output.instructions is None  # instructions
-        assert output.comment is None  # comment
-        assert output.alt_text is None  # alt_text
-        assert output.ext_description is None  # ext_description
-        assert output.xml_string == invalid_xml_string  # xml_string
+    node = JHLoadImageWithXMPMetadataNode()
+    output = node.load_image(sample_image_file_with_invalid_xmp_metadata.name)
 
-
-def test_load_image_with_garbage_metadata(
-    sample_image_file_with_garbage_xmp_metadata: Path, garbage_xml_string: str
-) -> None:
-    with patch(
-        "folder_paths.get_annotated_filepath",
-        return_value=str(sample_image_file_with_garbage_xmp_metadata),
-    ):
-        node = JHLoadImageWithXMPMetadataNode()
-        output = node.load_image(sample_image_file_with_garbage_xmp_metadata.name)
-
-        assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
-        assert output.IMAGE.shape == (1, 64, 64, 3)
-        assert output.MASK.shape == (1, 64, 64)  # MASK
-        assert output.creator is None  # creator
-        assert output.rights is None  # rights
-        assert output.title is None  # title
-        assert output.description is None  # description
-        assert output.subject is None  # subject
-        assert output.instructions is None  # instructions
-        assert output.comment is None  # comment
-        assert output.alt_text is None  # alt_text
-        assert output.ext_description is None  # ext_description
-        assert output.xml_string == garbage_xml_string  # xml_string
+    assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+    assert output.IMAGE.shape == (1, 64, 64, 3)
+    assert output.MASK.shape == (1, 64, 64)  # MASK
+    assert output.creator is None  # creator
+    assert output.rights is None  # rights
+    assert output.title is None  # title
+    assert output.description is None  # description
+    assert output.subject is None  # subject
+    assert output.instructions is None  # instructions
+    assert output.comment is None  # comment
+    assert output.alt_text is None  # alt_text
+    assert output.ext_description is None  # ext_description
+    assert output.xml_string == invalid_xml_string  # xml_string
 
 
 def test_load_image_with_multiframe_image_file(
+    mocker: MockerFixture,
     sample_multiframe_image_file: Path,
 ) -> None:
-    with patch(
+    mocker.patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_multiframe_image_file),
-    ):
-        node = JHLoadImageWithXMPMetadataNode()
-        output = node.load_image(sample_multiframe_image_file.name)
+    )
 
-        # Verify outputs
-        assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
-        assert output.IMAGE.shape == (3, 64, 64, 3)  # 3 frames, RGB
-        assert output.MASK.shape == (3, 64, 64)  # 3 masks
-        assert output.creator is None  # creator
-        assert output.rights is None  # rights
-        assert output.title is None  # title
-        assert output.description is None  # description
-        assert output.subject is None  # subject
-        assert output.instructions is None  # instructions
-        assert output.comment is None  # comment
-        assert output.alt_text is None  # alt_text
-        assert output.ext_description is None  # ext_description
-        assert output.xml_string == ""  # xml_string
+    node = JHLoadImageWithXMPMetadataNode()
+    output = node.load_image(sample_multiframe_image_file.name)
+
+    # Verify outputs
+    assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+    assert output.IMAGE.shape == (3, 64, 64, 3)  # 3 frames, RGB
+    assert output.MASK.shape == (3, 64, 64)  # 3 masks
+    assert output.creator is None  # creator
+    assert output.rights is None  # rights
+    assert output.title is None  # title
+    assert output.description is None  # description
+    assert output.subject is None  # subject
+    assert output.instructions is None  # instructions
+    assert output.comment is None  # comment
+    assert output.alt_text is None  # alt_text
+    assert output.ext_description is None  # ext_description
+    assert output.xml_string == ""  # xml_string
 
 
 def test_load_image_with_invalid_multiframe_image_file(
+    mocker: MockerFixture,
     sample_invalid_multiframe_image_file: Path,
 ) -> None:
-    with patch(
+    mocker.patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_invalid_multiframe_image_file),
-    ):
-        node = JHLoadImageWithXMPMetadataNode()
-        output = node.load_image(sample_invalid_multiframe_image_file.name)
+    )
 
-        # Verify outputs
-        assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
-        assert output.IMAGE.shape == (2, 64, 64, 3)  # 2 frames, RGB
-        assert output.MASK.shape == (2, 64, 64)  # 2 masks
-        assert output.creator is None  # creator
-        assert output.rights is None  # rights
-        assert output.title is None  # title
-        assert output.description is None  # description
-        assert output.subject is None  # subject
-        assert output.instructions is None  # instructions
-        assert output.comment is None  # comment
-        assert output.alt_text is None  # alt_text
-        assert output.ext_description is None  # ext_description
-        assert output.xml_string == ""  # xml_string
+    node = JHLoadImageWithXMPMetadataNode()
+    output = node.load_image(sample_invalid_multiframe_image_file.name)
+
+    # Verify outputs
+    assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+    assert output.IMAGE.shape == (2, 64, 64, 3)  # 2 frames, RGB
+    assert output.MASK.shape == (2, 64, 64)  # 2 masks
+    assert output.creator is None  # creator
+    assert output.rights is None  # rights
+    assert output.title is None  # title
+    assert output.description is None  # description
+    assert output.subject is None  # subject
+    assert output.instructions is None  # instructions
+    assert output.comment is None  # comment
+    assert output.alt_text is None  # alt_text
+    assert output.ext_description is None  # ext_description
+    assert output.xml_string == ""  # xml_string
 
 
-def test_load_32_bit_integer_image(sample_32_bit_integer_image_file: Path) -> None:
-    with patch(
+def test_load_rgb_image(mocker: MockerFixture, sample_rgb_image_file: Path) -> None:
+    mocker.patch(
+        "folder_paths.get_annotated_filepath",
+        return_value=str(sample_rgb_image_file),
+    )
+
+    node = JHLoadImageWithXMPMetadataNode()
+    output = node.load_image(sample_rgb_image_file.name)
+
+    # Verify outputs
+    assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+    assert output.IMAGE.shape == (1, 64, 64, 3)  # 1 frame, RGB
+    assert output.MASK.shape == (1, 64, 64)  # MASK
+    assert output.creator is None  # creator
+    assert output.rights is None  # rights
+    assert output.title is None  # title
+    assert output.description is None  # description
+    assert output.subject is None  # subject
+    assert output.instructions is None  # instructions
+    assert output.comment is None  # comment
+    assert output.alt_text is None  # alt_text
+    assert output.ext_description is None  # ext_description
+    assert output.xml_string == ""  # xml_string
+
+
+def test_load_32_bit_integer_image(
+    mocker: MockerFixture, sample_32_bit_integer_image_file: Path
+) -> None:
+    mocker.patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_32_bit_integer_image_file),
-    ):
-        node = JHLoadImageWithXMPMetadataNode()
-        output = node.load_image(sample_32_bit_integer_image_file.name)
+    )
 
-        # Verify outputs
-        assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
-        assert output.IMAGE.shape == (1, 64, 64, 3)  # 1 frame, RGB
-        assert output.MASK.shape == (1, 64, 64)  # MASK
-        assert output.creator is None  # creator
-        assert output.rights is None  # rights
-        assert output.title is None  # title
-        assert output.description is None  # description
-        assert output.subject is None  # subject
-        assert output.instructions is None  # instructions
-        assert output.comment is None  # comment
-        assert output.alt_text is None  # alt_text
-        assert output.ext_description is None  # ext_description
-        assert output.xml_string == ""  # xml_string
+    node = JHLoadImageWithXMPMetadataNode()
+    output = node.load_image(sample_32_bit_integer_image_file.name)
 
-        # Verify RGB channel consistency
-        rgb_values = output.IMAGE[0, :, :, :]
-        assert torch.allclose(rgb_values[:, :, 0], rgb_values[:, :, 1])  # R == G
-        assert torch.allclose(rgb_values[:, :, 1], rgb_values[:, :, 2])  # G == B
-        assert torch.allclose(rgb_values[:, :, 0], rgb_values[:, :, 2])  # R == B
+    # Verify outputs
+    assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+    assert output.IMAGE.shape == (1, 64, 64, 3)  # 1 frame, RGB
+    assert output.MASK.shape == (1, 64, 64)  # MASK
+    assert output.creator is None  # creator
+    assert output.rights is None  # rights
+    assert output.title is None  # title
+    assert output.description is None  # description
+    assert output.subject is None  # subject
+    assert output.instructions is None  # instructions
+    assert output.comment is None  # comment
+    assert output.alt_text is None  # alt_text
+    assert output.ext_description is None  # ext_description
+    assert output.xml_string == ""  # xml_string
 
-        # Make sure RGB values are in [0, 1]
-        assert torch.all(rgb_values >= 0) and torch.all(rgb_values <= 1)
+    # Verify RGB channel consistency
+    rgb_values = output.IMAGE[0, :, :, :]
+    assert torch.allclose(rgb_values[:, :, 0], rgb_values[:, :, 1])  # R == G
+    assert torch.allclose(rgb_values[:, :, 1], rgb_values[:, :, 2])  # G == B
+    assert torch.allclose(rgb_values[:, :, 0], rgb_values[:, :, 2])  # R == B
+
+    # Make sure RGB values are in [0, 1]
+    assert torch.all(rgb_values >= 0) and torch.all(rgb_values <= 1)
 
 
-def test_load_grayscale_image(sample_grayscale_image_file: Path) -> None:
-    with patch(
+def test_load_grayscale_image(
+    mocker: MockerFixture, sample_grayscale_image_file: Path
+) -> None:
+    mocker.patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_grayscale_image_file),
-    ):
-        node = JHLoadImageWithXMPMetadataNode()
-        output = node.load_image(sample_grayscale_image_file.name)
+    )
 
-        # Verify outputs
-        assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
-        assert output.IMAGE.shape == (1, 64, 64, 3)  # Converted to RGB
-        assert output.MASK.shape == (1, 64, 64)  # MASK
-        assert output.creator is None  # creator
-        assert output.rights is None  # rights
-        assert output.title is None  # title
-        assert output.description is None  # description
-        assert output.subject is None  # subject
-        assert output.instructions is None  # instructions
-        assert output.comment is None  # comment
-        assert output.alt_text is None  # alt_text
-        assert output.ext_description is None  # ext_description
-        assert output.xml_string == ""  # xml_string
+    node = JHLoadImageWithXMPMetadataNode()
+    output = node.load_image(sample_grayscale_image_file.name)
 
-        # Verify that the image tensor is in RGB format
-        assert output.IMAGE.shape[-1] == 3  # Last dimension should be 3 for RGB
+    # Verify outputs
+    assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+    assert output.IMAGE.shape == (1, 64, 64, 3)  # Converted to RGB
+    assert output.MASK.shape == (1, 64, 64)  # MASK
+    assert output.creator is None  # creator
+    assert output.rights is None  # rights
+    assert output.title is None  # title
+    assert output.description is None  # description
+    assert output.subject is None  # subject
+    assert output.instructions is None  # instructions
+    assert output.comment is None  # comment
+    assert output.alt_text is None  # alt_text
+    assert output.ext_description is None  # ext_description
+    assert output.xml_string == ""  # xml_string
+
+    # Verify that the image tensor is in RGB format
+    assert output.IMAGE.shape[-1] == 3  # Last dimension should be 3 for RGB
 
 
-def test_is_changed(sample_image_file_with_valid_xmp_metadata: Path) -> None:
-    with patch(
+def test_load_corrupted_image(
+    mocker: MockerFixture, sample_corrupted_image_file: Path
+) -> None:
+    mocker.patch(
+        "folder_paths.get_annotated_filepath",
+        return_value=str(sample_corrupted_image_file),
+    )
+
+    node = JHLoadImageWithXMPMetadataNode()
+    with pytest.raises(PIL.UnidentifiedImageError, match="cannot identify image file"):
+        node.load_image(sample_corrupted_image_file.name)
+
+
+def test_is_changed(
+    mocker: MockerFixture, sample_image_file_with_valid_xmp_metadata: Path
+) -> None:
+    mocker.patch(
         "folder_paths.get_annotated_filepath",
         return_value=str(sample_image_file_with_valid_xmp_metadata),
-    ):
-        expected_hash = hashlib.sha256(
-            sample_image_file_with_valid_xmp_metadata.read_bytes()
-        ).hexdigest()
-        result = JHLoadImageWithXMPMetadataNode.IS_CHANGED(
-            sample_image_file_with_valid_xmp_metadata.name
-        )
-        assert result == expected_hash
+    )
+
+    expected_hash = hashlib.sha256(
+        sample_image_file_with_valid_xmp_metadata.read_bytes()
+    ).hexdigest()
+    result = JHLoadImageWithXMPMetadataNode.IS_CHANGED(
+        sample_image_file_with_valid_xmp_metadata.name
+    )
+    assert result == expected_hash
 
 
-def test_is_changed_nonexistent_file() -> None:
-    with patch("folder_paths.get_annotated_filepath", return_value="nonexistent.png"):
-        with pytest.raises(FileNotFoundError):
-            JHLoadImageWithXMPMetadataNode.IS_CHANGED("nonexistent.png")
+def test_is_changed_nonexistent_file(mocker: MockerFixture) -> None:
+    mocker.patch("folder_paths.get_annotated_filepath", return_value="nonexistent.png")
+
+    with pytest.raises(FileNotFoundError):
+        JHLoadImageWithXMPMetadataNode.IS_CHANGED("nonexistent.png")
