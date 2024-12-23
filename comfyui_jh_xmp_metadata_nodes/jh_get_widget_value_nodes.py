@@ -1,23 +1,9 @@
-from typing import Any, Literal
+from typing import Any
 
 from comfyui_jh_xmp_metadata_nodes import jh_types
 
 
 class JHGetWidgetValueNode:
-    @classmethod
-    def IS_CHANGED(
-        cls,
-        *args: tuple[Any],
-        **kwargs: dict[str, Any],
-    ) -> Literal[True]:
-        return True
-
-    @classmethod
-    def VALIDATE_INPUTS(
-        cls, any_input: list[str | int], widget_name: str
-    ) -> Literal[True]:
-        return True
-
     @classmethod
     def INPUT_TYPES(cls) -> jh_types.JHInputTypesType:
         # fmt: off
