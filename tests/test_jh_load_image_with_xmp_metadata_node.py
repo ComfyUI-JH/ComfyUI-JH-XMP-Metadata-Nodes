@@ -154,6 +154,14 @@ def sample_invalid_multiframe_image_file(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
+def sample_rgb_image_file(tmp_path: Path) -> Path:
+    img_path = tmp_path / "test_image_rgb.png"
+    image = PIL.Image.new("RGB", (64, 64))  # RGB image
+    image.save(img_path)
+    return img_path
+
+
+@pytest.fixture
 def sample_grayscale_image_file(tmp_path: Path) -> Path:
     img_path = tmp_path / "test_image_grayscale.png"
     image = PIL.Image.new("L", (64, 64))  # Grayscale image
@@ -341,6 +349,31 @@ def test_load_image_with_invalid_multiframe_image_file(
     assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
     assert output.IMAGE.shape == (2, 64, 64, 3)  # 2 frames, RGB
     assert output.MASK.shape == (2, 64, 64)  # 2 masks
+    assert output.creator is None  # creator
+    assert output.rights is None  # rights
+    assert output.title is None  # title
+    assert output.description is None  # description
+    assert output.subject is None  # subject
+    assert output.instructions is None  # instructions
+    assert output.comment is None  # comment
+    assert output.alt_text is None  # alt_text
+    assert output.ext_description is None  # ext_description
+    assert output.xml_string == ""  # xml_string
+
+
+def test_load_rgb_image(mocker: MockerFixture, sample_rgb_image_file: Path) -> None:
+    mocker.patch(
+        "folder_paths.get_annotated_filepath",
+        return_value=str(sample_rgb_image_file),
+    )
+
+    node = JHLoadImageWithXMPMetadataNode()
+    output = node.load_image(sample_rgb_image_file.name)
+
+    # Verify outputs
+    assert isinstance(output.IMAGE, torch.Tensor)  # IMAGE
+    assert output.IMAGE.shape == (1, 64, 64, 3)  # 1 frame, RGB
+    assert output.MASK.shape == (1, 64, 64)  # MASK
     assert output.creator is None  # creator
     assert output.rights is None  # rights
     assert output.title is None  # title
