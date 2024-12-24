@@ -104,65 +104,55 @@ The following metadata properties are currently supported:
 
 # Nodes
 
-<details>
-    <summary>Load Image With XMP Metadata</summary>
-    <div align="center">
-        <br />
-        <img width="1128" alt="image" src="https://github.com/user-attachments/assets/8ce6fbf8-7d35-4041-9e22-2841fb1d1239" align="middle" />
-    </div>
-    <br />
+## Load Image With XMP Metadata
+
+<div align="center">
+    <img width="1128" alt="image" src="https://github.com/user-attachments/assets/8ce6fbf8-7d35-4041-9e22-2841fb1d1239" align="middle" />
+</div>
+
+<br />
 
 Just like the built-in **Load Image** node except if XMP metadata is embedded in the image it will be parsed and made available on the node's outputs. The **xml_string** output carries the entire XML data structure including metadata which is not specifically supported by this package.
 
-</details>
+## Save Image With XMP Metadata
 
-<details>
-    <summary>Save Image With XMP Metadata</summary>
-    <div align="center">
-        <br />
-        <img width="559" alt="image" src="https://github.com/user-attachments/assets/09934810-bdda-4333-9fcd-340f415222c3" align="middle" />
-    </div>
-    <br />
+<div align="center">
+    <img width="559" alt="image" src="https://github.com/user-attachments/assets/09934810-bdda-4333-9fcd-340f415222c3" align="middle" />
+</div>
+
+<br />
 
 Saves any images piped into it with embedded XMP metadata. All inputs (except **images**) are optional. Can save in a variety of file formats: JPEG, PNG (with and without embedding the ComfyUI workflow), WebP (lossy and lossless).
 
-</details>
+## Get Widget Value
 
-<details>
-    <summary>Get Widget Value</summary>
-    <div align="center">
-        <br />
-        <img width="1035" alt="image" src="https://github.com/user-attachments/assets/f77b5747-3270-4007-b569-f77c81e01311" align="middle" />
-    </div>
-    <br />
+<div align="center">
+    <img width="1035" alt="image" src="https://github.com/user-attachments/assets/f77b5747-3270-4007-b569-f77c81e01311" align="middle" />
+</div>
+
+<br />
 
 Can be used to get the **string**, **int** or **float** value of any widget on any node. Simply pipe the node into this node's input and type in the name of the widget you want the value of.
 
-</details>
+## Path to Stem
 
-<details>
-    <summary>Path to Stem</summary>
-    <div align="center">
-        <br />
-        <img width="1281" alt="image" src="https://github.com/user-attachments/assets/9541de76-2b1b-41af-820c-ab535404fd63" align="middle" />
-    </div>
-    <br />
+<div align="center">
+    <img width="1281" alt="image" src="https://github.com/user-attachments/assets/9541de76-2b1b-41af-820c-ab535404fd63" align="middle" />
+</div>
+
+<br />
 
 Given a path string (absolute or relative), this node returns the "stem," meaning the filename alone minus any extension.
 
-</details>
+## Format Metadata
 
-<details>
-    <summary>Format Metadata</summary>
-    <div align="center">
-        <br />
-        <img width="633" alt="image" src="https://github.com/user-attachments/assets/5be86083-6c3d-48f6-a0b5-60d45202af3c" />
-    </div>
-    <br />
+<div align="center">
+    <img width="633" alt="image" src="https://github.com/user-attachments/assets/5be86083-6c3d-48f6-a0b5-60d45202af3c" />
+</div>
+
+<br />
 
 This utility node takes common workflow inputs (prompt, model_name, seed, etc.) and allows you to construct a string that can subsequently be piped into a **Save Image With XMP Metadata** node input to embed metadata however you choose.
-
-</details>
 
 # Credits
 
