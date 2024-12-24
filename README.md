@@ -107,7 +107,7 @@ The following metadata properties are currently supported:
 ## Load Image With XMP Metadata
 
 <div align="center">
-    <img width="1128" alt="image" src="https://github.com/user-attachments/assets/8ce6fbf8-7d35-4041-9e22-2841fb1d1239" align="middle" />
+    <img width="1333" alt="image" src="https://github.com/user-attachments/assets/25998b31-366e-4255-80f0-a5b94edb4e41" align="middle" />
 </div>
 
 <br />
@@ -117,7 +117,7 @@ Just like the built-in **Load Image** node except if XMP metadata is embedded in
 ## Save Image With XMP Metadata
 
 <div align="center">
-    <img width="559" alt="image" src="https://github.com/user-attachments/assets/09934810-bdda-4333-9fcd-340f415222c3" align="middle" />
+    <img width="500" alt="image" src="https://github.com/user-attachments/assets/b30e9591-44c6-4e47-8e0e-9f65d392e7e9" align="middle" />
 </div>
 
 <br />
@@ -127,7 +127,7 @@ Saves any images piped into it with embedded XMP metadata. All inputs (except **
 ## Get Widget Value
 
 <div align="center">
-    <img width="1035" alt="image" src="https://github.com/user-attachments/assets/f77b5747-3270-4007-b569-f77c81e01311" align="middle" />
+    <img width="1017" alt="image" src="https://github.com/user-attachments/assets/2369d34c-62c3-4bab-9b4b-9abf75aaa0b5" align="middle" />
 </div>
 
 <br />
@@ -137,7 +137,7 @@ Can be used to get the **string**, **int** or **float** value of any widget on a
 ## Path to Stem
 
 <div align="center">
-    <img width="1281" alt="image" src="https://github.com/user-attachments/assets/9541de76-2b1b-41af-820c-ab535404fd63" align="middle" />
+    <img width="1309" alt="image" src="https://github.com/user-attachments/assets/082f265d-898c-4437-a20f-9d3f5057a3cb" align="middle" />
 </div>
 
 <br />
@@ -147,7 +147,7 @@ Given a path string (absolute or relative), this node returns the "stem," meanin
 ## Format Metadata
 
 <div align="center">
-    <img width="633" alt="image" src="https://github.com/user-attachments/assets/5be86083-6c3d-48f6-a0b5-60d45202af3c" />
+    <img width="400" alt="image" src="https://github.com/user-attachments/assets/66065daf-3ba4-42b6-b0fa-72673d16aa25" align="middle" />
 </div>
 
 <br />
