@@ -33,7 +33,7 @@ When XMP metadata is present in a file, both macOS and Windows index it automati
 
 <div align="center">
     <img width="250" alt="image" src="https://github.com/user-attachments/assets/7d7e5c93-fe33-409e-86fa-0a565bfdd6f1" align="middle" />
-    &emsp;&emsp;&emsp;&emsp;&emsp;
+    &emsp;
     <img width="450" alt="image" src="https://github.com/user-attachments/assets/9effa555-1ddd-49c9-9459-53ceccdd9fef" align="middle"/>
 </div>
 
@@ -41,7 +41,7 @@ When XMP metadata is present in a file, both macOS and Windows index it automati
 
 <div align="center">
     <img width="250" alt="image" src="https://github.com/user-attachments/assets/46e429a8-4918-416a-98a7-cebf000b0756" align="middle" />
-    &emsp;&emsp;&emsp;&emsp;&emsp;
+    &emsp;
     <img width="400" src="https://github.com/user-attachments/assets/664917ff-b87e-4a0c-8685-4e65c9299dad" align="middle" />
 </div>
 
@@ -53,7 +53,7 @@ Apps like Photoshop and Lightroom expose XMP metadata and allow it to be edited.
 
 <div align="center">
     <img width="400" alt="image" src="https://github.com/user-attachments/assets/3af31cad-9fca-4de4-97fe-f9c28cf65289" align="middle" />
-    &emsp;&emsp;&emsp;&emsp;&emsp;
+    &emsp;
     <img width="244" alt="image" src="https://github.com/user-attachments/assets/cdb8f93a-8c30-4f32-9f2a-242bdcf42f62" align="middle" />
 </div>
 
