@@ -27,7 +27,7 @@
 
 Custom nodes for loading and saving images with embedded XMP metadata (https://www.adobe.com/products/xmp.html).
 
-When XMP metadata is present in a file, both macOS and Windows index it automatically, making it searchable from the Finder on the Mac or the File Explorer in Windows.
+When I generate tens or hundreds of images from ComfyUI they all go into a folder and get forgotten because I have no practical way to find them again. Embedded metadata solves this problem. When metadata is present in a file, both macOS and Windows index it automatically, making it searchable from the Finder on the Mac or the File Explorer in Windows.
 
 <br />
 
@@ -47,7 +47,7 @@ When XMP metadata is present in a file, both macOS and Windows index it automati
 
 <br />
 
-Apps like Photoshop and Lightroom expose XMP metadata and allow it to be edited.
+Apps like Photoshop and Lightroom expose XMP metadata and allow it to be viewed or edited.
 
 <br />
 
