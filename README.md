@@ -25,47 +25,39 @@
 
 # JH XMP Metadata Nodes
 
-These are custom nodes for ComfyUI for the loading and saving of metadata in XMP format. XMP metadata is embedded in the images created by these nodes; it travels along wherever the image does. Both macOS and Windows index XMP metadata automatically, making it searchable from the Finder on the Mac or the File Explorer in Windows. Apps like Photoshop or Lightroom (and presumably many others) expose XMP metadata and allow it to be edited.
+Custom nodes for loading and saving images with embedded XMP metadata (https://www.adobe.com/products/xmp.html).
 
-<details>
-    <summary>macOS</summary>
-    <br />
-    <div align="center">
-        <img width="250" alt="image" src="https://github.com/user-attachments/assets/7d7e5c93-fe33-409e-86fa-0a565bfdd6f1" align="middle" />
-        &emsp;
-        <img width="450" alt="image" src="https://github.com/user-attachments/assets/9effa555-1ddd-49c9-9459-53ceccdd9fef" align="middle"/>
-    </div>
-    <br />
-</details>
+When XMP metadata is present in a file, both macOS and Windows index it automatically, making it searchable from the Finder on the Mac or the File Explorer in Windows.
 
-<details>
-    <summary>Windows</summary>
-    <br />
-    <div align="center">
-        <img width="250" alt="image" src="https://github.com/user-attachments/assets/46e429a8-4918-416a-98a7-cebf000b0756" align="middle" />
-        &emsp;
-        <img width="400" src="https://github.com/user-attachments/assets/664917ff-b87e-4a0c-8685-4e65c9299dad" align="middle" />
-    </div>
-    <br />
-</details>
+<br />
 
-<details>
-    <summary>Photoshop</summary>
-    <br />
-    <div align="center">
-        <img width="400" alt="image" src="https://github.com/user-attachments/assets/3af31cad-9fca-4de4-97fe-f9c28cf65289" align="middle" />
-    </div>
-    <br />
-</details>
+<div align="center">
+    <img width="250" alt="image" src="https://github.com/user-attachments/assets/7d7e5c93-fe33-409e-86fa-0a565bfdd6f1" align="middle" />
+    &emsp;&emsp;&emsp;&emsp;&emsp;
+    <img width="450" alt="image" src="https://github.com/user-attachments/assets/9effa555-1ddd-49c9-9459-53ceccdd9fef" align="middle"/>
+</div>
 
-<details>
-    <summary>Lightroom</summary>
-    <br />
-    <div align="center">
-        <img width="264" alt="image" src="https://github.com/user-attachments/assets/a2e15b24-2665-42a7-9697-56653ec5eebc" />
-    </div>
-    <br />
-</details>
+<br />
+
+<div align="center">
+    <img width="250" alt="image" src="https://github.com/user-attachments/assets/46e429a8-4918-416a-98a7-cebf000b0756" align="middle" />
+    &emsp;&emsp;&emsp;&emsp;&emsp;
+    <img width="400" src="https://github.com/user-attachments/assets/664917ff-b87e-4a0c-8685-4e65c9299dad" align="middle" />
+</div>
+
+<br />
+
+Apps like Photoshop and Lightroom expose XMP metadata and allow it to be edited.
+
+<br />
+
+<div align="center">
+    <img width="400" alt="image" src="https://github.com/user-attachments/assets/3af31cad-9fca-4de4-97fe-f9c28cf65289" align="middle" />
+    &emsp;&emsp;&emsp;&emsp;&emsp;
+    <img width="244" alt="image" src="https://github.com/user-attachments/assets/cdb8f93a-8c30-4f32-9f2a-242bdcf42f62" align="middle" />
+</div>
+
+<br />
 
 ## Supported Properties
 
@@ -82,8 +74,6 @@ The following metadata properties are currently supported:
 | exif:UserComment | Any user-provided comment about the image. |
 | Iptc4xmpCore:AltTextAccessibility | Alt. text that can (in principle) be used by assistive technologies. |
 | Iptc4xmpCore:ExtDescrAccessibility | A longer, more detailed elaboration of the Iptc4xmpCore:AltTextAccessibility property |
-
-For more information about XMP, see https://www.adobe.com/products/xmp.html.
 
 # Getting Started
 
