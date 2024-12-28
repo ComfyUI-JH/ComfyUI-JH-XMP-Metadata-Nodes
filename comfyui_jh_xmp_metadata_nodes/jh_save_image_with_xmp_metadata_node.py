@@ -2,8 +2,13 @@ import json
 from enum import StrEnum
 from pathlib import Path
 from typing import Any
+from unittest.mock import MagicMock
 
-import folder_paths  # pyright: ignore[reportMissingImports]
+try:
+    import folder_paths  # pyright: ignore[reportMissingImports]
+except ImportError:
+    folder_paths = MagicMock()
+
 import numpy as np
 import PIL.Image
 import torch

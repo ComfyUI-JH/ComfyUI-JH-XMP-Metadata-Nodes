@@ -1,8 +1,13 @@
 import hashlib
 import os
 from typing import NamedTuple
+from unittest.mock import MagicMock
 
-import folder_paths  # pyright: ignore[reportMissingImports]
+try:
+    import folder_paths  # pyright: ignore[reportMissingImports]
+except ImportError:
+    folder_paths = MagicMock()
+
 import numpy as np
 import PIL.Image
 import PIL.ImageOps
