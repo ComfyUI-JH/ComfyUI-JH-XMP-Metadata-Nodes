@@ -67,4 +67,4 @@ class JHInputTypesType(TypedDict, total=False):
     optional: NotRequired[
         dict[str, tuple[JHTypesNodeInputOutputType, JHNodeInputOutputTypeOptions]]
     ]
-    hidden: NotRequired[dict[str, JHTypesNodeInputOutputType]]
+    hidden: NotRequired[dict[str, str]]

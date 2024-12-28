@@ -4,6 +4,11 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock
 
+try:
+    import folder_paths  # pyright: ignore[reportMissingImports]
+except ImportError:
+    folder_paths = MagicMock()
+
 import numpy as np
 import PIL.Image
 import torch
