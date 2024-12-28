@@ -1,8 +1,8 @@
 import hashlib
 import os
 from typing import NamedTuple
+from unittest.mock import MagicMock
 
-import folder_paths  # pyright: ignore[reportMissingImports]
 import numpy as np
 import PIL.Image
 import PIL.ImageOps
@@ -12,6 +12,11 @@ import torch
 from comfyui_jh_xmp_metadata_nodes import jh_types
 
 from .jh_xmp_metadata import JHXMPMetadata
+
+try:
+    import folder_paths  # pyright: ignore[reportMissingImports]
+except ImportError:
+    folder_paths = MagicMock()
 
 
 class JHLoadImageWithXMPMetadataResultTuple(NamedTuple):
