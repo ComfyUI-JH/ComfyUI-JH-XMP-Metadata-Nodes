@@ -2,8 +2,8 @@ import json
 from enum import StrEnum
 from pathlib import Path
 from typing import Any
+from unittest.mock import MagicMock
 
-import folder_paths  # pyright: ignore[reportMissingImports]
 import numpy as np
 import PIL.Image
 import torch
@@ -13,6 +13,11 @@ from PIL.PngImagePlugin import PngInfo
 from comfyui_jh_xmp_metadata_nodes import jh_types
 
 from .jh_xmp_metadata import JHXMPMetadata
+
+try:
+    import folder_paths  # pyright: ignore[reportMissingImports]
+except ImportError:
+    folder_paths = MagicMock()
 
 
 class JHSupportedImageTypes(StrEnum):

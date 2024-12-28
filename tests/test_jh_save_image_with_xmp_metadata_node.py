@@ -1,5 +1,4 @@
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock
 
 import numpy as np
 import pytest
@@ -12,28 +11,7 @@ from comfyui_jh_xmp_metadata_nodes.jh_save_image_with_xmp_metadata_node import (
     JHSupportedImageTypes,
 )
 
-
-@pytest.fixture
-def mock_folder_paths(mocker: MockerFixture) -> dict[str, MagicMock | AsyncMock]:
-    mock_get_output_dir = mocker.patch(
-        "folder_paths.get_output_directory", return_value="/mock/output/dir"
-    )
-    mock_get_save_path = mocker.patch(
-        "folder_paths.get_save_image_path",
-        return_value=(
-            "/mock/output/dir",
-            "mock_filename",
-            0,
-            "mock_subfolder",
-            "mock_filename_prefix",
-        ),
-    )
-
-    # Return a dictionary of mocks so you can access them in tests
-    return {
-        "get_output_directory": mock_get_output_dir,
-        "get_save_image_path": mock_get_save_path,
-    }
+# region Fixtures
 
 
 @pytest.fixture
@@ -44,6 +22,11 @@ def image() -> torch.Tensor:
 @pytest.fixture
 def node() -> JHSaveImageWithXMPMetadataNode:
     return JHSaveImageWithXMPMetadataNode()
+
+
+# endregion Fixtures
+
+# region Tests
 
 
 def test_save_images_no_images(node: JHSaveImageWithXMPMetadataNode) -> None:
@@ -81,13 +64,23 @@ def test_save_image(
 
 
 def test_save_images_with_metadata(
+    mocker: MockerFixture,
+    tmp_path: Path,
     node: JHSaveImageWithXMPMetadataNode,
     image: torch.Tensor,
-    mock_folder_paths: dict[str, MagicMock],
 ) -> None:
+    mocker.patch(
+        "comfyui_jh_xmp_metadata_nodes.jh_save_image_with_xmp_metadata_node.folder_paths.get_save_image_path",
+        return_value=(
+            tmp_path,
+            "ComfyUI",
+            2160,
+            "",
+            "ComfyUI",
+        ),
+    )
+
     images = [image]
-    mock_save_image = MagicMock()
-    node.save_image = mock_save_image
 
     result = node.save_images(
         images,
@@ -103,8 +96,6 @@ def test_save_images_with_metadata(
 
     assert len(result["ui"]["images"]) == 1
     assert result["ui"]["images"][0]["filename"].endswith(".png")
-
-    mock_save_image.assert_called_once()
 
 
 def test_extension_for_type(node: JHSaveImageWithXMPMetadataNode) -> None:
@@ -222,3 +213,6 @@ def test_input_types(node: JHSaveImageWithXMPMetadataNode) -> None:
     # Check hidden inputs
     assert "prompt" in hidden_inputs
     assert "extra_pnginfo" in hidden_inputs
+
+
+# endregion Tests
