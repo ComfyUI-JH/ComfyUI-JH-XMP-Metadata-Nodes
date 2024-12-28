@@ -189,7 +189,10 @@ def sample_corrupted_image_file(tmp_path: Path) -> Path:
 
 
 def test_input_types(mocker: MockerFixture) -> None:
-    mocker.patch("folder_paths.get_input_directory", return_value="/mocked/path")
+    mocker.patch(
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.get_input_directory",
+        return_value="/mocked/path",
+    )
     mocker.patch("os.listdir", return_value=["img1.png", "img2.png"])
     mocker.patch("os.path.isfile", return_value=True)
 
@@ -199,7 +202,10 @@ def test_input_types(mocker: MockerFixture) -> None:
 
 
 def test_get_image_files(mocker: MockerFixture) -> None:
-    mocker.patch("folder_paths.get_input_directory", return_value="/mocked/path")
+    mocker.patch(
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.get_input_directory",
+        return_value="/mocked/path",
+    )
     mocker.patch("os.listdir", return_value=["img1.png", "img2.png", "img3.png"])
     mocker.patch("os.path.isfile", return_value=True)
 
@@ -208,7 +214,10 @@ def test_get_image_files(mocker: MockerFixture) -> None:
 
 
 def test_get_image_files_with_non_files(mocker: MockerFixture) -> None:
-    mocker.patch("folder_paths.get_input_directory", return_value="/mocked/path")
+    mocker.patch(
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.get_input_directory",
+        return_value="/mocked/path",
+    )
     mocker.patch("os.listdir", return_value=["img1.png", "directory", "img3.png"])
     mocker.patch("os.path.isfile", side_effect=lambda p: not p.endswith("directory"))
 
@@ -220,7 +229,10 @@ def test_validate_inputs_valid_file(
     mocker: MockerFixture,
     sample_image_file_with_valid_xmp_metadata: Path,
 ) -> None:
-    mocker.patch("folder_paths.exists_annotated_filepath", return_value=True)
+    mocker.patch(
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.exists_annotated_filepath",
+        return_value=True,
+    )
 
     assert (
         JHLoadImageWithXMPMetadataNode.VALIDATE_INPUTS(
@@ -231,7 +243,10 @@ def test_validate_inputs_valid_file(
 
 
 def test_validate_inputs_invalid_file(mocker: MockerFixture) -> None:
-    mocker.patch("folder_paths.exists_annotated_filepath", return_value=False)
+    mocker.patch(
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.exists_annotated_filepath",
+        return_value=False,
+    )
 
     result = JHLoadImageWithXMPMetadataNode.VALIDATE_INPUTS("nonexistent.png")
     assert result == "Invalid image file: nonexistent.png"
@@ -255,7 +270,7 @@ def test_load_image_with_valid_metadata(
     valid_xml_string: str,
 ) -> None:
     mocker.patch(
-        "folder_paths.get_annotated_filepath",
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.get_annotated_filepath",
         return_value=str(sample_image_file_with_valid_xmp_metadata),
     )
 
@@ -283,7 +298,7 @@ def test_load_image_with_invalid_metadata(
     invalid_xml_string: str,
 ) -> None:
     mocker.patch(
-        "folder_paths.get_annotated_filepath",
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.get_annotated_filepath",
         return_value=str(sample_image_file_with_invalid_xmp_metadata),
     )
 
@@ -310,7 +325,7 @@ def test_load_image_with_multiframe_image_file(
     sample_multiframe_image_file: Path,
 ) -> None:
     mocker.patch(
-        "folder_paths.get_annotated_filepath",
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.get_annotated_filepath",
         return_value=str(sample_multiframe_image_file),
     )
 
@@ -338,7 +353,7 @@ def test_load_image_with_invalid_multiframe_image_file(
     sample_invalid_multiframe_image_file: Path,
 ) -> None:
     mocker.patch(
-        "folder_paths.get_annotated_filepath",
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.get_annotated_filepath",
         return_value=str(sample_invalid_multiframe_image_file),
     )
 
@@ -363,7 +378,7 @@ def test_load_image_with_invalid_multiframe_image_file(
 
 def test_load_rgb_image(mocker: MockerFixture, sample_rgb_image_file: Path) -> None:
     mocker.patch(
-        "folder_paths.get_annotated_filepath",
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.get_annotated_filepath",
         return_value=str(sample_rgb_image_file),
     )
 
@@ -390,7 +405,7 @@ def test_load_32_bit_integer_image(
     mocker: MockerFixture, sample_32_bit_integer_image_file: Path
 ) -> None:
     mocker.patch(
-        "folder_paths.get_annotated_filepath",
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.get_annotated_filepath",
         return_value=str(sample_32_bit_integer_image_file),
     )
 
@@ -426,7 +441,7 @@ def test_load_grayscale_image(
     mocker: MockerFixture, sample_grayscale_image_file: Path
 ) -> None:
     mocker.patch(
-        "folder_paths.get_annotated_filepath",
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.get_annotated_filepath",
         return_value=str(sample_grayscale_image_file),
     )
 
@@ -456,7 +471,7 @@ def test_load_corrupted_image(
     mocker: MockerFixture, sample_corrupted_image_file: Path
 ) -> None:
     mocker.patch(
-        "folder_paths.get_annotated_filepath",
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.get_annotated_filepath",
         return_value=str(sample_corrupted_image_file),
     )
 
@@ -469,7 +484,7 @@ def test_is_changed(
     mocker: MockerFixture, sample_image_file_with_valid_xmp_metadata: Path
 ) -> None:
     mocker.patch(
-        "folder_paths.get_annotated_filepath",
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.get_annotated_filepath",
         return_value=str(sample_image_file_with_valid_xmp_metadata),
     )
 
@@ -483,7 +498,10 @@ def test_is_changed(
 
 
 def test_is_changed_nonexistent_file(mocker: MockerFixture) -> None:
-    mocker.patch("folder_paths.get_annotated_filepath", return_value="nonexistent.png")
+    mocker.patch(
+        "comfyui_jh_xmp_metadata_nodes.jh_load_image_with_xmp_metadata_node.folder_paths.get_annotated_filepath",
+        return_value="nonexistent.png",
+    )
 
     with pytest.raises(FileNotFoundError):
         JHLoadImageWithXMPMetadataNode.IS_CHANGED("nonexistent.png")

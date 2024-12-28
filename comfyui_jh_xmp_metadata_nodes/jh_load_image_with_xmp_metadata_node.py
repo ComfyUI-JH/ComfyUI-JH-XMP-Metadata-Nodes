@@ -18,6 +18,11 @@ from comfyui_jh_xmp_metadata_nodes import jh_types
 
 from .jh_xmp_metadata import JHXMPMetadata
 
+try:
+    import folder_paths  # pyright: ignore[reportMissingImports]
+except ImportError:
+    folder_paths = MagicMock()
+
 
 class JHLoadImageWithXMPMetadataResultTuple(NamedTuple):
     IMAGE: torch.Tensor
