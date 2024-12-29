@@ -40,8 +40,6 @@ def test_format_metadata(
         height=512,
     )
 
-    print(formatted_metadata)
-
     assert "Test Prompt\n" in formatted_metadata[0]
     assert "Negative prompt: Test Negative Prompt\n" in formatted_metadata[0]
     assert "Steps: 10, " in formatted_metadata[0]
