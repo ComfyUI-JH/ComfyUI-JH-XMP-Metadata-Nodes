@@ -1,4 +1,3 @@
-import hashlib
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -117,19 +116,6 @@ class JHFormatCivitaiMetadataNode:
         if model_path is not None:
             model_stem = Path(model_path).stem
 
-        model_hash = None
-        if model_path is not None:
-            sha256 = hashlib.sha256()
-            with open(model_path, "rb") as f:
-                # Read the file in chunks to avoid loading the entire file into memory
-                for byte_block in iter(lambda: f.read(4096), b""):
-                    sha256.update(byte_block)
-            model_hash = sha256.hexdigest()[:10]
-
-        resource_hashes = {}
-        if model_hash is not None:
-            resource_hashes["model"] = model_hash
-
         last_line_parts = []
 
         if steps is not None:
@@ -155,9 +141,6 @@ class JHFormatCivitaiMetadataNode:
 
         if model_stem is not None:
             last_line_parts.append(f"Model: {model_stem}")
-
-        if model_hash is not None:
-            last_line_parts.append(f"Model hash: {model_hash}")
 
         last_line = ", ".join(last_line_parts)
 
