@@ -53,11 +53,14 @@ def test_save_image(
 ) -> None:
     img = Image.fromarray((image.numpy() * 255).astype(np.uint8))
     to_path = tmp_path / f"test_image{expected_extension}"
+    civitai_metadata = "Test Civitai Metadata"
     xmp = "<xmpmeta>Test XML</xmpmeta>"
     prompt = "Test Prompt"
     extra_pnginfo = {"workflow": "Test Workflow"}
 
-    node.save_image(img, image_type, to_path, xmp, prompt, extra_pnginfo)
+    node.save_image(
+        img, image_type, to_path, civitai_metadata, xmp, prompt, extra_pnginfo
+    )
 
     assert to_path.exists()
     assert to_path.suffix == expected_extension

@@ -127,6 +127,12 @@ class JHSaveImageWithXMPMetadataNode:
                         "forceInput": True,
                     },
                 ),
+                "civitai_metadata": (
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
+                    {
+                        "forceInput": True,
+                    },
+                ),
                 "xml_string": (
                     jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
@@ -161,6 +167,7 @@ class JHSaveImageWithXMPMetadataNode:
         comment: str | list | None = None,
         alt_text: str | list | None = None,
         ext_description: str | list | None = None,
+        civitai_metadata: str | None = None,
         xml_string: str | None = None,
         prompt: str | None = None,
         extra_pnginfo: dict | None = None,
@@ -211,6 +218,7 @@ class JHSaveImageWithXMPMetadataNode:
                 img,
                 image_type,
                 Path(full_output_folder) / file,
+                civitai_metadata,
                 xmp,
                 prompt,
                 extra_pnginfo,
@@ -283,18 +291,27 @@ class JHSaveImageWithXMPMetadataNode:
         image: Image,
         image_type: JHSupportedImageTypes,
         to_path: Path,
-        xmp: str,
+        civitai_metadata: str | None = None,
+        xmp: str | None = None,
         prompt: str | None = None,
         extra_pnginfo: dict[str, Any] | None = None,
     ) -> None:
         match image_type:
             case JHSupportedImageTypes.PNG_WITH_WORKFLOW:
                 pnginfo: PngInfo = PngInfo()
-                pnginfo.add_text("XML:com.adobe.xmp", xmp)
+
+                if civitai_metadata is not None:
+                    pnginfo.add_text("parameters", civitai_metadata)
+
+                if xmp is not None:
+                    pnginfo.add_text("XML:com.adobe.xmp", xmp)
+
                 if prompt is not None:
                     pnginfo.add_text("prompt", json.dumps(prompt))
+
                 if extra_pnginfo is not None:
                     pnginfo.add_text("workflow", json.dumps(extra_pnginfo["workflow"]))
+
                 image.save(
                     to_path,
                     pnginfo=pnginfo,
@@ -303,7 +320,13 @@ class JHSaveImageWithXMPMetadataNode:
 
             case JHSupportedImageTypes.PNG:
                 pnginfo: PngInfo = PngInfo()
-                pnginfo.add_text("XML:com.adobe.xmp", xmp)
+
+                if civitai_metadata is not None:
+                    pnginfo.add_text("parameters", civitai_metadata)
+
+                if xmp is not None:
+                    pnginfo.add_text("XML:com.adobe.xmp", xmp)
+
                 image.save(
                     to_path,
                     pnginfo=pnginfo,
@@ -311,10 +334,13 @@ class JHSaveImageWithXMPMetadataNode:
                 )
 
             case JHSupportedImageTypes.JPEG:
-                image.save(
-                    to_path,
-                    xmp=xmp.encode("utf-8"),
-                )
+                if xmp is not None:
+                    image.save(
+                        to_path,
+                        xmp=xmp.encode("utf-8"),
+                    )
+                else:
+                    image.save(to_path)
 
             case JHSupportedImageTypes.LOSSLESS_WEBP:
                 image.save(
