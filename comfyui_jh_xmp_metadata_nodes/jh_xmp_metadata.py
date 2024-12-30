@@ -73,6 +73,7 @@ class JHXMPMetadata:
         "photoshop": "http://ns.adobe.com/photoshop/1.0/",
         "exif": "http://ns.adobe.com/exif/1.0/",
         "Iptc4xmpCore": "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/",
+        "Iptc4xmpExt": "http://iptc.org/std/Iptc4xmpExt/2008-02-29/",
     }
 
     def __init__(self) -> None:
@@ -107,6 +108,16 @@ class JHXMPMetadata:
             nsmap=self.NAMESPACES,
             attrib={"{http://www.w3.org/1999/02/22-rdf-syntax-ns#}about": ""},
         )
+        self._digital_source_type = etree.SubElement(
+            self._rdf_description,
+            etree.QName(self.NAMESPACES["Iptc4xmpExt"], "DigitalSourceType"),
+            nsmap=self.NAMESPACES,
+            attrib={},
+        )
+        self._digital_source_type.text = (
+            "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia"
+        )
+
         self._dc_creator_element = None
         self._dc_rights_element = None
         self._dc_title_element = None
