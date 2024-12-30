@@ -30,8 +30,8 @@ def test_format_metadata(
         prompt="Test Prompt",
         negative_prompt="Test Negative Prompt",
         seed=123,
-        sampler_name="Test Sampler",
-        scheduler_name="Test Scheduler",
+        sampler_name="dpmpp_2m",
+        scheduler_name="karras",
         steps=10,
         cfg=1.0,
         guidance=1.0,
@@ -43,9 +43,10 @@ def test_format_metadata(
     assert "Test Prompt\n" in formatted_metadata[0]
     assert "Negative prompt: Test Negative Prompt\n" in formatted_metadata[0]
     assert "Steps: 10, " in formatted_metadata[0]
-    assert "Sampler: Test Sampler_Test Scheduler, " in formatted_metadata[0]
-    assert "CFG Scale: 1.0, " in formatted_metadata[0]
-    assert "Guidance: 1.0, " in formatted_metadata[0]
+    assert "Sampler: DPM++ 2M Karras" in formatted_metadata[0]
+    assert "Schedule type: Karras" in formatted_metadata[0]
+    assert "CFG scale: 1.0, " in formatted_metadata[0]
+    assert "Distilled CFG Scale: 1.0, " in formatted_metadata[0]
     assert "Seed: 123, " in formatted_metadata[0]
     assert "Size: 512x512, " in formatted_metadata[0]
     assert "Model: model" in formatted_metadata[0]
