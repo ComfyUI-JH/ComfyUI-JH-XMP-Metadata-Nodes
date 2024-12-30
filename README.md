@@ -25,7 +25,9 @@
 
 # JH XMP Metadata Nodes
 
-Custom nodes for loading and saving images with embedded XMP metadata (https://www.adobe.com/products/xmp.html).
+Custom nodes for loading and saving images with embedded XMP metadata (https://www.adobe.com/products/xmp.html). Also included are nodes for saving images with [AUTOMATIC1111](https://github.com/AUTOMATIC1111) metadata for posting to [Civitai](https://civitai.com).
+
+## About Metadata
 
 When I generate tens or hundreds of images from ComfyUI they all go into a folder and get forgotten because I have no practical way to find them again. Embedded metadata solves this problem. When metadata is present in a file, both macOS and Windows index it automatically, making it searchable from the Finder on the Mac or the File Explorer in Windows.
 
@@ -77,6 +79,12 @@ The following metadata properties are currently supported:
 
 # Getting Started
 
+## Installing with [ComfyUI-Manager](https://github.com/ltdrdata/ComfyUI-Manager) (Recommended)
+
+<div align="center">
+    <img width="1365" alt="image" src="https://github.com/user-attachments/assets/d703ca41-bd32-43bd-9360-ce0908880771" align="middle" />
+</div>
+
 ## Installing from GitHub
 
 1. Install [ComfyUI](https://github.com/comfyanonymous/ComfyUI)
@@ -117,7 +125,7 @@ Just like the built-in **Load Image** node except if XMP metadata is embedded in
 ## Save Image With XMP Metadata
 
 <div align="center">
-    <img width="500" alt="image" src="https://github.com/user-attachments/assets/b30e9591-44c6-4e47-8e0e-9f65d392e7e9" align="middle" />
+    <img width="546" alt="image" src="https://github.com/user-attachments/assets/6ff43893-4f77-485e-b6cc-dd00987626d7" align="middle" />
 </div>
 
 <br />
@@ -153,6 +161,14 @@ Given a path string (absolute or relative), this node returns the "stem," meanin
 <br />
 
 This utility node takes common workflow inputs (prompt, model_name, seed, etc.) and allows you to construct a string that can subsequently be piped into a **Save Image With XMP Metadata** node input to embed metadata however you choose.
+
+## Format Civitai Metadata
+
+<div align="center">
+    <img width="473" alt="image" src="https://github.com/user-attachments/assets/b183d16e-89f7-4ad0-a9d6-81626c5d66e2" align="middle" />
+</div>
+
+This utility node takes common workflow inputs (prompt, model_name, seed, etc.) and outputs metadata in the [AUTOMATIC1111](https://github.com/AUTOMATIC1111) format which can be read by [Civitai](https://civitai.com). Pipe this node's output into the **civitai_metadata** input on the **Save Image With XMP Metadata** node to embed this metadata in your saved images.
 
 # Credits
 
