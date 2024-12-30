@@ -69,9 +69,11 @@ def valid_xml_string(sample_metadata: MetadataDataclass) -> str:
             xmlns:xmp="http://ns.adobe.com/xap/1.0/"
             xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/"
             xmlns:exif="http://ns.adobe.com/exif/1.0/"
-            xmlns:Iptc4xmpCore="http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/" x:xmptk="Adobe XMP Core 6.0-c002 79.164861, 2016/09/14-01:09:01">
+            xmlns:Iptc4xmpCore="http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/"
+            xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/" x:xmptk="Adobe XMP Core 6.0-c002 79.164861, 2016/09/14-01:09:01">
             <rdf:RDF>
                 <rdf:Description rdf:about="">
+                    <Iptc4xmpExt:DigitalSourceType>http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia</Iptc4xmpExt:DigitalSourceType>
                     <dc:creator>
                         <rdf:Seq>
                             <rdf:li xml:lang="x-default">{sample_metadata.creator}</rdf:li>
@@ -122,9 +124,11 @@ def incomplete_xml_string(sample_metadata: MetadataDataclass) -> str:
             xmlns:xmp="http://ns.adobe.com/xap/1.0/"
             xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/"
             xmlns:exif="http://ns.adobe.com/exif/1.0/"
-            xmlns:Iptc4xmpCore="http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/" x:xmptk="Adobe XMP Core 6.0-c002 79.164861, 2016/09/14-01:09:01">
+            xmlns:Iptc4xmpCore="http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/"
+            xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/" x:xmptk="Adobe XMP Core 6.0-c002 79.164861, 2016/09/14-01:09:01">
             <rdf:RDF>
                 <rdf:Description rdf:about="">
+                    <Iptc4xmpExt:DigitalSourceType>http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia</Iptc4xmpExt:DigitalSourceType>
                     <dc:creator>
                         <rdf:Seq>
                             <rdf:li xml:lang="x-default">{sample_metadata.creator}</rdf:li>
@@ -310,6 +314,17 @@ def validate_xml_string(xml_string: str, metadata_object: MetadataDataclass) -> 
     )
     assert len(rdf_description) == 1
 
+    digital_source_type_element = rdf_description[0].xpath(
+        "./Iptc4xmpExt:DigitalSourceType",
+        namespaces=JHXMPMetadata.NAMESPACES,
+    )
+    assert (
+        len(digital_source_type_element) == 1
+        and digital_source_type_element[0].text
+        == "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia"
+    )
+    rdf_description[0].remove(digital_source_type_element[0])
+
     creator_element = rdf_description[0].xpath(
         "./dc:creator",
         namespaces=JHXMPMetadata.NAMESPACES,
@@ -419,6 +434,16 @@ def test_to_string_with_empty_metadata(
         "/x:xmpmeta/rdf:RDF/rdf:Description", namespaces=JHXMPMetadata.NAMESPACES
     )
     assert len(rdf_description) == 1
+    digital_source_type_element = rdf_description[0].xpath(
+        "./Iptc4xmpExt:DigitalSourceType",
+        namespaces=JHXMPMetadata.NAMESPACES,
+    )
+    assert (
+        len(digital_source_type_element) == 1
+        and digital_source_type_element[0].text
+        == "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia"
+    )
+    rdf_description[0].remove(digital_source_type_element[0])
     children = rdf_description[0].getchildren()
     assert len(children) == 0
 
@@ -447,5 +472,15 @@ def test_to_wrapped_string_with_empty_metadata(
         "/x:xmpmeta/rdf:RDF/rdf:Description", namespaces=JHXMPMetadata.NAMESPACES
     )
     assert len(rdf_description) == 1
+    digital_source_type_element = rdf_description[0].xpath(
+        "./Iptc4xmpExt:DigitalSourceType",
+        namespaces=JHXMPMetadata.NAMESPACES,
+    )
+    assert (
+        len(digital_source_type_element) == 1
+        and digital_source_type_element[0].text
+        == "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia"
+    )
+    rdf_description[0].remove(digital_source_type_element[0])
     children = rdf_description[0].getchildren()
     assert len(children) == 0
