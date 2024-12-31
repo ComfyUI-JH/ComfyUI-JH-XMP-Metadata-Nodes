@@ -49,11 +49,6 @@ def valid_xml_string() -> str:
                     </rdf:Bag>
                 </dc:subject>
                 <photoshop:Instructions>Test Instructions</photoshop:Instructions>
-                <exif:UserComment>
-                    <rdf:Alt>
-                        <rdf:li xml:lang="x-default">Test Comment</rdf:li>
-                    </rdf:Alt>
-                </exif:UserComment>
                 <Iptc4xmpCore:AltTextAccessibility>Test Alt Text</Iptc4xmpCore:AltTextAccessibility>
                 <Iptc4xmpCore:ExtDescrAccessibility>Test Ext Description</Iptc4xmpCore:ExtDescrAccessibility>
             </rdf:Description>
@@ -286,7 +281,6 @@ def test_load_image_with_valid_metadata(
     assert output.description == "Test Description"  # description
     assert output.subject == "Test Subject"  # subject
     assert output.instructions == "Test Instructions"  # instructions
-    assert output.comment == "Test Comment"  # xml_string
     assert output.alt_text == "Test Alt Text"  # alt_text
     assert output.ext_description == "Test Ext Description"  # ext_description
     assert output.xml_string == valid_xml_string  # xml_string
@@ -314,7 +308,6 @@ def test_load_image_with_invalid_metadata(
     assert output.description is None  # description
     assert output.subject is None  # subject
     assert output.instructions is None  # instructions
-    assert output.comment is None  # comment
     assert output.alt_text is None  # alt_text
     assert output.ext_description is None  # ext_description
     assert output.xml_string == invalid_xml_string  # xml_string
@@ -342,7 +335,6 @@ def test_load_image_with_multiframe_image_file(
     assert output.description is None  # description
     assert output.subject is None  # subject
     assert output.instructions is None  # instructions
-    assert output.comment is None  # comment
     assert output.alt_text is None  # alt_text
     assert output.ext_description is None  # ext_description
     assert output.xml_string == ""  # xml_string
@@ -370,7 +362,6 @@ def test_load_image_with_invalid_multiframe_image_file(
     assert output.description is None  # description
     assert output.subject is None  # subject
     assert output.instructions is None  # instructions
-    assert output.comment is None  # comment
     assert output.alt_text is None  # alt_text
     assert output.ext_description is None  # ext_description
     assert output.xml_string == ""  # xml_string
@@ -395,7 +386,6 @@ def test_load_rgb_image(mocker: MockerFixture, sample_rgb_image_file: Path) -> N
     assert output.description is None  # description
     assert output.subject is None  # subject
     assert output.instructions is None  # instructions
-    assert output.comment is None  # comment
     assert output.alt_text is None  # alt_text
     assert output.ext_description is None  # ext_description
     assert output.xml_string == ""  # xml_string
@@ -422,7 +412,6 @@ def test_load_32_bit_integer_image(
     assert output.description is None  # description
     assert output.subject is None  # subject
     assert output.instructions is None  # instructions
-    assert output.comment is None  # comment
     assert output.alt_text is None  # alt_text
     assert output.ext_description is None  # ext_description
     assert output.xml_string == ""  # xml_string
@@ -458,7 +447,6 @@ def test_load_grayscale_image(
     assert output.description is None  # description
     assert output.subject is None  # subject
     assert output.instructions is None  # instructions
-    assert output.comment is None  # comment
     assert output.alt_text is None  # alt_text
     assert output.ext_description is None  # ext_description
     assert output.xml_string == ""  # xml_string

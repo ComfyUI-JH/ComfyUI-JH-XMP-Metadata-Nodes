@@ -5,6 +5,8 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import numpy as np
+import piexif
+import piexif.helper
 import PIL.Image
 import torch
 from PIL.Image import Image
@@ -26,6 +28,15 @@ class JHSupportedImageTypes(StrEnum):
     PNG = "PNG"
     LOSSLESS_WEBP = "Lossless WebP"
     WEBP = "WebP"
+
+
+JHImageSuffixForType: dict[JHSupportedImageTypes, str] = {
+    JHSupportedImageTypes.JPEG: "jpeg",
+    JHSupportedImageTypes.PNG_WITH_WORKFLOW: "png",
+    JHSupportedImageTypes.PNG: "png",
+    JHSupportedImageTypes.LOSSLESS_WEBP: "webp",
+    JHSupportedImageTypes.WEBP: "webp",
+}
 
 
 class JHSaveImageWithXMPMetadataNode:
@@ -106,13 +117,6 @@ class JHSaveImageWithXMPMetadataNode:
                         "forceInput": True
                     },
                 ),
-                "comment": (
-                    jh_types.JHNodeInputOutputTypeEnum.STRING,
-                    {
-                        "tooltip": "exif:UserComment",
-                        "forceInput": True
-                    },
-                ),
                 "alt_text": (
                     jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
@@ -124,6 +128,12 @@ class JHSaveImageWithXMPMetadataNode:
                     jh_types.JHNodeInputOutputTypeEnum.STRING,
                     {
                         "tooltip": "Iptc4xmpCore:ExtDescrAccessibility",
+                        "forceInput": True,
+                    },
+                ),
+                "civitai_metadata": (
+                    jh_types.JHNodeInputOutputTypeEnum.STRING,
+                    {
                         "forceInput": True,
                     },
                 ),
@@ -158,9 +168,9 @@ class JHSaveImageWithXMPMetadataNode:
         description: str | list | None = None,
         subject: str | list | None = None,
         instructions: str | list | None = None,
-        comment: str | list | None = None,
         alt_text: str | list | None = None,
         ext_description: str | list | None = None,
+        civitai_metadata: str | None = None,
         xml_string: str | None = None,
         prompt: str | None = None,
         extra_pnginfo: dict | None = None,
@@ -180,7 +190,7 @@ class JHSaveImageWithXMPMetadataNode:
         )
         results: list = []
 
-        filename_extension: str = self.extension_for_type(image_type)
+        filename_extension = JHImageSuffixForType[image_type]
 
         batch_number: int = 0
         image: torch.Tensor
@@ -193,25 +203,67 @@ class JHSaveImageWithXMPMetadataNode:
             )
             file: str = f"{filename_with_batch_num}_{counter:05}_.{filename_extension}"
 
-            xmp = self.inputs_to_xml(
-                creator,
-                rights,
-                title,
-                description,
-                subject,
-                instructions,
-                comment,
-                alt_text,
-                ext_description,
-                xml_string,
-                batch_number,
-            )
+            xml = ""
+            if xml_string is not None:
+                xml = xml_string
+            else:
+                xmpmetadata = JHXMPMetadata()
+                # fmt: off
+                xmpmetadata.creator = (
+                    creator[batch_number]
+                    if isinstance(creator, list)
+                    else creator
+                )
+                xmpmetadata.rights = (
+                    rights[batch_number]
+                    if isinstance(rights, list)
+                    else rights
+                )
+                xmpmetadata.title = (
+                    title[batch_number]
+                    if isinstance(title, list)
+                    else title
+                )
+                xmpmetadata.description = (
+                    description[batch_number]
+                    if isinstance(description, list)
+                    else description
+                )
+                xmpmetadata.subject = (
+                    subject[batch_number]
+                    if isinstance(subject, list)
+                    else subject
+                )
+                xmpmetadata.instructions = (
+                    instructions[batch_number]
+                    if isinstance(instructions, list)
+                    else instructions
+                )
+                if image_type == JHSupportedImageTypes.PNG_WITH_WORKFLOW or image_type == JHSupportedImageTypes.PNG:  # noqa: E501
+                    xmpmetadata.comment = (
+                        civitai_metadata[batch_number]
+                        if isinstance(civitai_metadata, list)
+                        else civitai_metadata
+                    )
+                xmpmetadata.alt_text = (
+                    alt_text[batch_number]
+                    if isinstance(alt_text, list)
+                    else alt_text
+                )
+                xmpmetadata.ext_description = (
+                    ext_description[batch_number]
+                    if isinstance(ext_description, list)
+                    else ext_description
+                )
+                # fmt: on
+                xml = xmpmetadata.to_wrapped_string()
 
             self.save_image(
                 img,
                 image_type,
                 Path(full_output_folder) / file,
-                xmp,
+                civitai_metadata,
+                xml,
                 prompt,
                 extra_pnginfo,
             )
@@ -223,78 +275,32 @@ class JHSaveImageWithXMPMetadataNode:
 
         return {"result": (images,), "ui": {"images": results}}
 
-    def get_batch_value(
-        self, prop: str | list[str] | None, batch_number: int
-    ) -> str | None:
-        if isinstance(prop, list):
-            return prop[batch_number]
-        else:
-            return prop
-
-    def inputs_to_xml(
-        self,
-        creator: str | list[str] | None,
-        rights: str | list[str] | None,
-        title: str | list[str] | None,
-        description: str | list[str] | None,
-        subject: str | list[str] | None,
-        instructions: str | list[str] | None,
-        comment: str | list[str] | None,
-        alt_text: str | list[str] | None,
-        ext_description: str | list[str] | None,
-        xml_string: str | None,
-        batch_number: int,
-    ) -> str:
-        if xml_string is not None:
-            xml: str = xml_string
-        else:
-            xmpmetadata = JHXMPMetadata()
-            xmpmetadata.creator = self.get_batch_value(creator, batch_number)
-            xmpmetadata.rights = self.get_batch_value(rights, batch_number)
-            xmpmetadata.title = self.get_batch_value(title, batch_number)
-            xmpmetadata.description = self.get_batch_value(description, batch_number)
-            xmpmetadata.subject = self.get_batch_value(subject, batch_number)
-            xmpmetadata.instructions = self.get_batch_value(instructions, batch_number)
-            xmpmetadata.comment = self.get_batch_value(comment, batch_number)
-            xmpmetadata.alt_text = self.get_batch_value(alt_text, batch_number)
-            xmpmetadata.ext_description = self.get_batch_value(
-                ext_description, batch_number
-            )
-            xml = xmpmetadata.to_wrapped_string()
-        return xml
-
-    def extension_for_type(self, image_type: JHSupportedImageTypes) -> str:
-        filename_extension: str
-        match image_type:
-            case JHSupportedImageTypes.JPEG:
-                filename_extension: str = "jpeg"
-            case JHSupportedImageTypes.PNG_WITH_WORKFLOW:
-                filename_extension: str = "png"
-            case JHSupportedImageTypes.PNG:
-                filename_extension: str = "png"
-            case JHSupportedImageTypes.LOSSLESS_WEBP:
-                filename_extension: str = "webp"
-            case JHSupportedImageTypes.WEBP:
-                filename_extension: str = "webp"
-        return filename_extension
-
     def save_image(
         self,
         image: Image,
         image_type: JHSupportedImageTypes,
         to_path: Path,
-        xmp: str,
+        civitai_metadata: str | None = None,
+        xml: str | None = None,
         prompt: str | None = None,
         extra_pnginfo: dict[str, Any] | None = None,
     ) -> None:
         match image_type:
             case JHSupportedImageTypes.PNG_WITH_WORKFLOW:
                 pnginfo: PngInfo = PngInfo()
-                pnginfo.add_text("XML:com.adobe.xmp", xmp)
+
+                if civitai_metadata is not None:
+                    pnginfo.add_text("parameters", civitai_metadata)
+
+                if xml is not None:
+                    pnginfo.add_text("XML:com.adobe.xmp", xml)
+
                 if prompt is not None:
                     pnginfo.add_text("prompt", json.dumps(prompt))
+
                 if extra_pnginfo is not None:
                     pnginfo.add_text("workflow", json.dumps(extra_pnginfo["workflow"]))
+
                 image.save(
                     to_path,
                     pnginfo=pnginfo,
@@ -303,7 +309,13 @@ class JHSaveImageWithXMPMetadataNode:
 
             case JHSupportedImageTypes.PNG:
                 pnginfo: PngInfo = PngInfo()
-                pnginfo.add_text("XML:com.adobe.xmp", xmp)
+
+                if civitai_metadata is not None:
+                    pnginfo.add_text("parameters", civitai_metadata)
+
+                if xml is not None:
+                    pnginfo.add_text("XML:com.adobe.xmp", xml)
+
                 image.save(
                     to_path,
                     pnginfo=pnginfo,
@@ -311,17 +323,56 @@ class JHSaveImageWithXMPMetadataNode:
                 )
 
             case JHSupportedImageTypes.JPEG:
-                image.save(
-                    to_path,
-                    xmp=xmp.encode("utf-8"),
-                )
+                if xml is not None:
+                    image.save(
+                        to_path,
+                        xmp=xml.encode("utf-8"),
+                    )
+                else:
+                    image.save(to_path)
+
+                if civitai_metadata is not None:
+                    exif_bytes = piexif.dump(
+                        {
+                            "Exif": {
+                                piexif.ExifIFD.UserComment: piexif.helper.UserComment.dump(  # noqa: E501
+                                    civitai_metadata, encoding="unicode"
+                                )
+                            },
+                        }
+                    )
+                    piexif.insert(exif_bytes, str(to_path))
 
             case JHSupportedImageTypes.LOSSLESS_WEBP:
                 image.save(
                     to_path,
-                    xmp=xmp,
+                    xmp=xml,
                     lossless=True,
                 )
 
+                if civitai_metadata is not None:
+                    exif_bytes = piexif.dump(
+                        {
+                            "Exif": {
+                                piexif.ExifIFD.UserComment: piexif.helper.UserComment.dump(  # noqa: E501
+                                    civitai_metadata, encoding="unicode"
+                                )
+                            },
+                        }
+                    )
+                    piexif.insert(exif_bytes, str(to_path))
+
             case JHSupportedImageTypes.WEBP:
-                image.save(to_path, xmp=xmp)
+                image.save(to_path, xmp=xml)
+
+                if civitai_metadata is not None:
+                    exif_bytes = piexif.dump(
+                        {
+                            "Exif": {
+                                piexif.ExifIFD.UserComment: piexif.helper.UserComment.dump(  # noqa: E501
+                                    civitai_metadata, encoding="unicode"
+                                )
+                            },
+                        }
+                    )
+                    piexif.insert(exif_bytes, str(to_path))

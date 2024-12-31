@@ -53,11 +53,14 @@ def test_save_image(
 ) -> None:
     img = Image.fromarray((image.numpy() * 255).astype(np.uint8))
     to_path = tmp_path / f"test_image{expected_extension}"
+    civitai_metadata = "Test Civitai Metadata"
     xmp = "<xmpmeta>Test XML</xmpmeta>"
     prompt = "Test Prompt"
     extra_pnginfo = {"workflow": "Test Workflow"}
 
-    node.save_image(img, image_type, to_path, xmp, prompt, extra_pnginfo)
+    node.save_image(
+        img, image_type, to_path, civitai_metadata, xmp, prompt, extra_pnginfo
+    )
 
     assert to_path.exists()
     assert to_path.suffix == expected_extension
@@ -98,86 +101,6 @@ def test_save_images_with_metadata(
     assert result["ui"]["images"][0]["filename"].endswith(".png")
 
 
-def test_extension_for_type(node: JHSaveImageWithXMPMetadataNode) -> None:
-    assert node.extension_for_type(JHSupportedImageTypes.JPEG) == "jpeg"
-    assert node.extension_for_type(JHSupportedImageTypes.PNG) == "png"
-    assert node.extension_for_type(JHSupportedImageTypes.LOSSLESS_WEBP) == "webp"
-    assert node.extension_for_type(JHSupportedImageTypes.WEBP) == "webp"
-    assert node.extension_for_type(JHSupportedImageTypes.PNG_WITH_WORKFLOW) == "png"
-
-
-def test_inputs_to_xml_with_xml_string(node: JHSaveImageWithXMPMetadataNode) -> None:
-    xml_string = "<xmpmeta>Test XML</xmpmeta>"
-    result = node.inputs_to_xml(
-        creator=None,
-        rights=None,
-        title=None,
-        description=None,
-        subject=None,
-        instructions=None,
-        comment=None,
-        alt_text=None,
-        ext_description=None,
-        xml_string=xml_string,
-        batch_number=0,
-    )
-    assert result == xml_string
-
-
-def test_inputs_to_xml_with_metadata_fields(
-    node: JHSaveImageWithXMPMetadataNode,
-) -> None:
-    result = node.inputs_to_xml(
-        creator="Test Creator",
-        rights="Test Rights",
-        title="Test Title",
-        description="Test Description",
-        subject="Test Subject",
-        instructions="Test Instructions",
-        comment="Test Comment",
-        alt_text="Test Alt Text",
-        ext_description="Test Ext Description",
-        xml_string=None,
-        batch_number=0,
-    )
-    assert "Test Creator" in result
-    assert "Test Rights" in result
-    assert "Test Title" in result
-    assert "Test Description" in result
-    assert "Test Subject" in result
-    assert "Test Instructions" in result
-    assert "Test Comment" in result
-    assert "Test Alt Text" in result
-    assert "Test Ext Description" in result
-
-
-def test_inputs_to_xml_with_list_metadata_fields(
-    node: JHSaveImageWithXMPMetadataNode,
-) -> None:
-    result = node.inputs_to_xml(
-        creator=["Creator 1", "Creator 2"],
-        rights=["Rights 1", "Rights 2"],
-        title=["Title 1", "Title 2"],
-        description=["Description 1", "Description 2"],
-        subject=["Subject 1", "Subject 2"],
-        instructions=["Instructions 1", "Instructions 2"],
-        comment=["Comment 1", "Comment 2"],
-        alt_text=["Alt Text 1", "Alt Text 2"],
-        ext_description=["Ext Description 1", "Ext Description 2"],
-        xml_string=None,
-        batch_number=1,
-    )
-    assert "Creator 2" in result
-    assert "Rights 2" in result
-    assert "Title 2" in result
-    assert "Description 2" in result
-    assert "Subject 2" in result
-    assert "Instructions 2" in result
-    assert "Comment 2" in result
-    assert "Alt Text 2" in result
-    assert "Ext Description 2" in result
-
-
 def test_input_types(node: JHSaveImageWithXMPMetadataNode) -> None:
     input_types = node.INPUT_TYPES()
 
@@ -206,7 +129,6 @@ def test_input_types(node: JHSaveImageWithXMPMetadataNode) -> None:
     assert "description" in optional_inputs
     assert "subject" in optional_inputs
     assert "instructions" in optional_inputs
-    assert "comment" in optional_inputs
     assert "alt_text" in optional_inputs
     assert "xml_string" in optional_inputs
 

@@ -25,7 +25,9 @@
 
 # JH XMP Metadata Nodes
 
-Custom nodes for loading and saving images with embedded XMP metadata (https://www.adobe.com/products/xmp.html).
+Custom nodes for loading and saving images with embedded XMP metadata (https://www.adobe.com/products/xmp.html). Also included are nodes for saving images with [AUTOMATIC1111](https://github.com/AUTOMATIC1111) metadata for posting to [Civitai](https://civitai.com).
+
+## About Metadata
 
 When I generate tens or hundreds of images from ComfyUI they all go into a folder and get forgotten because I have no practical way to find them again. Embedded metadata solves this problem. When metadata is present in a file, both macOS and Windows index it automatically, making it searchable from the Finder on the Mac or the File Explorer in Windows.
 
@@ -71,11 +73,16 @@ The following metadata properties are currently supported:
 | dc:description | A description of the image. |
 | dc:subject | A subject or list of subjects. Items can be separated by commas (`wetsuit, sunset`) or semicolons (`wetsuit; sunset`) |
 | photoshop:Instructions | Special instructions. |
-| exif:UserComment | Any user-provided comment about the image. |
 | Iptc4xmpCore:AltTextAccessibility | Alt. text that can (in principle) be used by assistive technologies. |
 | Iptc4xmpCore:ExtDescrAccessibility | A longer, more detailed elaboration of the Iptc4xmpCore:AltTextAccessibility property |
 
 # Getting Started
+
+## Installing with [ComfyUI-Manager](https://github.com/ltdrdata/ComfyUI-Manager) (Recommended)
+
+<div align="center">
+    <img width="1365" alt="image" src="https://github.com/user-attachments/assets/d703ca41-bd32-43bd-9360-ce0908880771" align="middle" />
+</div>
 
 ## Installing from GitHub
 
@@ -107,9 +114,8 @@ The following metadata properties are currently supported:
 ## Load Image With XMP Metadata
 
 <div align="center">
-    <img width="1333" alt="image" src="https://github.com/user-attachments/assets/25998b31-366e-4255-80f0-a5b94edb4e41" align="middle" />
+    <img width="1264" alt="image" src="https://github.com/user-attachments/assets/c511f418-fee2-48bb-9cb7-891312f46319" align="middle" />
 </div>
-
 <br />
 
 Just like the built-in **Load Image** node except if XMP metadata is embedded in the image it will be parsed and made available on the node's outputs. The **xml_string** output carries the entire XML data structure including metadata which is not specifically supported by this package.
@@ -117,9 +123,8 @@ Just like the built-in **Load Image** node except if XMP metadata is embedded in
 ## Save Image With XMP Metadata
 
 <div align="center">
-    <img width="500" alt="image" src="https://github.com/user-attachments/assets/b30e9591-44c6-4e47-8e0e-9f65d392e7e9" align="middle" />
+    <img width="540" alt="image" src="https://github.com/user-attachments/assets/0b3c834d-8996-4a18-9ff2-0cc816115106" align="middle" />
 </div>
-
 <br />
 
 Saves any images piped into it with embedded XMP metadata. All inputs (except **images**) are optional. Can save in a variety of file formats: JPEG, PNG (with and without embedding the ComfyUI workflow), WebP (lossy and lossless).
@@ -129,7 +134,6 @@ Saves any images piped into it with embedded XMP metadata. All inputs (except **
 <div align="center">
     <img width="1017" alt="image" src="https://github.com/user-attachments/assets/2369d34c-62c3-4bab-9b4b-9abf75aaa0b5" align="middle" />
 </div>
-
 <br />
 
 Can be used to get the **string**, **int** or **float** value of any widget on any node. Simply pipe the node into this node's input and type in the name of the widget you want the value of.
@@ -139,7 +143,6 @@ Can be used to get the **string**, **int** or **float** value of any widget on a
 <div align="center">
     <img width="1309" alt="image" src="https://github.com/user-attachments/assets/082f265d-898c-4437-a20f-9d3f5057a3cb" align="middle" />
 </div>
-
 <br />
 
 Given a path string (absolute or relative), this node returns the "stem," meaning the filename alone minus any extension.
@@ -149,10 +152,18 @@ Given a path string (absolute or relative), this node returns the "stem," meanin
 <div align="center">
     <img width="400" alt="image" src="https://github.com/user-attachments/assets/66065daf-3ba4-42b6-b0fa-72673d16aa25" align="middle" />
 </div>
-
 <br />
 
 This utility node takes common workflow inputs (prompt, model_name, seed, etc.) and allows you to construct a string that can subsequently be piped into a **Save Image With XMP Metadata** node input to embed metadata however you choose.
+
+## Format Civitai Metadata
+
+<div align="center">
+    <img width="473" alt="image" src="https://github.com/user-attachments/assets/b183d16e-89f7-4ad0-a9d6-81626c5d66e2" align="middle" />
+</div>
+<br />
+
+This utility node takes common workflow inputs (prompt, model_name, seed, etc.) and outputs metadata in the [AUTOMATIC1111](https://github.com/AUTOMATIC1111) format which can be read by [Civitai](https://civitai.com). Pipe this node's output into the **civitai_metadata** input on the **Save Image With XMP Metadata** node to embed this metadata in your saved images.
 
 # Credits
 

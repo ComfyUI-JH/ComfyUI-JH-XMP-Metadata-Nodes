@@ -28,7 +28,6 @@ class JHLoadImageWithXMPMetadataResultTuple(NamedTuple):
     description: str | None
     subject: str | None
     instructions: str | None
-    comment: str | None
     alt_text: str | None
     ext_description: str | None
     xml_string: str
@@ -72,7 +71,6 @@ class JHLoadImageWithXMPMetadataNode:
         jh_types.JHNodeInputOutputTypeEnum.STRING,
         jh_types.JHNodeInputOutputTypeEnum.STRING,
         jh_types.JHNodeInputOutputTypeEnum.STRING,
-        jh_types.JHNodeInputOutputTypeEnum.STRING,
     )
     RETURN_NAMES = (
         "IMAGE",
@@ -83,7 +81,6 @@ class JHLoadImageWithXMPMetadataNode:
         "description",
         "subject",
         "instructions",
-        "comment",
         "alt_text",
         "ext_description",
         "xml_string",
@@ -156,7 +153,6 @@ class JHLoadImageWithXMPMetadataNode:
             xmp_metadata.description,
             xmp_metadata.subject,
             xmp_metadata.instructions,
-            xmp_metadata.comment,
             xmp_metadata.alt_text,
             xmp_metadata.ext_description,
             xml_string,

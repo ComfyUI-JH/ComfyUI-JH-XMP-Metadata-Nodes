@@ -5,6 +5,9 @@ from typing import Any
 # Add the directory containing this file to the Python module search path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from comfyui_jh_xmp_metadata_nodes.jh_format_civitai_metadata_node import (
+    JHFormatCivitaiMetadataNode,
+)
 from comfyui_jh_xmp_metadata_nodes.jh_format_metadata_node import JHFormatMetadataNode
 from comfyui_jh_xmp_metadata_nodes.jh_get_widget_value_nodes import (
     JHGetWidgetValueFloatNode,
@@ -27,6 +30,7 @@ NODE_CLASS_MAPPINGS: dict[str, Any] = {
     "JHGetWidgetValueStringNode": JHGetWidgetValueStringNode,
     "JHGetWidgetValueIntNode": JHGetWidgetValueIntNode,
     "JHGetWidgetValueFloatNode": JHGetWidgetValueFloatNode,
+    "JHFormatCivitaiMetadataNode": JHFormatCivitaiMetadataNode,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
@@ -37,6 +41,7 @@ NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
     "JHGetWidgetValueStringNode": "Get Widget Value (String)",
     "JHGetWidgetValueIntNode": "Get Widget Value (Integer)",
     "JHGetWidgetValueFloatNode": "Get Widget Value (Float)",
+    "JHFormatCivitaiMetadataNode": "Format Civitai Metadata",
 }
 
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
