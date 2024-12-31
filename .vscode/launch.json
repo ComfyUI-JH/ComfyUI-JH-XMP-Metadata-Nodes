@@ -10,7 +10,8 @@
             "args": [
                 "--front-end-version", "Comfy-Org/ComfyUI_frontend@latest",
                 "--listen",
-                "--output-directory", "C:\\Users\\jeffe\\OneDrive\\ComfyUI_Output"
+                "--output-directory", "C:/Users/jeffe/Dropbox/ComfyUI/output",
+                "--user-directory", "C:/Users/jeffe/Dropbox/ComfyUI/user"
             ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
